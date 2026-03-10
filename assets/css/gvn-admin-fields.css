@@ -1,0 +1,220 @@
+/**
+ * GVN Checkout - Admin Fields Manager Styles
+ * @version 1.0.2
+ */
+
+#gvn-fields-manager {
+    max-width: 900px;
+    margin: 20px 0;
+}
+
+#gvn-fields-manager h2 {
+    font-size: 1.3em;
+    margin-bottom: 5px;
+}
+
+#gvn-fields-manager .description {
+    color: #646970;
+    margin-bottom: 15px;
+}
+
+.gvn-fields-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+}
+
+.gvn-fields-toolbar .button-primary {
+    min-width: 160px;
+}
+
+#gvn-fields-status {
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+/* Field Row */
+
+.gvn-field-row {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    transition: box-shadow 0.2s, opacity 0.2s;
+}
+
+.gvn-field-row:hover {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.gvn-field-row--disabled {
+    opacity: 0.5;
+}
+
+.gvn-field-row--disabled:hover {
+    opacity: 0.7;
+}
+
+.gvn-field-row__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    cursor: default;
+    border-bottom: 1px solid transparent;
+}
+
+.gvn-field-row__header:has(+ .gvn-field-row__body:visible) {
+    border-bottom-color: #e0e0e0;
+}
+
+.gvn-field-drag {
+    cursor: grab;
+    font-size: 16px;
+    color: #999;
+    user-select: none;
+    padding: 2px 4px;
+}
+
+.gvn-field-drag:active {
+    cursor: grabbing;
+}
+
+.gvn-field-pos-label {
+    font-size: 11px;
+    color: #999;
+    font-weight: 600;
+    min-width: 24px;
+}
+
+.gvn-field-label-display {
+    font-weight: 600;
+    font-size: 13px;
+    color: #1d2327;
+    flex: 1;
+}
+
+.gvn-field-width-badge {
+    background: #f0f0f1;
+    color: #50575e;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+.gvn-field-row__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gvn-field-enabled-label {
+    font-size: 12px;
+    color: #50575e;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.gvn-field-toggle {
+    color: #2271b1 !important;
+    cursor: pointer;
+    text-decoration: none !important;
+    font-size: 12px;
+}
+
+.gvn-toggle-icon {
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.gvn-toggle-icon--open {
+    transform: rotate(180deg);
+}
+
+.gvn-field-remove {
+    color: #b32d2e !important;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+.gvn-field-remove:hover {
+    color: #a00 !important;
+}
+
+/* Field Body */
+
+.gvn-field-row__body {
+    padding: 15px 12px;
+    background: #f9f9f9;
+}
+
+.gvn-field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.gvn-field-col label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1d2327;
+    margin-bottom: 4px;
+}
+
+.gvn-field-col input[type="text"],
+.gvn-field-col select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+    font-size: 13px;
+    background: #fff;
+}
+
+.gvn-field-col input[type="text"]:focus,
+.gvn-field-col select:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+.gvn-field-col input[readonly] {
+    background: #f0f0f1;
+    color: #646970;
+}
+
+/* Sortable placeholder */
+
+.gvn-field-placeholder {
+    background: #e8f0fe;
+    border: 2px dashed #2271b1;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    min-height: 50px;
+}
+
+/* Preview visual */
+
+.gvn-fields-preview {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.gvn-fields-preview h3 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: #646970;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}

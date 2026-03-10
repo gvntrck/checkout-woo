@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Finalize sua inscrição - EFEAD</title>
+<!-- BEGIN: External Scripts -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'efead-blue': '#1e5bb9',
+            'efead-dark': '#3a4759',
+            'efead-orange': '#ff8a22',
+            'efead-bg': '#f5f7fa',
+          }
+        }
+      }
+    }
+  </script>
+<!-- END: External Scripts -->
+<style data-purpose="custom-typography">
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #f8fafc;
+    }
+    .input-field {
+      @apply w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-1 focus:ring-efead-blue focus:border-efead-blue bg-white;
+    }
+    .section-card {
+      @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden;
+    }
+    .section-header {
+      @apply bg-efead-blue text-white px-4 py-2 text-xs font-bold uppercase tracking-wider;
+    }
+  </style>
+</head>
+<body class="pb-12">
+<!-- BEGIN: Top Header Bar -->
+<header class="w-full bg-[#3a4759] text-white py-4 px-4 md:px-12 flex justify-between items-center rounded-b-2xl max-w-7xl mx-auto mt-0 shadow-md">
+<div class="font-bold text-sm md:text-base">
+      EFEAD - Conectando Saberes
+    </div>
+<div class="bg-[#ff8a22] px-4 py-2 rounded-lg flex items-center gap-2 text-[10px] md:text-xs font-black uppercase">
+<svg class="h-3 w-3" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+      COMPRA SEGURA
+    </div>
+</header>
+<!-- END: Top Header Bar -->
+<main class="max-w-7xl mx-auto px-4 md:px-12 mt-8">
+<!-- BEGIN: Title Section -->
+<div class="mb-8">
+<h1 class="text-4xl font-black text-[#1a2b49] flex items-center gap-2 tracking-tight">
+<span class="text-red-600 text-4xl leading-none">•</span> Finalize sua inscrição
+      </h1>
+<p class="text-gray-500 text-sm mt-1">Acesso imediato após confirmação do pagamento</p>
+</div>
+<!-- END: Title Section -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+<!-- BEGIN: Left Column - User Data -->
+<section class="lg:col-span-2 space-y-8">
+<div class="bg-[#fcfcfc] rounded-2xl border border-gray-100 overflow-hidden shadow-[0_15px_35px_-5px_rgba(0,0,0,0.15)]" data-purpose="user-data-form">
+<div class="bg-[#0066d4] text-white px-5 py-3 text-[11px] font-black uppercase tracking-widest">SEUS DADOS</div>
+<div class="p-6 space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="block text-sm font-bold text-gray-700">Nome <span class="text-red-500">*</span></label>
+<input class="w-full border border-gray-200 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-efead-blue bg-white transition-all" placeholder="" type="text"/>
+</div>
+<div class="space-y-1">
+<label class="block text-sm font-bold text-gray-700">Sobrenome <span class="text-red-500">*</span></label>
+<input class="w-full border border-gray-200 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-efead-blue bg-white transition-all" placeholder="" type="text"/>
+</div>
+</div>
+<div class="space-y-1">
+<label class="block text-sm font-bold text-gray-700">CPF <span class="text-red-500">*</span></label>
+<input class="w-full border border-gray-200 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-efead-blue bg-white transition-all" placeholder="" type="text"/>
+</div>
+<div class="space-y-1">
+<label class="block text-sm font-bold text-gray-700">Celular <span class="text-red-500">*</span></label>
+<input class="w-full border border-gray-200 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-efead-blue bg-white transition-all" placeholder="" type="tel"/>
+</div>
+<div class="space-y-1">
+<label class="block text-sm font-bold text-gray-700">Endereço de e-mail <span class="text-red-500">*</span></label>
+<input class="w-full border border-gray-200 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-efead-blue bg-white transition-all" placeholder="" type="email"/>
+</div>
+<div class="space-y-1">
+<label class="block text-sm font-bold text-gray-700">Observações do pedido (opcional)</label>
+<textarea class="w-full border border-gray-200 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-efead-blue bg-white transition-all" placeholder="Observações sobre seu pedido, ex.: observações especiais sobre entrega." rows="3"></textarea>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Left Column - User Data -->
+<!-- BEGIN: Right Column - Order Summary -->
+<aside class="lg:col-span-1">
+<div class="bg-[#fcfcfc] rounded-2xl border border-gray-100 overflow-hidden shadow-[0_15px_35px_-5px_rgba(0,0,0,0.15)]" data-purpose="order-summary">
+<div class="bg-[#0066d4] text-white px-5 py-3 text-[11px] font-black uppercase tracking-widest">RESUMO DO PEDIDO</div>
+<div class="p-6">
+<div class="flex justify-between text-xs font-bold text-gray-400 mb-4">
+<span>Produto</span>
+<span>Subtotal</span>
+</div>
+<div class="flex justify-between items-start pb-4 border-b border-gray-100">
+<div class="text-sm font-medium text-gray-800 pr-4">
+                Questões de Concursos - DEGASE (Nível Superior)
+                <div class="text-xs text-gray-500 mt-1">× 1</div>
+</div>
+<div class="text-sm font-medium text-gray-800 whitespace-nowrap">R$ 19,90</div>
+</div>
+<div class="py-4 space-y-4">
+<div class="flex justify-between text-sm">
+<span class="text-gray-600">Subtotal</span>
+<span class="font-medium">R$ 19,90</span>
+</div>
+<div class="flex justify-between items-center pt-2 bg-gray-50 p-3 rounded-md">
+<span class="text-lg font-extrabold text-gray-800">Total</span>
+<span class="text-lg font-extrabold text-gray-800">R$ 19,90</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- END: Right Column - Order Summary -->
+<!-- BEGIN: Payment Section -->
+<section class="lg:col-span-3">
+<div class="bg-[#fcfcfc] rounded-2xl border border-gray-100 overflow-hidden shadow-[0_15px_35px_-5px_rgba(0,0,0,0.15)]" data-purpose="payment-methods">
+<div class="bg-[#0066d4] text-white px-5 py-3 text-[11px] font-black uppercase tracking-widest">FORMA DE PAGAMENTO</div>
+<div class="p-6 space-y-6">
+<!-- Coupon Input -->
+<div class="border border-gray-200 rounded-lg p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50">
+<div class="flex items-center gap-3">
+<span class="text-xl">🏷️</span>
+<span class="text-sm font-bold text-gray-700">Tem um cupom de desconto?</span>
+</div>
+<span class="text-gray-400">▼</span>
+</div>
+<!-- Payment Options -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Pix Option -->
+<div class="border-2 border-red-200 rounded-xl p-4 cursor-pointer bg-white flex items-center gap-4">
+<div class="text-blue-500">
+<svg class="w-8 h-8" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2L4.5 9.5 12 17l7.5-7.5L12 2zm0 13l-5.5-5.5L12 4l5.5 5.5L12 15z"></path></svg>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-bold text-gray-800">Pix</span>
+<span class="bg-orange-500 text-[10px] text-white px-2 py-0.5 rounded-full font-bold uppercase">Recomendado</span>
+</div>
+<p class="text-[11px] text-gray-500">Confirmação imediata</p>
+</div>
+</div>
+<!-- Boleto Option -->
+<div class="border border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50 flex items-center gap-4">
+<div class="text-gray-400">
+<svg class="w-8 h-8" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<div>
+<span class="font-bold text-gray-800">Boleto</span>
+<p class="text-[11px] text-gray-500">Compensação bancária</p>
+</div>
+</div>
+<!-- Credit Card Option -->
+<div class="border border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50 flex items-center gap-4">
+<div class="text-gray-400">
+<svg class="w-8 h-8" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<div>
+<span class="font-bold text-gray-800">Cartão de crédito</span>
+<p class="text-[11px] text-gray-500">Parcelamento disponível</p>
+</div>
+</div>
+</div>
+<!-- Privacy Note -->
+<p class="text-[11px] text-gray-500 text-center leading-relaxed">
+              Os seus dados pessoais serão utilizados para processar a sua compra, apoiar a sua experiência em todo este site e para outros fins descritos na nossa <a class="text-blue-500 underline" href="#">política de privacidade</a>.
+            </p>
+<!-- Order Bump / Exclusive Offer -->
+<div class="border-2 border-orange-200 bg-orange-50/50 rounded-xl p-6 relative">
+<div class="flex items-start gap-4">
+<div class="mt-1">
+<input class="w-5 h-5 rounded border-gray-300 text-efead-orange focus:ring-efead-orange" id="order-bump" type="checkbox"/>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-2">
+<span class="text-red-600 font-bold italic text-xs">❗OFERTA EXCLUSIVA</span>
+</div>
+<h3 class="text-xl font-extrabold text-gray-800">
+                    Pedestre Consciente <br/>
+<span class="text-efead-orange">por apenas R$ 19,90</span>
+</h3>
+<p class="text-sm text-gray-600 font-medium">Adicione este item ao seu pedido com condições especiais.</p>
+<label class="text-efead-orange font-bold text-sm cursor-pointer hover:underline block pt-1" for="order-bump">
+                    Sim! Quero adicionar ao meu pedido
+                  </label>
+</div>
+</div>
+</div>
+<!-- Final Action Button -->
+<div class="pt-4">
+<button class="w-full bg-gradient-to-r from-[#ff8a22] to-[#ff9f4d] hover:brightness-110 text-white font-black py-6 rounded-2xl shadow-xl shadow-orange-200 transition-all text-2xl uppercase tracking-widest mt-4">
+                Finalizar pedido
+              </button>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Payment Section -->
+</div>
+</main>
+</body></html>

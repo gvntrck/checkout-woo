@@ -1,0 +1,1116 @@
+/**
+ * GVN Checkout - Estilos do Checkout Personalizado
+ * @version 1.0.0
+ */
+
+/* ========================================
+   Reset & Base
+   ======================================== */
+
+.gvn-checkout *,
+.gvn-checkout *::before,
+.gvn-checkout *::after {
+    box-sizing: border-box;
+}
+
+.gvn-checkout {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    color: #1a2b49;
+    -webkit-font-smoothing: antialiased;
+}
+
+.gvn-checkout a {
+    text-decoration: none;
+}
+
+.gvn-hidden-field {
+    display: none !important;
+}
+
+/* ========================================
+   Header
+   ======================================== */
+
+.gvn-header {
+    width: 100%;
+    background-color: var(--gvn-header-bg, #3a4759);
+    color: #fff;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0 0 1rem 1rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.gvn-header__text {
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.gvn-header__badge {
+    background-color: var(--gvn-badge-bg, #ff8a22);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.65rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.gvn-header__badge-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+}
+
+/* ========================================
+   Title
+   ======================================== */
+
+.gvn-title {
+    margin: 2rem 0;
+    padding: 0 0.5rem;
+}
+
+.gvn-title__heading {
+    font-size: 2.25rem;
+    font-weight: 900;
+    color: #1a2b49;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.gvn-title__dot {
+    color: #dc2626;
+    font-size: 2.25rem;
+    line-height: 1;
+}
+
+.gvn-title__sub {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* ========================================
+   Grid Layout
+   ======================================== */
+
+.gvn-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (min-width: 1024px) {
+    .gvn-grid {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+.gvn-col-left {
+    grid-column: 1;
+}
+
+.gvn-col-right {
+    grid-column: 1;
+}
+
+@media (min-width: 1024px) {
+    .gvn-col-right {
+        grid-column: 2;
+    }
+}
+
+.gvn-col-full {
+    grid-column: 1 / -1;
+}
+
+/* ========================================
+   Card
+   ======================================== */
+
+.gvn-card {
+    background: #fcfcfc;
+    border-radius: 1rem;
+    border: 1px solid #f3f4f6;
+    overflow: hidden;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.15);
+}
+
+.gvn-card__header {
+    background-color: var(--gvn-primary, #0066d4);
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.688rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.gvn-card__body {
+    padding: 1.5rem;
+}
+
+/* ========================================
+   Form Fields
+   ======================================== */
+
+/* Dynamic fields layout */
+
+.gvn-fields-dynamic {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.gvn-field {
+    min-width: 0;
+}
+
+.gvn-field--w100 { width: 100%; }
+.gvn-field--w75  { width: 100%; }
+.gvn-field--w50  { width: 100%; }
+.gvn-field--w33  { width: 100%; }
+.gvn-field--w25  { width: 100%; }
+
+@media (min-width: 768px) {
+    .gvn-field--w75  { width: calc(75% - 0.625rem); }
+    .gvn-field--w50  { width: calc(50% - 0.625rem); }
+    .gvn-field--w33  { width: calc(33.333% - 0.834rem); }
+    .gvn-field--w25  { width: calc(25% - 0.938rem); }
+}
+
+.gvn-field__optional {
+    font-weight: 400;
+    color: #9ca3af;
+    font-size: 0.8em;
+}
+
+.gvn-field__label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.gvn-field__required {
+    color: #ef4444;
+}
+
+.gvn-field__input {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    background: #fff;
+    color: #1f2937;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.gvn-field__input:focus {
+    border-color: var(--gvn-primary, #0066d4);
+    box-shadow: 0 0 0 3px rgba(0, 102, 212, 0.1);
+}
+
+.gvn-field__textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* ========================================
+   Order Summary
+   ======================================== */
+
+.gvn-order-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.gvn-order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 1rem;
+}
+
+.gvn-order-item:last-child {
+    margin-bottom: 0;
+}
+
+.gvn-order-item__name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+    padding-right: 1rem;
+    flex: 1;
+}
+
+.gvn-order-item__qty {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+.gvn-order-item__subtotal {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+    white-space: nowrap;
+}
+
+/* Totals */
+
+.gvn-order-totals {
+    padding-top: 1rem;
+}
+
+.gvn-order-totals__row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+}
+
+.gvn-order-totals__label {
+    color: #4b5563;
+}
+
+.gvn-order-totals__value {
+    font-weight: 500;
+}
+
+.gvn-order-totals__row--discount .gvn-order-totals__value {
+    color: #16a34a;
+}
+
+.gvn-order-totals__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.gvn-order-totals__total-label,
+.gvn-order-totals__total-value {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+/* ========================================
+   Coupon
+   ======================================== */
+
+.gvn-coupon {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 1.5rem;
+}
+
+.gvn-coupon:hover {
+    background: #f9fafb;
+}
+
+.gvn-coupon__trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gvn-coupon__trigger-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.gvn-coupon__icon {
+    font-size: 1.25rem;
+}
+
+.gvn-coupon__text {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #374151;
+}
+
+.gvn-coupon__arrow {
+    color: #9ca3af;
+    font-size: 0.75rem;
+    transition: transform 0.3s;
+}
+
+.gvn-coupon__arrow--open {
+    transform: rotate(180deg);
+}
+
+.gvn-coupon__form {
+    padding: 0 1rem 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.gvn-coupon__form-inner {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.gvn-coupon__form-inner .gvn-field__input {
+    flex: 1;
+}
+
+.gvn-coupon__btn {
+    background: var(--gvn-primary, #0066d4);
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+}
+
+.gvn-coupon__btn:hover {
+    opacity: 0.9;
+}
+
+.gvn-coupon__message {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0;
+}
+
+.gvn-coupon__message--success {
+    color: #16a34a;
+}
+
+.gvn-coupon__message--error {
+    color: #dc2626;
+}
+
+.gvn-coupon__applied {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: #f0fdf4;
+    border-radius: 0.375rem;
+    font-size: 0.8rem;
+}
+
+.gvn-coupon__remove {
+    background: none;
+    border: none;
+    color: #dc2626;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* ========================================
+   Payment Gateways
+   ======================================== */
+
+.gvn-gateways {
+    margin-bottom: 1.5rem;
+}
+
+.gvn-gateways__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .gvn-gateways__list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.gvn-gateway {
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s;
+    background: #fff;
+    position: relative;
+}
+
+.gvn-gateway:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.gvn-gateway--active {
+    border-color: var(--gvn-primary, #0066d4);
+    background: #f0f7ff;
+    box-shadow: 0 0 0 1px var(--gvn-primary, #0066d4);
+}
+
+.gvn-gateway__radio {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.gvn-gateway__icon {
+    flex-shrink: 0;
+}
+
+.gvn-gateway__icon--recommended {
+    color: #3b82f6;
+}
+
+.gvn-gateway__icon--default {
+    color: #9ca3af;
+}
+
+.gvn-gateway--active .gvn-gateway__icon--default {
+    color: var(--gvn-primary, #0066d4);
+}
+
+.gvn-gateway__icon-svg {
+    width: 2rem;
+    height: 2rem;
+}
+
+.gvn-gateway__name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.gvn-gateway__name {
+    font-weight: 700;
+    color: #1f2937;
+    font-size: 0.9rem;
+}
+
+.gvn-gateway__badge {
+    background: #f97316;
+    color: #fff;
+    font-size: 0.625rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.gvn-gateway__desc {
+    font-size: 0.688rem;
+    color: #6b7280;
+    margin: 0.125rem 0 0;
+}
+
+.gvn-gateways__content {
+    margin-top: 1.5rem;
+}
+
+.gvn-gateway-fields {
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+}
+
+.gvn-gateways__empty {
+    color: #6b7280;
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* ========================================
+   Privacy
+   ======================================== */
+
+.gvn-privacy {
+    font-size: 0.688rem;
+    color: #6b7280;
+    text-align: center;
+    line-height: 1.6;
+    margin: 1.5rem 0;
+}
+
+.gvn-privacy__link {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+/* ========================================
+   Order Bump
+   ======================================== */
+
+.gvn-order-bump {
+    border: 2px solid #fed7aa;
+    background: rgba(255, 247, 237, 0.5);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.gvn-order-bump__inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.gvn-order-bump__checkbox {
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+}
+
+.gvn-order-bump__input {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 0.25rem;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+    accent-color: #f97316;
+}
+
+.gvn-order-bump__content {
+    flex: 1;
+}
+
+.gvn-order-bump__badge {
+    color: #dc2626;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.gvn-order-bump__product {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #1f2937;
+    margin: 0.25rem 0;
+    line-height: 1.3;
+}
+
+.gvn-order-bump__price {
+    color: #f97316;
+}
+
+.gvn-order-bump__desc {
+    font-size: 0.875rem;
+    color: #4b5563;
+    font-weight: 500;
+    margin: 0.25rem 0;
+}
+
+.gvn-order-bump__cta {
+    color: #f97316;
+    font-weight: 700;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: inline-block;
+    padding-top: 0.25rem;
+}
+
+.gvn-order-bump__cta:hover {
+    text-decoration: underline;
+}
+
+/* ========================================
+   Submit Button
+   ======================================== */
+
+.gvn-submit {
+    padding-top: 1rem;
+}
+
+.gvn-submit__btn {
+    width: 100%;
+    background: linear-gradient(to right, var(--gvn-button, #ff8a22), #ff9f4d);
+    color: #fff;
+    font-weight: 900;
+    padding: 1.5rem;
+    border: none;
+    border-radius: 1rem;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 10px 25px -5px rgba(255, 138, 34, 0.4);
+    margin-top: 1rem;
+}
+
+.gvn-submit__btn:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 15px 30px -5px rgba(255, 138, 34, 0.5);
+    transform: translateY(-1px);
+}
+
+.gvn-submit__btn:active {
+    transform: translateY(0);
+}
+
+.gvn-submit__btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   WooCommerce Overrides
+   ======================================== */
+
+.gvn-checkout .woocommerce-error,
+.gvn-checkout .woocommerce-message,
+.gvn-checkout .woocommerce-info {
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.gvn-checkout .woocommerce-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.gvn-checkout .woocommerce-message {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.gvn-checkout .woocommerce-info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+}
+
+.gvn-checkout .woocommerce-NoticeGroup {
+    margin-bottom: 1rem;
+}
+
+.gvn-checkout .blockUI.blockOverlay {
+    background: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+
+@media (max-width: 767px) {
+    .gvn-header {
+        padding: 0.75rem 1rem;
+        border-radius: 0 0 0.75rem 0.75rem;
+    }
+
+    .gvn-header__text {
+        font-size: 0.8rem;
+    }
+
+    .gvn-header__badge {
+        font-size: 0.6rem;
+        padding: 0.375rem 0.75rem;
+    }
+
+    .gvn-title__heading {
+        font-size: 1.5rem;
+    }
+
+    .gvn-title__dot {
+        font-size: 1.5rem;
+    }
+
+    .gvn-card__body {
+        padding: 1rem;
+    }
+
+    .gvn-submit__btn {
+        font-size: 1.125rem;
+        padding: 1.25rem;
+    }
+
+    .gvn-order-bump {
+        padding: 1rem;
+    }
+
+    .gvn-order-bump__product {
+        font-size: 1rem;
+    }
+
+    .gvn-gateways__list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (min-width: 1024px) {
+    .gvn-checkout {
+        padding: 0 3rem;
+    }
+}
+
+/* ========================================
+   Loading/Spinner
+   ======================================== */
+
+.gvn-loading {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: gvn-spin 0.6s linear infinite;
+}
+
+@keyframes gvn-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   Thank You Page
+   ======================================== */
+
+.gvn-thankyou {
+    padding-bottom: 3rem;
+}
+
+/* Status Section */
+
+.gvn-thankyou__status {
+    text-align: center;
+    padding: 3rem 1.5rem 2rem;
+}
+
+.gvn-thankyou__status-icon {
+    color: #16a34a;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.gvn-thankyou__status--failed .gvn-thankyou__status-icon {
+    font-size: 3.5rem;
+    color: #dc2626;
+}
+
+.gvn-thankyou__status--not-found .gvn-thankyou__status-icon {
+    font-size: 3.5rem;
+    color: #9ca3af;
+}
+
+.gvn-thankyou__status-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #1a2b49;
+    margin: 0.5rem 0 0.25rem;
+}
+
+.gvn-thankyou__status-text {
+    font-size: 0.95rem;
+    color: #6b7280;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Check animation */
+
+.gvn-thankyou__circle {
+    animation: gvn-circle-draw 0.8s ease-out forwards;
+}
+
+.gvn-thankyou__check {
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: gvn-check-draw 0.4s ease-out 0.6s forwards;
+}
+
+@keyframes gvn-circle-draw {
+    from { stroke-dashoffset: 188; }
+    to   { stroke-dashoffset: 0; }
+}
+
+@keyframes gvn-check-draw {
+    from { stroke-dashoffset: 48; }
+    to   { stroke-dashoffset: 0; }
+}
+
+/* Info Cards */
+
+.gvn-thankyou__grid {
+    max-width: 900px;
+    margin: 0 auto 2rem;
+}
+
+.gvn-thankyou__info-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+    .gvn-thankyou__info-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.gvn-thankyou__info-card {
+    background: #fff;
+    border: 1px solid #f3f4f6;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.gvn-thankyou__info-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9ca3af;
+    margin-bottom: 0.25rem;
+}
+
+.gvn-thankyou__info-value {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1f2937;
+    word-break: break-word;
+}
+
+.gvn-thankyou__info-value--highlight {
+    color: var(--gvn-primary, #0066d4);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+/* Status Badge */
+
+.gvn-thankyou__status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.gvn-thankyou__status-badge--processing,
+.gvn-thankyou__status-badge--on-hold {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.gvn-thankyou__status-badge--completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.gvn-thankyou__status-badge--pending {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.gvn-thankyou__status-badge--failed,
+.gvn-thankyou__status-badge--cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Payment Instructions */
+
+.gvn-thankyou__payment-instructions {
+    max-width: 900px;
+    margin: 0 auto 2rem;
+}
+
+.gvn-thankyou__payment-instructions img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Customer Data */
+
+.gvn-thankyou__customer {
+    max-width: 900px;
+    margin: 0 auto 2rem;
+}
+
+.gvn-thankyou__customer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .gvn-thankyou__customer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.gvn-thankyou__customer-heading {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin: 0 0 0.5rem;
+}
+
+.gvn-thankyou__customer-text {
+    font-size: 0.9rem;
+    color: #374151;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.gvn-thankyou__custom-fields {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+/* Action Buttons */
+
+.gvn-thankyou__actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.gvn-thankyou__action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 2rem;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.gvn-thankyou__action-btn--primary {
+    background: linear-gradient(to right, var(--gvn-button, #ff8a22), #ff9f4d);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(255, 138, 34, 0.3);
+}
+
+.gvn-thankyou__action-btn--primary:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(255, 138, 34, 0.4);
+    color: #fff;
+}
+
+.gvn-thankyou__action-btn--secondary {
+    background: #fff;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+}
+
+.gvn-thankyou__action-btn--secondary:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #1f2937;
+}
+
+.gvn-thankyou__retry-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 2rem;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    background: #dc2626;
+    color: #fff;
+    margin-top: 1.5rem;
+    transition: all 0.2s;
+}
+
+.gvn-thankyou__retry-btn:hover {
+    background: #b91c1c;
+    color: #fff;
+}
+
+/* Thank You Responsive */
+
+@media (max-width: 767px) {
+    .gvn-thankyou__status {
+        padding: 2rem 1rem 1.5rem;
+    }
+
+    .gvn-thankyou__status-title {
+        font-size: 1.5rem;
+    }
+
+    .gvn-thankyou__status-text {
+        font-size: 0.85rem;
+    }
+
+    .gvn-thankyou__info-cards {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .gvn-thankyou__info-card {
+        padding: 0.75rem 1rem;
+    }
+
+    .gvn-thankyou__action-btn {
+        width: 100%;
+        text-align: center;
+    }
+}

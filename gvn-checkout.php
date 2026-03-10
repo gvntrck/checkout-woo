@@ -5,7 +5,7 @@
  * Description: Checkout personalizado e otimizado para WooCommerce com layout moderno, order bump e configurações avançadas.
  * Version: 1.0.4
  * Author: GVN Track
- * Author URI: https://gvntrack.com
+ * Author URI: https://projetoalfa.org
  * License: GPL-2.0+
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: gvn-checkout

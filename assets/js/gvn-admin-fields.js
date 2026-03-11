@@ -1,7 +1,7 @@
 /**
  * GVN Checkout - Admin Fields Manager
  * Drag-and-drop, CRUD, largura e ordenação de campos.
- * @version 1.11.0
+ * @version 1.12.0
  */
 
 (function ($) {
@@ -63,6 +63,12 @@
             this.$list.on('change', '.gvn-field-enabled', function () {
                 var $row = $(this).closest('.gvn-field-row');
                 $row.toggleClass('gvn-field-row--disabled', !this.checked);
+
+                // Automação: Tipo de Pessoa → CPF/CNPJ
+                var fieldKey = $row.attr('data-key');
+                if (fieldKey === 'billing_persontype') {
+                    self.handlePersonTypeToggle(this.checked);
+                }
             });
 
             this.$list.on('change', '.gvn-field-type-select', function () {
@@ -542,6 +548,98 @@
                 }
             });
             return conditions;
+        },
+
+        /**
+         * Automação: ativa/desativa CPF e CNPJ quando Tipo de Pessoa é toggled.
+         * Configura condições de exibição automaticamente.
+         */
+        handlePersonTypeToggle: function (isEnabled) {
+            var self = this;
+            var dependentFields = {
+                'billing_cpf': 'pf',
+                'billing_cnpj': 'pj'
+            };
+
+            $.each(dependentFields, function (fieldKey, personTypeValue) {
+                var $row = self.$list.find('.gvn-field-row[data-key="' + fieldKey + '"]');
+                if (!$row.length) return;
+
+                var $checkbox = $row.find('.gvn-field-enabled');
+
+                if (isEnabled) {
+                    // Ativar o campo
+                    $checkbox.prop('checked', true).trigger('change');
+                    $row.removeClass('gvn-field-row--disabled');
+
+                    // Injetar condição de exibição
+                    self.injectPersonTypeCondition($row, personTypeValue);
+                } else {
+                    // Desativar o campo
+                    $checkbox.prop('checked', false).trigger('change');
+                    $row.addClass('gvn-field-row--disabled');
+
+                    // Remover condições de billing_persontype
+                    self.removePersonTypeConditions($row);
+                }
+            });
+        },
+
+        /**
+         * Injeta a condição: billing_persontype equals <value> no campo.
+         */
+        injectPersonTypeCondition: function ($row, value) {
+            var $rules = $row.find('.gvn-conditions-rules');
+            var $logic = $row.find('.gvn-conditions-logic');
+
+            // Verificar se já existe essa condição
+            var alreadyExists = false;
+            $rules.find('.gvn-condition-rule').each(function () {
+                var rField = $(this).find('.gvn-rule-field').val();
+                var rOp = $(this).find('.gvn-rule-operator').val();
+                var rVal = $(this).find('.gvn-rule-value').val();
+                if (rField === 'billing_persontype' && rOp === 'equals' && rVal === value) {
+                    alreadyExists = true;
+                    return false;
+                }
+            });
+
+            if (alreadyExists) return;
+
+            // Gerar options do select de campos excluindo o campo atual
+            var currentKey = $row.find('.gvn-field-key-input').val();
+            var fieldOptions = this.getFieldOptionsForConditions(currentKey, 'billing_persontype');
+            var operatorOptions = this.getOperatorOptions('equals');
+
+            var html = '<div class="gvn-condition-rule">' +
+                '<select class="gvn-rule-field"><option value="">-- Campo --</option>' + fieldOptions + '</select>' +
+                '<select class="gvn-rule-operator">' + operatorOptions + '</select>' +
+                '<input type="text" class="gvn-rule-value" value="' + this.escAttr(value) + '" placeholder="Valor" />' +
+                '<button type="button" class="gvn-rule-remove button-link" title="Remover condição">✕</button>' +
+                '</div>';
+
+            var $rule = $(html).hide();
+            $rules.append($rule);
+            $rule.slideDown(150);
+            $logic.slideDown(150);
+        },
+
+        /**
+         * Remove todas as condições referentes a billing_persontype de um campo.
+         */
+        removePersonTypeConditions: function ($row) {
+            var $rules = $row.find('.gvn-conditions-rules');
+            $rules.find('.gvn-condition-rule').each(function () {
+                var rField = $(this).find('.gvn-rule-field').val();
+                if (rField === 'billing_persontype') {
+                    $(this).slideUp(150, function () {
+                        $(this).remove();
+                        if ($rules.find('.gvn-condition-rule').length === 0) {
+                            $row.find('.gvn-conditions-logic').slideUp(150);
+                        }
+                    });
+                }
+            });
         }
     };
 

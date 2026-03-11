@@ -1,7 +1,42 @@
 /**
  * GVN Checkout - Admin Fields Manager Styles
- * @version 1.0.2
+ * @version 1.0.8
  */
+
+/* ===== Sub-tabs Navigation ===== */
+
+.gvn-subtabs {
+    margin: 10px 0 20px;
+    border-bottom: 1px solid #c3c4c7;
+    padding: 0;
+}
+
+.gvn-subtabs .nav-tab {
+    margin-bottom: -1px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #50575e;
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+}
+
+.gvn-subtabs .nav-tab:hover {
+    background: #fff;
+    color: #1d2327;
+}
+
+.gvn-subtabs .nav-tab-active {
+    background: #fff;
+    color: #1d2327;
+    border-bottom: 1px solid #fff;
+}
+
+/* ===== Fields Manager ===== */
 
 #gvn-fields-manager {
     max-width: 900px;
@@ -328,4 +363,212 @@
     color: #646970;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+/* ===== Default Fields Manager ===== */
+
+#gvn-default-fields-manager {
+    max-width: 900px;
+    margin: 20px 0;
+}
+
+#gvn-default-fields-manager h2 {
+    font-size: 1.3em;
+    margin-bottom: 5px;
+}
+
+#gvn-default-fields-manager > .description {
+    color: #646970;
+    margin-bottom: 18px;
+}
+
+.gvn-default-fields-toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.gvn-default-fields-toolbar .button-primary {
+    min-width: 200px;
+}
+
+#gvn-default-fields-status {
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+/* Section */
+
+.gvn-df-section {
+    margin-bottom: 30px;
+}
+
+.gvn-df-section__title {
+    font-size: 1.15em;
+    color: #1d2327;
+    margin: 0 0 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #2271b1;
+}
+
+/* Group */
+
+.gvn-df-group {
+    margin-bottom: 20px;
+}
+
+.gvn-df-group__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.gvn-df-group__icon {
+    font-size: 18px;
+}
+
+.gvn-df-group__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #50575e;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.gvn-df-group__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Field Card */
+
+.gvn-df-field {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 6px;
+    padding: 12px 16px;
+    transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
+    opacity: 0.65;
+}
+
+.gvn-df-field--active {
+    opacity: 1;
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px rgba(34, 113, 177, 0.15);
+}
+
+.gvn-df-field:hover {
+    opacity: 1;
+}
+
+.gvn-df-field__main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* Toggle Slider */
+
+.gvn-df-field__toggle {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.gvn-df-field__toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.gvn-df-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #c3c4c7;
+    border-radius: 24px;
+    transition: background-color 0.25s;
+}
+
+.gvn-df-toggle-slider::before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: transform 0.25s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.gvn-df-field__toggle input:checked + .gvn-df-toggle-slider {
+    background-color: #2271b1;
+}
+
+.gvn-df-field__toggle input:checked + .gvn-df-toggle-slider::before {
+    transform: translateX(20px);
+}
+
+.gvn-df-field__toggle input:focus + .gvn-df-toggle-slider {
+    box-shadow: 0 0 0 2px rgba(34, 113, 177, 0.3);
+}
+
+/* Field Info */
+
+.gvn-df-field__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.gvn-df-field__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.gvn-df-field__key {
+    font-size: 11px;
+    color: #999;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.gvn-df-field__desc {
+    font-size: 12px;
+    color: #646970;
+}
+
+/* Options */
+
+.gvn-df-field__options {
+    flex-shrink: 0;
+}
+
+.gvn-df-field__required-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #50575e;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.gvn-df-field__required-label input[type="checkbox"] {
+    margin: 0;
 }

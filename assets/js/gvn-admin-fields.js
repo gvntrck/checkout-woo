@@ -1,12 +1,15 @@
 /**
  * GVN Checkout - Admin Fields Manager
  * Drag-and-drop, CRUD, largura e ordenação de campos.
- * @version 1.0.3
+ * @version 1.0.8
  */
 
 (function ($) {
     'use strict';
 
+    /* ===================================================
+     *  Gerenciador de Campos Personalizados (Fields Tab)
+     * =================================================== */
     var GVNAdminFields = {
 
         init: function () {
@@ -382,8 +385,6 @@
 
         /**
          * Gera as options HTML do select de valor padrão.
-         * @param {string} optionsText - Conteúdo do textarea (uma opção por linha).
-         * @param {string} selected    - Valor atualmente selecionado.
          */
         getDefaultOptionSelect: function (optionsText, selected) {
             var html = '<option value=""' + ('' === selected ? ' selected' : '') + '>-- Nenhuma opção pré-selecionada --</option>';
@@ -444,8 +445,80 @@
         }
     };
 
+    /* ===================================================
+     *  Gerenciador de Campos Padrão (Default Fields Tab)
+     * =================================================== */
+    var GVNDefaultFields = {
+
+        init: function () {
+            this.$container = $('#gvn-default-fields-manager');
+            if (!this.$container.length) return;
+
+            this.$saveBtn = $('#gvn-save-default-fields');
+            this.$status = $('#gvn-default-fields-status');
+
+            this.bindEvents();
+        },
+
+        bindEvents: function () {
+            var self = this;
+
+            this.$saveBtn.on('click', function () {
+                self.saveConfig();
+            });
+
+            // Toggle active class on field card
+            this.$container.on('change', '.gvn-df-enabled', function () {
+                var $field = $(this).closest('.gvn-df-field');
+                $field.toggleClass('gvn-df-field--active', this.checked);
+            });
+        },
+
+        saveConfig: function () {
+            var self = this;
+            var config = {};
+
+            this.$container.find('.gvn-df-field').each(function () {
+                var key = $(this).data('field-key');
+                config[key] = {
+                    enabled: $(this).find('.gvn-df-enabled').is(':checked'),
+                    required: $(this).find('.gvn-df-required').is(':checked')
+                };
+            });
+
+            this.$saveBtn.prop('disabled', true).text('Salvando...');
+
+            $.ajax({
+                url: gvn_admin_params.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'gvn_save_default_fields_config',
+                    nonce: gvn_admin_params.nonce,
+                    config: JSON.stringify(config)
+                },
+                success: function (response) {
+                    if (response.success) {
+                        self.$status.html('<span style="color:#16a34a;">✓ ' + response.data.message + '</span>').show().delay(3000).fadeOut();
+                    } else {
+                        self.$status.html('<span style="color:#dc2626;">✕ ' + response.data.message + '</span>').show();
+                    }
+                },
+                error: function () {
+                    self.$status.html('<span style="color:#dc2626;">Erro ao salvar.</span>').show();
+                },
+                complete: function () {
+                    self.$saveBtn.prop('disabled', false).text('💾 Salvar Configurações');
+                }
+            });
+        }
+    };
+
+    /* ===================================================
+     *  Inicialização
+     * =================================================== */
     $(document).ready(function () {
         GVNAdminFields.init();
+        GVNDefaultFields.init();
     });
 
 })(jQuery);

@@ -4,7 +4,7 @@
  * CRUD, ordenação e largura dos campos do formulário de checkout.
  *
  * @package GVN_Checkout
- * @version 1.0.3
+ * @version 1.0.8
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -29,6 +29,7 @@ class GVN_Custom_Fields {
         add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'save_custom_fields_to_order' ), 10, 1 );
         add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'display_custom_fields_in_admin' ), 10, 1 );
         add_filter( 'woocommerce_checkout_fields', array( $this, 'register_custom_fields_with_woo' ), 20 );
+        add_filter( 'woocommerce_checkout_fields', array( $this, 'register_default_fields_with_woo' ), 25 );
     }
 
     /**
@@ -230,6 +231,78 @@ class GVN_Custom_Fields {
     }
 
     /**
+     * Retorna os campos padrão brasileiros ativados com suas configurações.
+     */
+    public static function get_active_default_fields() {
+        if ( ! class_exists( 'GVN_Admin' ) ) {
+            return array();
+        }
+
+        $config      = GVN_Admin::get_saved_default_fields_config();
+        $definitions = GVN_Admin::get_default_field_definitions();
+        $active      = array();
+
+        foreach ( $definitions as $section ) {
+            foreach ( $section['groups'] as $group ) {
+                foreach ( $group['fields'] as $key => $def ) {
+                    $field_config = isset( $config[ $key ] ) ? $config[ $key ] : array();
+                    $enabled = isset( $field_config['enabled'] ) ? (bool) $field_config['enabled'] : $def['default_enabled'];
+
+                    if ( ! $enabled ) {
+                        continue;
+                    }
+
+                    $required = isset( $field_config['required'] ) ? (bool) $field_config['required'] : $def['default_required'];
+
+                    $active[ $key ] = array(
+                        'label'       => $def['label'],
+                        'type'        => $def['type'],
+                        'required'    => $required,
+                        'mask'        => isset( $def['mask'] ) ? $def['mask'] : '',
+                        'placeholder' => isset( $def['placeholder'] ) ? $def['placeholder'] : '',
+                        'options'     => isset( $def['options'] ) ? $def['options'] : '',
+                    );
+                }
+            }
+        }
+
+        return $active;
+    }
+
+    /**
+     * Registra campos padrão brasileiros ativados no WooCommerce.
+     */
+    public function register_default_fields_with_woo( $checkout_fields ) {
+        $active_defaults = self::get_active_default_fields();
+
+        foreach ( $active_defaults as $key => $field ) {
+            $section = 'billing';
+            if ( strpos( $key, 'shipping_' ) === 0 ) {
+                $section = 'shipping';
+            }
+
+            $woo_field = array(
+                'type'        => $field['type'],
+                'label'       => $field['label'],
+                'required'    => $field['required'],
+                'placeholder' => $field['placeholder'],
+                'priority'    => 200,
+                'class'       => array( 'form-row-wide' ),
+            );
+
+            if ( 'select' === $field['type'] && ! empty( $field['options'] ) ) {
+                $parsed = self::parse_select_options( $field['options'] );
+                $woo_field['type']    = 'select';
+                $woo_field['options'] = array_merge( array( '' => '-- Selecione --' ), $parsed );
+            }
+
+            $checkout_fields[ $section ][ $key ] = $woo_field;
+        }
+
+        return $checkout_fields;
+    }
+
+    /**
      * Registra campos personalizados no WooCommerce para validação.
      * Campos com condições são registrados como NÃO obrigatórios no WooCommerce
      * (a obrigatoriedade é controlada via JS no frontend).
@@ -278,9 +351,10 @@ class GVN_Custom_Fields {
     }
 
     /**
-     * Salva campos custom no pedido.
+     * Salva campos custom e campos padrão ativados no pedido.
      */
     public function save_custom_fields_to_order( $order_id ) {
+        // Salva campos personalizados
         $fields = self::get_enabled_fields();
 
         foreach ( $fields as $field ) {
@@ -295,12 +369,22 @@ class GVN_Custom_Fields {
                 update_post_meta( $order_id, '_' . $key, $value );
             }
         }
+
+        // Salva campos padrão brasileiros ativados
+        $default_fields = self::get_active_default_fields();
+        foreach ( $default_fields as $key => $def ) {
+            if ( isset( $_POST[ $key ] ) ) {
+                $value = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
+                update_post_meta( $order_id, '_' . $key, $value );
+            }
+        }
     }
 
     /**
-     * Exibe campos custom no admin do pedido.
+     * Exibe campos custom e padrão no admin do pedido.
      */
     public function display_custom_fields_in_admin( $order ) {
+        // Campos personalizados
         $fields = self::get_enabled_fields();
 
         foreach ( $fields as $field ) {
@@ -313,6 +397,15 @@ class GVN_Custom_Fields {
             $value = $order->get_meta( '_' . $key );
             if ( $value ) {
                 echo '<p><strong>' . esc_html( $field['label'] ) . ':</strong> ' . esc_html( $value ) . '</p>';
+            }
+        }
+
+        // Campos padrão brasileiros
+        $default_fields = self::get_active_default_fields();
+        foreach ( $default_fields as $key => $def ) {
+            $value = $order->get_meta( '_' . $key );
+            if ( $value ) {
+                echo '<p><strong>' . esc_html( $def['label'] ) . ':</strong> ' . esc_html( $value ) . '</p>';
             }
         }
     }

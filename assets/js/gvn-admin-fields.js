@@ -373,6 +373,8 @@
 
         getFieldOptionsForConditions: function (excludeKey, selectedKey) {
             var html = '';
+
+            // Campos personalizados
             this.$list.find('.gvn-field-row').each(function () {
                 var key = $(this).find('.gvn-field-key-input').val();
                 var label = $(this).find('.gvn-field-label-input').val() || key;
@@ -380,6 +382,21 @@
                     html += '<option value="' + key + '"' + (key === selectedKey ? ' selected' : '') + '>' + label + '</option>';
                 }
             });
+
+            // Campos Padrão Brasileiros (vindos do PHP)
+            var defaultFields = (typeof gvn_admin_params !== 'undefined' && gvn_admin_params.default_fields) ? gvn_admin_params.default_fields : [];
+            if (defaultFields.length > 0) {
+                html += '<optgroup label="📋 Campos Padrão Brasileiros">';
+                for (var i = 0; i < defaultFields.length; i++) {
+                    var dfKey = defaultFields[i].key;
+                    var dfLabel = defaultFields[i].label + ' (' + dfKey + ')';
+                    if (dfKey !== excludeKey) {
+                        html += '<option value="' + dfKey + '"' + (dfKey === selectedKey ? ' selected' : '') + '>' + dfLabel + '</option>';
+                    }
+                }
+                html += '</optgroup>';
+            }
+
             return html;
         },
 

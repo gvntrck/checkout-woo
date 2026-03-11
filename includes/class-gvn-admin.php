@@ -300,9 +300,20 @@ class GVN_Admin {
             true
         );
 
+        // Prepara campos padrão para o JS usar nas condições de exibição
+        $flat_fields = self::get_flat_default_fields();
+        $df_for_js   = array();
+        foreach ( $flat_fields as $f ) {
+            $df_for_js[] = array(
+                'key'   => $f['key'],
+                'label' => $f['label'],
+            );
+        }
+
         wp_localize_script( 'gvn-admin-fields-js', 'gvn_admin_params', array(
-            'ajax_url' => admin_url( 'admin-ajax.php' ),
-            'nonce'    => wp_create_nonce( 'gvn_admin_fields_nonce' ),
+            'ajax_url'       => admin_url( 'admin-ajax.php' ),
+            'nonce'          => wp_create_nonce( 'gvn_admin_fields_nonce' ),
+            'default_fields' => $df_for_js,
         ) );
     }
 
@@ -495,7 +506,6 @@ class GVN_Admin {
                                 'default_enabled'  => false,
                                 'default_required' => false,
                                 'can_disable'      => true,
-                                'depends_on'       => array( 'field' => 'billing_persontype', 'value' => 'pf' ),
                             ),
                             'billing_cnpj' => array(
                                 'label'       => 'CNPJ',
@@ -519,7 +529,6 @@ class GVN_Admin {
                                 'default_enabled'  => false,
                                 'default_required' => false,
                                 'can_disable'      => true,
-                                'depends_on'       => array( 'field' => 'billing_persontype', 'value' => 'pj' ),
                             ),
                         ),
                     ),

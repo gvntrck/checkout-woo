@@ -14,6 +14,7 @@
             this.bindOrderBump();
             this.bindMasks();
             this.bindConditionalFields();
+            this.bindPersonTypeDependencies();
             this.showFirstGatewayFields();
         },
 
@@ -324,6 +325,69 @@
                 var $input = $field.find('input, select, textarea').first();
                 $input.prop('required', false);
             }
+        },
+
+        /* ============================
+           Dependências de Tipo de Pessoa
+           (Campos Padrão com depends_on)
+           ============================ */
+
+        bindPersonTypeDependencies: function () {
+            var self = this;
+            var $container = $('.gvn-fields-dynamic');
+            if (!$container.length) return;
+
+            var $dependentFields = $container.find('.gvn-field[data-depends-on-field]');
+            if (!$dependentFields.length) return;
+
+            // Coleta todos os campos trigger únicos
+            var triggerFields = {};
+            $dependentFields.each(function () {
+                var triggerKey = $(this).data('depends-on-field');
+                if (!triggerFields[triggerKey]) {
+                    triggerFields[triggerKey] = [];
+                }
+                triggerFields[triggerKey].push($(this));
+            });
+
+            // Para cada campo trigger, escuta mudanças
+            $.each(triggerFields, function (triggerKey) {
+                var $triggerWrapper = $container.find('.gvn-field[data-field-key="' + triggerKey + '"]');
+                if (!$triggerWrapper.length) return;
+
+                var $triggerInput = $triggerWrapper.find('select, input').first();
+                if (!$triggerInput.length) return;
+
+                $triggerInput.on('change input', function () {
+                    self.evaluatePersonTypeDeps($container, triggerKey, $(this).val());
+                });
+
+                // Avaliar no carregamento inicial
+                self.evaluatePersonTypeDeps($container, triggerKey, $triggerInput.val());
+            });
+        },
+
+        evaluatePersonTypeDeps: function ($container, triggerKey, triggerValue) {
+            var $dependents = $container.find('.gvn-field[data-depends-on-field="' + triggerKey + '"]');
+
+            $dependents.each(function () {
+                var $field = $(this);
+                var requiredValue = $field.data('depends-on-value');
+                var origRequired = $field.data('orig-required') === 1 || $field.data('orig-required') === '1';
+                var $input = $field.find('input, select, textarea').first();
+
+                if (String(triggerValue) === String(requiredValue)) {
+                    // Mostrar
+                    $field.slideDown(200);
+                    if (origRequired) {
+                        $input.prop('required', true);
+                    }
+                } else {
+                    // Ocultar
+                    $field.slideUp(200);
+                    $input.prop('required', false).val('');
+                }
+            });
         },
 
         /* ============================

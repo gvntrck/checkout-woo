@@ -265,6 +265,7 @@ class GVN_Custom_Fields {
                         'placeholder' => isset( $def['placeholder'] ) ? $def['placeholder'] : '',
                         'options'     => isset( $def['options'] ) ? $def['options'] : '',
                         'position'    => $position,
+                        'depends_on'  => isset( $def['depends_on'] ) ? $def['depends_on'] : null,
                     );
 
                     $index++;

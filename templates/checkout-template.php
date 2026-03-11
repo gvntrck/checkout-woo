@@ -126,8 +126,15 @@ if ( $bump_product ) {
                                 $df_placeholder = esc_attr( isset( $df_def['placeholder'] ) ? $df_def['placeholder'] : '' );
                                 $df_mask        = ! empty( $df_def['mask'] ) ? $df_def['mask'] : '';
                                 $df_value       = esc_attr( $checkout->get_value( $df_key ) );
+                                $df_depends     = ! empty( $df_def['depends_on'] ) ? $df_def['depends_on'] : null;
+                                $df_hidden      = false;
+
+                                // Se tem dependência, ocultar inicialmente (JS controla visibilidade)
+                                if ( $df_depends ) {
+                                    $df_hidden = true;
+                                }
                             ?>
-                                <div class="gvn-field gvn-field--w50" data-field-key="<?php echo esc_attr( $df_key ); ?>" data-mask="<?php echo esc_attr( $df_mask ); ?>">
+                                <div class="gvn-field gvn-field--w50<?php echo $df_hidden ? ' gvn-field--depends' : ''; ?>" data-field-key="<?php echo esc_attr( $df_key ); ?>" data-mask="<?php echo esc_attr( $df_mask ); ?>"<?php if ( $df_depends ) : ?> data-depends-on-field="<?php echo esc_attr( $df_depends['field'] ); ?>" data-depends-on-value="<?php echo esc_attr( $df_depends['value'] ); ?>"<?php endif; ?> data-orig-required="<?php echo $df_required ? '1' : '0'; ?>"<?php echo $df_hidden ? ' style="display:none;"' : ''; ?>>
                                     <label class="gvn-field__label" for="<?php echo esc_attr( $df_key ); ?>">
                                         <?php echo $df_label; ?>
                                         <?php if ( $df_required ) : ?><span class="gvn-field__required">*</span><?php endif; ?>
@@ -135,14 +142,14 @@ if ( $bump_product ) {
                                     <?php if ( 'select' === $df_type ) :
                                         $df_options = GVN_Custom_Fields::parse_select_options( isset( $df_def['options'] ) ? $df_def['options'] : '' );
                                     ?>
-                                        <select class="gvn-field__input gvn-field__select" name="<?php echo esc_attr( $df_key ); ?>" id="<?php echo esc_attr( $df_key ); ?>" <?php echo $df_required ? 'required' : ''; ?>>
+                                        <select class="gvn-field__input gvn-field__select" name="<?php echo esc_attr( $df_key ); ?>" id="<?php echo esc_attr( $df_key ); ?>" <?php echo ( $df_required && ! $df_hidden ) ? 'required' : ''; ?>>
                                             <option value="">-- Selecione --</option>
                                             <?php foreach ( $df_options as $opt_value => $opt_label ) : ?>
                                                 <option value="<?php echo esc_attr( $opt_value ); ?>" <?php selected( $df_value, $opt_value ); ?>><?php echo esc_html( $opt_label ); ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     <?php else : ?>
-                                        <input type="<?php echo esc_attr( $df_type ); ?>" class="gvn-field__input" name="<?php echo esc_attr( $df_key ); ?>" id="<?php echo esc_attr( $df_key ); ?>" value="<?php echo $df_value; ?>" placeholder="<?php echo $df_placeholder; ?>" <?php echo $df_required ? 'required' : ''; ?> />
+                                        <input type="<?php echo esc_attr( $df_type ); ?>" class="gvn-field__input" name="<?php echo esc_attr( $df_key ); ?>" id="<?php echo esc_attr( $df_key ); ?>" value="<?php echo $df_value; ?>" placeholder="<?php echo $df_placeholder; ?>" <?php echo ( $df_required && ! $df_hidden ) ? 'required' : ''; ?> />
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>

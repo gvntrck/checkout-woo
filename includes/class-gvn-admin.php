@@ -483,6 +483,7 @@ class GVN_Admin {
                                 'default_enabled'  => true,
                                 'default_required' => true,
                                 'can_disable'      => true,
+                                'depends_on'       => array( 'field' => 'billing_persontype', 'value' => 'pf' ),
                             ),
                             'billing_rg' => array(
                                 'label'       => 'RG',
@@ -494,6 +495,7 @@ class GVN_Admin {
                                 'default_enabled'  => false,
                                 'default_required' => false,
                                 'can_disable'      => true,
+                                'depends_on'       => array( 'field' => 'billing_persontype', 'value' => 'pf' ),
                             ),
                             'billing_cnpj' => array(
                                 'label'       => 'CNPJ',
@@ -505,6 +507,7 @@ class GVN_Admin {
                                 'default_enabled'  => false,
                                 'default_required' => false,
                                 'can_disable'      => true,
+                                'depends_on'       => array( 'field' => 'billing_persontype', 'value' => 'pj' ),
                             ),
                             'billing_ie' => array(
                                 'label'       => 'Inscrição Estadual',
@@ -516,6 +519,7 @@ class GVN_Admin {
                                 'default_enabled'  => false,
                                 'default_required' => false,
                                 'can_disable'      => true,
+                                'depends_on'       => array( 'field' => 'billing_persontype', 'value' => 'pj' ),
                             ),
                         ),
                     ),

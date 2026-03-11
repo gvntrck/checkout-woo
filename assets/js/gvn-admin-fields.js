@@ -1,7 +1,7 @@
 /**
  * GVN Checkout - Admin Fields Manager
  * Drag-and-drop, CRUD, largura e ordenação de campos.
- * @version 1.0.2
+ * @version 1.0.3
  */
 
 (function ($) {
@@ -62,6 +62,14 @@
                 } else {
                     $optionsCol.slideUp(200);
                 }
+            });
+
+            // Atualiza o select de valor padrão quando o admin edita as opções
+            this.$list.on('input change', '.gvn-field-options-input', function () {
+                var $row = $(this).closest('.gvn-field-row');
+                var $defaultSelect = $row.find('.gvn-field-default-option-select');
+                var currentVal = $defaultSelect.val();
+                $defaultSelect.html(self.getDefaultOptionSelect($(this).val(), currentVal));
             });
 
             // Condições: adicionar regra
@@ -214,6 +222,8 @@
                 '      <div class="gvn-field-col gvn-field-col--options" style="' + (field.type !== 'select' ? 'display:none;' : '') + 'grid-column: 1 / -1;">' +
                 '        <label>Opções (uma por linha, formato: <code>valor|Rótulo</code> ou apenas <code>Rótulo</code>)</label>' +
                 '        <textarea class="gvn-field-options-input" rows="4" placeholder="opcao1|Opção 1&#10;opcao2|Opção 2">' + this.escHtml(field.options || '') + '</textarea>' +
+                '        <label style="margin-top:8px;display:block;">Valor padrão pré-selecionado</label>' +
+                '        <select class="gvn-field-default-option-select">' + this.getDefaultOptionSelect(field.options || '', field.default_option || '') + '</select>' +
                 '      </div>' +
                 '      <div class="gvn-field-col">' +
                 '        <label><input type="checkbox" class="gvn-field-required" ' + requiredChecked + ' /> Obrigatório</label>' +
@@ -276,6 +286,7 @@
                     mask: $row.find('.gvn-field-mask-select').val(),
                     is_default: $row.find('.gvn-field-is-default').val() === 'true',
                     options: $row.find('.gvn-field-options-input').val() || '',
+                    default_option: $row.find('.gvn-field-default-option-select').val() || '',
                     conditions: self.collectConditions($row)
                 });
             });
@@ -366,6 +377,33 @@
                     html += '<option value="' + key + '"' + (key === selectedKey ? ' selected' : '') + '>' + label + '</option>';
                 }
             });
+            return html;
+        },
+
+        /**
+         * Gera as options HTML do select de valor padrão.
+         * @param {string} optionsText - Conteúdo do textarea (uma opção por linha).
+         * @param {string} selected    - Valor atualmente selecionado.
+         */
+        getDefaultOptionSelect: function (optionsText, selected) {
+            var html = '<option value=""' + ('' === selected ? ' selected' : '') + '>-- Nenhuma opção pré-selecionada --</option>';
+            var lines = (optionsText || '').split('\n');
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line) continue;
+                var value, label;
+                if (line.indexOf('|') !== -1) {
+                    var parts = line.split('|');
+                    value = parts[0].trim();
+                    label = parts.slice(1).join('|').trim();
+                } else {
+                    value = line.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-_]/g, '');
+                    label = line;
+                }
+                if (value && label) {
+                    html += '<option value="' + this.escAttr(value) + '"' + (value === selected ? ' selected' : '') + '>' + this.escHtml(label) + '</option>';
+                }
+            }
             return html;
         },
 

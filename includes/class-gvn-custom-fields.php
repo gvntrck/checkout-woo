@@ -4,7 +4,7 @@
  * CRUD, ordenação e largura dos campos do formulário de checkout.
  *
  * @package GVN_Checkout
- * @version 1.0.2
+ * @version 1.0.3
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -168,8 +168,9 @@ class GVN_Custom_Fields {
                 'enabled'     => ! empty( $field['enabled'] ),
                 'mask'        => sanitize_text_field( $field['mask'] ),
                 'is_default'  => ! empty( $field['is_default'] ),
-                'options'     => sanitize_textarea_field( isset( $field['options'] ) ? $field['options'] : '' ),
-                'conditions'  => self::sanitize_conditions( isset( $field['conditions'] ) ? $field['conditions'] : array() ),
+                'options'        => sanitize_textarea_field( isset( $field['options'] ) ? $field['options'] : '' ),
+                'default_option' => sanitize_text_field( isset( $field['default_option'] ) ? $field['default_option'] : '' ),
+                'conditions'     => self::sanitize_conditions( isset( $field['conditions'] ) ? $field['conditions'] : array() ),
             );
         }
 

@@ -338,6 +338,17 @@ class GVN_Admin {
                                 <div class="gvn-field-col gvn-field-col--options" style="<?php echo ( 'select' !== $field['type'] ) ? 'display:none;' : ''; ?>grid-column: 1 / -1;">
                                     <label>Opções (uma por linha, formato: <code>valor|Rótulo</code> ou apenas <code>Rótulo</code>)</label>
                                     <textarea class="gvn-field-options-input" rows="4" placeholder="opcao1|Opção 1&#10;opcao2|Opção 2&#10;opcao3|Opção 3"><?php echo esc_textarea( isset( $field['options'] ) ? $field['options'] : '' ); ?></textarea>
+                                    <label style="margin-top:8px;display:block;">Valor padrão pré-selecionado</label>
+                                    <select class="gvn-field-default-option-select">
+                                        <option value="">-- Nenhuma opção pré-selecionada --</option>
+                                        <?php
+                                        $saved_default = isset( $field['default_option'] ) ? $field['default_option'] : '';
+                                        $parsed_opts   = GVN_Custom_Fields::parse_select_options( isset( $field['options'] ) ? $field['options'] : '' );
+                                        foreach ( $parsed_opts as $opt_val => $opt_label ) :
+                                        ?>
+                                            <option value="<?php echo esc_attr( $opt_val ); ?>" <?php selected( $saved_default, $opt_val ); ?>><?php echo esc_html( $opt_label ); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
                                 </div>
                                 <div class="gvn-field-col">
                                     <label><input type="checkbox" class="gvn-field-required" <?php checked( ! empty( $field['required'] ) ); ?> /> Obrigatório</label>

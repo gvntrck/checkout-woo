@@ -95,13 +95,15 @@ if ( $bump_product ) {
                                     <?php if ( 'textarea' === $f_type ) : ?>
                                         <textarea class="gvn-field__input gvn-field__textarea" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" rows="3" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?>><?php echo esc_textarea( $checkout->get_value( $f_key ) ); ?></textarea>
                                     <?php elseif ( 'select' === $f_type ) :
-                                        $f_options_raw = isset( $gvn_field['options'] ) ? $gvn_field['options'] : '';
-                                        $f_options     = GVN_Custom_Fields::parse_select_options( $f_options_raw );
+                                        $f_options_raw  = isset( $gvn_field['options'] ) ? $gvn_field['options'] : '';
+                                        $f_options      = GVN_Custom_Fields::parse_select_options( $f_options_raw );
+                                        $f_default_opt  = isset( $gvn_field['default_option'] ) ? $gvn_field['default_option'] : '';
+                                        $f_select_value = '' !== $f_value ? $f_value : $f_default_opt;
                                     ?>
                                         <select class="gvn-field__input gvn-field__select" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" <?php echo $f_required ? 'required' : ''; ?>>
                                             <option value=""><?php echo $f_placeholder ? esc_html( $f_placeholder ) : '-- Selecione --'; ?></option>
                                             <?php foreach ( $f_options as $opt_value => $opt_label ) : ?>
-                                                <option value="<?php echo esc_attr( $opt_value ); ?>" <?php selected( $f_value, $opt_value ); ?>><?php echo esc_html( $opt_label ); ?></option>
+                                                <option value="<?php echo esc_attr( $opt_value ); ?>" <?php selected( $f_select_value, $opt_value ); ?>><?php echo esc_html( $opt_label ); ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                     <?php else : ?>

@@ -4,7 +4,7 @@
  * Gerencia a página de configurações no painel do WordPress.
  *
  * @package GVN_Checkout
- * @version 1.11.0
+ * @version 1.12.2
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -313,7 +313,6 @@ class GVN_Admin {
                 <button type="button" class="button button-secondary" id="gvn-add-field">+ Adicionar Campo</button>
                 <button type="button" class="button button-secondary" id="gvn-import-woo-fields" title="Adiciona campos nativos de endereço do WooCommerce à lista">📥 Importar Campos Padrões do WooCommerce</button>
                 <button type="button" class="button button-secondary" id="gvn-import-br-fields" title="Adiciona campos brasileiros (CPF, CNPJ, RG, etc.) à lista">🇧🇷 Importar Campos Brasileiros</button>
-                <button type="button" class="button button-primary" id="gvn-save-fields">💾 Salvar Campos</button>
                 <span id="gvn-fields-status" style="display:none;"></span>
             </div>
 

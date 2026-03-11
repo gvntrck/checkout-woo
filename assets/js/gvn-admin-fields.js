@@ -18,11 +18,11 @@
 
             this.$list = $('#gvn-fields-list');
             this.$addBtn = $('#gvn-add-field');
-            this.$saveBtn = $('#gvn-save-fields');
             this.$status = $('#gvn-fields-status');
 
             this.bindEvents();
             this.initSortable();
+            this.interceptWooFormSubmit();
         },
 
         bindEvents: function () {
@@ -30,10 +30,6 @@
 
             this.$addBtn.on('click', function () {
                 self.addField();
-            });
-
-            this.$saveBtn.on('click', function () {
-                self.saveFields();
             });
 
             $('#gvn-import-woo-fields').on('click', function() {
@@ -282,7 +278,7 @@
             return html;
         },
 
-        saveFields: function () {
+        saveFields: function (callback) {
             var self = this;
             var fields = [];
 
@@ -305,8 +301,6 @@
                 });
             });
 
-            this.$saveBtn.prop('disabled', true).text('Salvando...');
-
             $.ajax({
                 url: gvn_admin_params.ajax_url,
                 type: 'POST',
@@ -326,8 +320,36 @@
                     self.$status.html('<span style="color:#dc2626;">Erro ao salvar.</span>').show();
                 },
                 complete: function () {
-                    self.$saveBtn.prop('disabled', false).text('💾 Salvar Campos');
+                    if (typeof callback === 'function') {
+                        callback();
+                    }
                 }
+            });
+        },
+
+        /**
+         * Intercepta o submit do formulário do WooCommerce para salvar campos via AJAX.
+         */
+        interceptWooFormSubmit: function () {
+            var self = this;
+            var $form = this.$container.closest('form');
+            if (!$form.length) return;
+
+            $form.on('submit', function (e) {
+                // Se já estamos no processo de submit após o AJAX, deixa prosseguir
+                if (self._submitting) return true;
+
+                e.preventDefault();
+
+                var $submitBtn = $form.find('.woocommerce-save-button');
+                $submitBtn.prop('disabled', true).val('Salvando...');
+
+                self.saveFields(function () {
+                    self._submitting = true;
+                    $form.submit();
+                });
+
+                return false;
             });
         },
 

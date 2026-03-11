@@ -191,6 +191,117 @@
     color: #646970;
 }
 
+/* Conditions Section */
+
+.gvn-conditions-section {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #c3c4c7;
+}
+
+.gvn-conditions-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.gvn-conditions-header strong {
+    font-size: 12px;
+    color: #1d2327;
+}
+
+.gvn-conditions-hint {
+    font-size: 11px;
+    color: #999;
+    font-style: italic;
+}
+
+.gvn-conditions-logic {
+    margin-bottom: 10px;
+}
+
+.gvn-conditions-logic label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #50575e;
+    margin-right: 6px;
+}
+
+.gvn-conditions-logic-select {
+    padding: 4px 8px;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+    font-size: 12px;
+    background: #fff;
+}
+
+.gvn-conditions-rules {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.gvn-condition-rule {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 6px 8px;
+}
+
+.gvn-condition-rule select,
+.gvn-condition-rule input[type="text"] {
+    padding: 4px 8px;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+    font-size: 12px;
+    background: #fff;
+}
+
+.gvn-rule-field {
+    min-width: 140px;
+}
+
+.gvn-rule-operator {
+    min-width: 120px;
+}
+
+.gvn-rule-value {
+    min-width: 100px;
+    flex: 1;
+}
+
+.gvn-rule-remove {
+    color: #b32d2e !important;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none !important;
+    flex-shrink: 0;
+}
+
+.gvn-rule-remove:hover {
+    color: #a00 !important;
+}
+
+.gvn-add-condition {
+    color: #2271b1 !important;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+.gvn-add-condition:hover {
+    color: #135e96 !important;
+    text-decoration: underline !important;
+}
+
 /* Sortable placeholder */
 
 .gvn-field-placeholder {

@@ -200,6 +200,10 @@
     font-size: 0.8em;
 }
 
+.gvn-field--conditional-hidden {
+    display: none !important;
+}
+
 .gvn-field__label {
     display: block;
     font-size: 0.875rem;

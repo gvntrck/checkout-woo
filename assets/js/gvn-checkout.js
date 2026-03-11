@@ -13,6 +13,7 @@
             this.bindGateways();
             this.bindOrderBump();
             this.bindMasks();
+            this.bindConditionalFields();
             this.showFirstGatewayFields();
         },
 
@@ -196,6 +197,133 @@
                     $checkbox.prop('disabled', false);
                 }
             });
+        },
+
+        /* ============================
+           Campos Condicionais (E/OU)
+           ============================ */
+
+        bindConditionalFields: function () {
+            var self = this;
+            var $container = $('.gvn-fields-dynamic');
+            if (!$container.length) return;
+
+            var $conditionalFields = $container.find('.gvn-field--conditional');
+            if (!$conditionalFields.length) return;
+
+            // Avalia todas as condições ao mudar qualquer campo
+            $container.on('input change', '.gvn-field__input', function () {
+                self.evaluateAllConditions($container, $conditionalFields);
+            });
+
+            // Avalia no carregamento inicial
+            this.evaluateAllConditions($container, $conditionalFields);
+        },
+
+        evaluateAllConditions: function ($container, $conditionalFields) {
+            var self = this;
+
+            $conditionalFields.each(function () {
+                var $field = $(this);
+                var conditions = $field.data('conditions');
+
+                if (!conditions || !conditions.rules || conditions.rules.length === 0) return;
+
+                var logic = conditions.logic || 'and';
+                var rules = conditions.rules;
+                var visible = self.evaluateRules(rules, logic, $container);
+
+                if (visible) {
+                    self.showConditionalField($field);
+                } else {
+                    self.hideConditionalField($field);
+                }
+            });
+        },
+
+        evaluateRules: function (rules, logic, $container) {
+            var results = [];
+
+            for (var i = 0; i < rules.length; i++) {
+                var rule = rules[i];
+                var fieldValue = this.getFieldValue(rule.field, $container);
+                var result = this.evaluateRule(rule, fieldValue);
+                results.push(result);
+            }
+
+            if (logic === 'or') {
+                for (var j = 0; j < results.length; j++) {
+                    if (results[j]) return true;
+                }
+                return false;
+            }
+
+            // AND (default)
+            for (var k = 0; k < results.length; k++) {
+                if (!results[k]) return false;
+            }
+            return true;
+        },
+
+        evaluateRule: function (rule, fieldValue) {
+            var op = rule.operator;
+            var compareValue = rule.value || '';
+
+            switch (op) {
+                case 'equals':
+                    return fieldValue === compareValue;
+                case 'not_equals':
+                    return fieldValue !== compareValue;
+                case 'filled':
+                    return fieldValue !== '' && fieldValue !== null && fieldValue !== undefined;
+                case 'empty':
+                    return fieldValue === '' || fieldValue === null || fieldValue === undefined;
+                case 'contains':
+                    return String(fieldValue).toLowerCase().indexOf(compareValue.toLowerCase()) !== -1;
+                case 'greater':
+                    return parseFloat(fieldValue) > parseFloat(compareValue);
+                case 'less':
+                    return parseFloat(fieldValue) < parseFloat(compareValue);
+                default:
+                    return false;
+            }
+        },
+
+        getFieldValue: function (fieldKey, $container) {
+            var $wrapper = $container.find('.gvn-field[data-field-key="' + fieldKey + '"]');
+            if (!$wrapper.length) return '';
+
+            var $input = $wrapper.find('input, select, textarea').first();
+            if (!$input.length) return '';
+
+            if ($input.is(':checkbox')) {
+                return $input.is(':checked') ? $input.val() : '';
+            }
+
+            return $input.val() || '';
+        },
+
+        showConditionalField: function ($field) {
+            if ($field.hasClass('gvn-field--conditional-hidden')) {
+                $field.removeClass('gvn-field--conditional-hidden');
+                $field.slideDown(200);
+
+                // Restaurar required se configurado
+                if ($field.data('required') === 1 || $field.data('required') === '1') {
+                    $field.find('input, select, textarea').first().prop('required', true);
+                }
+            }
+        },
+
+        hideConditionalField: function ($field) {
+            if (!$field.hasClass('gvn-field--conditional-hidden')) {
+                $field.addClass('gvn-field--conditional-hidden');
+                $field.slideUp(200);
+
+                // Remover required e limpar valor
+                var $input = $field.find('input, select, textarea').first();
+                $input.prop('required', false);
+            }
         },
 
         /* ============================

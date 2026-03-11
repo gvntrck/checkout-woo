@@ -168,6 +168,8 @@ class GVN_Custom_Fields {
                 'enabled'     => ! empty( $field['enabled'] ),
                 'mask'        => sanitize_text_field( $field['mask'] ),
                 'is_default'  => ! empty( $field['is_default'] ),
+                'options'     => sanitize_textarea_field( isset( $field['options'] ) ? $field['options'] : '' ),
+                'conditions'  => self::sanitize_conditions( isset( $field['conditions'] ) ? $field['conditions'] : array() ),
             );
         }
 
@@ -177,19 +179,73 @@ class GVN_Custom_Fields {
     }
 
     /**
+     * Sanitiza a estrutura de condições de um campo.
+     */
+    public static function sanitize_conditions( $conditions ) {
+        $valid_operators = array( 'equals', 'not_equals', 'filled', 'empty', 'contains', 'greater', 'less' );
+
+        $sanitized = array(
+            'logic' => 'and',
+            'rules' => array(),
+        );
+
+        if ( ! is_array( $conditions ) ) {
+            return $sanitized;
+        }
+
+        if ( isset( $conditions['logic'] ) && in_array( $conditions['logic'], array( 'and', 'or' ), true ) ) {
+            $sanitized['logic'] = $conditions['logic'];
+        }
+
+        if ( isset( $conditions['rules'] ) && is_array( $conditions['rules'] ) ) {
+            foreach ( $conditions['rules'] as $rule ) {
+                if ( ! is_array( $rule ) || empty( $rule['field'] ) || empty( $rule['operator'] ) ) {
+                    continue;
+                }
+
+                if ( ! in_array( $rule['operator'], $valid_operators, true ) ) {
+                    continue;
+                }
+
+                $sanitized['rules'][] = array(
+                    'field'    => sanitize_key( $rule['field'] ),
+                    'operator' => sanitize_key( $rule['operator'] ),
+                    'value'    => sanitize_text_field( isset( $rule['value'] ) ? $rule['value'] : '' ),
+                );
+            }
+        }
+
+        return $sanitized;
+    }
+
+    /**
+     * Verifica se um campo tem condições configuradas.
+     */
+    public static function has_conditions( $field ) {
+        return ! empty( $field['conditions'] )
+            && ! empty( $field['conditions']['rules'] )
+            && is_array( $field['conditions']['rules'] )
+            && count( $field['conditions']['rules'] ) > 0;
+    }
+
+    /**
      * Registra campos personalizados no WooCommerce para validação.
+     * Campos com condições são registrados como NÃO obrigatórios no WooCommerce
+     * (a obrigatoriedade é controlada via JS no frontend).
      */
     public function register_custom_fields_with_woo( $checkout_fields ) {
         $fields = self::get_enabled_fields();
 
         foreach ( $fields as $field ) {
             $key = $field['key'];
+            $is_conditional = self::has_conditions( $field );
+            $required = $is_conditional ? false : $field['required'];
 
             if ( strpos( $key, 'billing_' ) === 0 ) {
                 $checkout_fields['billing'][ $key ] = array(
                     'type'        => $field['type'],
                     'label'       => $field['label'],
-                    'required'    => $field['required'],
+                    'required'    => $required,
                     'placeholder' => $field['placeholder'],
                     'priority'    => $field['position'] * 10,
                     'class'       => array( 'form-row-wide' ),
@@ -198,7 +254,7 @@ class GVN_Custom_Fields {
                 $checkout_fields['billing'][ $key ] = array(
                     'type'        => $field['type'],
                     'label'       => $field['label'],
-                    'required'    => $field['required'],
+                    'required'    => $required,
                     'placeholder' => $field['placeholder'],
                     'priority'    => $field['position'] * 10,
                     'class'       => array( 'form-row-wide' ),
@@ -258,6 +314,35 @@ class GVN_Custom_Fields {
                 echo '<p><strong>' . esc_html( $field['label'] ) . ':</strong> ' . esc_html( $value ) . '</p>';
             }
         }
+    }
+
+    /**
+     * Converte a string de opções (uma por linha) em array associativo.
+     * Formato: "valor|Rótulo" ou apenas "Rótulo" (valor = sanitize do rótulo).
+     */
+    public static function parse_select_options( $options_string ) {
+        $options = array();
+
+        if ( empty( $options_string ) ) {
+            return $options;
+        }
+
+        $lines = array_filter( array_map( 'trim', explode( "\n", $options_string ) ) );
+
+        foreach ( $lines as $line ) {
+            if ( strpos( $line, '|' ) !== false ) {
+                list( $value, $label ) = array_map( 'trim', explode( '|', $line, 2 ) );
+            } else {
+                $value = sanitize_title( $line );
+                $label = $line;
+            }
+
+            if ( '' !== $value && '' !== $label ) {
+                $options[ $value ] = $label;
+            }
+        }
+
+        return $options;
     }
 
     /**

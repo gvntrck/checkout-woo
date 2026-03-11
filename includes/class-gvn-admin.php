@@ -335,9 +335,59 @@ class GVN_Admin {
                                     <label>Placeholder</label>
                                     <input type="text" class="gvn-field-placeholder-input" value="<?php echo esc_attr( $field['placeholder'] ); ?>" />
                                 </div>
+                                <div class="gvn-field-col gvn-field-col--options" style="<?php echo ( 'select' !== $field['type'] ) ? 'display:none;' : ''; ?>grid-column: 1 / -1;">
+                                    <label>Opções (uma por linha, formato: <code>valor|Rótulo</code> ou apenas <code>Rótulo</code>)</label>
+                                    <textarea class="gvn-field-options-input" rows="4" placeholder="opcao1|Opção 1&#10;opcao2|Opção 2&#10;opcao3|Opção 3"><?php echo esc_textarea( isset( $field['options'] ) ? $field['options'] : '' ); ?></textarea>
+                                </div>
                                 <div class="gvn-field-col">
                                     <label><input type="checkbox" class="gvn-field-required" <?php checked( ! empty( $field['required'] ) ); ?> /> Obrigatório</label>
                                 </div>
+                            </div>
+
+                            <?php
+                            $conditions = isset( $field['conditions'] ) ? $field['conditions'] : array( 'logic' => 'and', 'rules' => array() );
+                            $rules      = isset( $conditions['rules'] ) ? $conditions['rules'] : array();
+                            $logic      = isset( $conditions['logic'] ) ? $conditions['logic'] : 'and';
+                            $all_fields = GVN_Custom_Fields::get_fields();
+                            ?>
+                            <div class="gvn-conditions-section">
+                                <div class="gvn-conditions-header">
+                                    <strong>Condições de exibição</strong>
+                                    <span class="gvn-conditions-hint">Deixe vazio para sempre exibir</span>
+                                </div>
+                                <div class="gvn-conditions-logic" <?php echo empty( $rules ) ? 'style="display:none;"' : ''; ?>>
+                                    <label>Quando</label>
+                                    <select class="gvn-conditions-logic-select">
+                                        <option value="and" <?php selected( $logic, 'and' ); ?>>TODAS as condições forem verdadeiras (E)</option>
+                                        <option value="or" <?php selected( $logic, 'or' ); ?>>QUALQUER condição for verdadeira (OU)</option>
+                                    </select>
+                                </div>
+                                <div class="gvn-conditions-rules">
+                                    <?php foreach ( $rules as $rule ) : ?>
+                                        <div class="gvn-condition-rule">
+                                            <select class="gvn-rule-field">
+                                                <option value="">-- Campo --</option>
+                                                <?php foreach ( $all_fields as $af ) : ?>
+                                                    <?php if ( $af['key'] !== $field['key'] ) : ?>
+                                                        <option value="<?php echo esc_attr( $af['key'] ); ?>" <?php selected( $rule['field'], $af['key'] ); ?>><?php echo esc_html( $af['label'] ?: $af['key'] ); ?></option>
+                                                    <?php endif; ?>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <select class="gvn-rule-operator">
+                                                <option value="equals" <?php selected( $rule['operator'], 'equals' ); ?>>Igual a</option>
+                                                <option value="not_equals" <?php selected( $rule['operator'], 'not_equals' ); ?>>Diferente de</option>
+                                                <option value="filled" <?php selected( $rule['operator'], 'filled' ); ?>>Preenchido</option>
+                                                <option value="empty" <?php selected( $rule['operator'], 'empty' ); ?>>Vazio</option>
+                                                <option value="contains" <?php selected( $rule['operator'], 'contains' ); ?>>Contém</option>
+                                                <option value="greater" <?php selected( $rule['operator'], 'greater' ); ?>>Maior que</option>
+                                                <option value="less" <?php selected( $rule['operator'], 'less' ); ?>>Menor que</option>
+                                            </select>
+                                            <input type="text" class="gvn-rule-value" value="<?php echo esc_attr( $rule['value'] ); ?>" placeholder="Valor" <?php echo in_array( $rule['operator'], array( 'filled', 'empty' ), true ) ? 'style="display:none;"' : ''; ?> />
+                                            <button type="button" class="gvn-rule-remove button-link" title="Remover condição">✕</button>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <button type="button" class="gvn-add-condition button-link">+ Adicionar condição</button>
                             </div>
                         </div>
                     </div>

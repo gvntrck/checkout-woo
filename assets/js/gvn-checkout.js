@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - JavaScript
- * @version 1.12.1
+ * @version 1.13.0
  */
 
 (function ($) {
@@ -448,67 +448,201 @@
 
         /* ============================
            ViaCEP - Preenchimento automático
+           (v1.13.0 — proxy server-side,
+            normalização, lock e consistência)
            ============================ */
+
+        _lastCep: '',
+        _cepRetries: 0,
+        _maxRetries: 1,
+        _addressLockedFields: [],
 
         bindViaCEP: function () {
             var self = this;
-            var lastCep = '';
 
-            // Escuta campos com máscara CEP ou key billing_postcode
             $(document).on('input', '.gvn-field[data-mask="cep"] input, #billing_postcode', function () {
                 var raw = $(this).val().replace(/\D/g, '');
 
-                if (raw.length === 8 && raw !== lastCep) {
-                    lastCep = raw;
-                    self.fetchViaCEP(raw, $(this));
+                if (raw.length === 8 && raw !== self._lastCep) {
+                    self._lastCep = raw;
+                    self._cepRetries = 0;
+                    self.fetchCEP(raw, $(this));
                 }
+
+                // Limpar locks se CEP foi apagado
+                if (raw.length < 8) {
+                    self.unlockAddressFields();
+                }
+            });
+
+            // Permitir desbloquear campos clicando no ícone de edição
+            $(document).on('click', '.gvn-field__unlock-btn', function (e) {
+                e.preventDefault();
+                var fieldKey = $(this).closest('.gvn-field').data('field-key');
+                self.unlockField(fieldKey);
             });
         },
 
-        fetchViaCEP: function (cep, $input) {
+        /**
+         * Consulta CEP via proxy server-side (com cache no backend).
+         */
+        fetchCEP: function (cep, $input) {
             var self = this;
             var $field = $input.closest('.gvn-field');
 
-            // Feedback visual: loading
             $field.addClass('gvn-field--loading');
             self.removeViaCEPMessage($field);
 
             $.ajax({
-                url: 'https://viacep.com.br/ws/' + cep + '/json/',
-                dataType: 'json',
-                timeout: 8000,
-                success: function (data) {
-                    if (data.erro) {
-                        self.showViaCEPMessage($field, 'CEP não encontrado.', 'error');
-                        return;
-                    }
-
-                    // Mapeamento ViaCEP → campos do checkout
-                    var mapping = {
-                        'billing_address_1': data.logradouro || '',
-                        'billing_neighborhood': data.bairro || '',
-                        'billing_city': data.localidade || '',
-                        'billing_state': data.uf || ''
-                    };
-
-                    var filled = 0;
-                    $.each(mapping, function (fieldKey, value) {
-                        if (value && self.setCheckoutFieldValue(fieldKey, value)) {
-                            filled++;
-                        }
-                    });
-
-                    if (filled > 0) {
-                        self.showViaCEPMessage($field, 'Endereço preenchido automaticamente.', 'success');
+                url: gvn_checkout_params.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'gvn_cep_lookup',
+                    nonce: gvn_checkout_params.nonce,
+                    cep: cep
+                },
+                timeout: 12000,
+                success: function (response) {
+                    if (response.success) {
+                        self.fillAddressFromCEP(response.data, $field);
+                    } else {
+                        var msg = response.data && response.data.message ? response.data.message : 'CEP não encontrado.';
+                        self.showViaCEPMessage($field, msg, 'error');
                     }
                 },
                 error: function () {
+                    // Retry uma vez em caso de falha de rede
+                    if (self._cepRetries < self._maxRetries) {
+                        self._cepRetries++;
+                        setTimeout(function () {
+                            self.fetchCEP(cep, $input);
+                        }, 1500);
+                        return;
+                    }
                     self.showViaCEPMessage($field, 'Erro ao consultar o CEP. Tente novamente.', 'error');
                 },
                 complete: function () {
                     $field.removeClass('gvn-field--loading');
                 }
             });
+        },
+
+        /**
+         * Preenche os campos de endereço com dados normalizados do servidor.
+         */
+        fillAddressFromCEP: function (data, $cepField) {
+            var self = this;
+
+            var mapping = {
+                'billing_address_1':    data.logradouro || '',
+                'billing_neighborhood': data.bairro || '',
+                'billing_city':         data.cidade || '',
+                'billing_state':        data.uf || ''
+            };
+
+            var filled = 0;
+            var fieldsToLock = [];
+
+            $.each(mapping, function (fieldKey, value) {
+                if (value && self.setCheckoutFieldValue(fieldKey, value)) {
+                    filled++;
+                    fieldsToLock.push(fieldKey);
+                }
+            });
+
+            // Lock campos preenchidos automaticamente (UF, cidade, bairro)
+            var lockableFields = ['billing_city', 'billing_state', 'billing_neighborhood'];
+            for (var i = 0; i < lockableFields.length; i++) {
+                if (fieldsToLock.indexOf(lockableFields[i]) !== -1) {
+                    self.lockField(lockableFields[i]);
+                }
+            }
+
+            if (filled > 0) {
+                // Mensagem de sucesso
+                var successMsg = 'Endereço preenchido automaticamente.';
+
+                // Alerta de inconsistência CEP ↔ UF
+                if (data.consistente === false && data.uf_esperada) {
+                    successMsg += ' ⚠ A UF retornada (' + data.uf + ') difere da esperada (' + data.uf_esperada + ') para este CEP.';
+                    self.showViaCEPMessage($cepField, successMsg, 'warning');
+                } else {
+                    self.showViaCEPMessage($cepField, successMsg, 'success');
+                }
+
+                // Foco no campo "número" se existir
+                self.focusFieldAfterCEP();
+            }
+        },
+
+        /**
+         * Foca no campo billing_number após preenchimento automático.
+         */
+        focusFieldAfterCEP: function () {
+            var focusTargets = ['billing_number', 'billing_address_2'];
+            for (var i = 0; i < focusTargets.length; i++) {
+                var $wrapper = $('.gvn-fields-dynamic .gvn-field[data-field-key="' + focusTargets[i] + '"]');
+                if ($wrapper.length && $wrapper.is(':visible')) {
+                    var $input = $wrapper.find('input, textarea').first();
+                    if ($input.length) {
+                        setTimeout(function () { $input.focus(); }, 300);
+                        return;
+                    }
+                }
+            }
+        },
+
+        /**
+         * Trava um campo de endereço preenchido via CEP (readonly + botão de unlock).
+         */
+        lockField: function (fieldKey) {
+            var $wrapper = $('.gvn-fields-dynamic .gvn-field[data-field-key="' + fieldKey + '"]');
+            if (!$wrapper.length) return;
+
+            var $input = $wrapper.find('input, select, textarea').first();
+            if (!$input.length) return;
+
+            $input.prop('readonly', true);
+            $wrapper.addClass('gvn-field--cep-locked');
+
+            // Adicionar botão de destravamento se ainda não existir
+            if (!$wrapper.find('.gvn-field__unlock-btn').length) {
+                var $btn = $('<button type="button" class="gvn-field__unlock-btn" title="Editar manualmente">✎</button>');
+                $wrapper.find('.gvn-field__label').append($btn);
+            }
+
+            if (this._addressLockedFields.indexOf(fieldKey) === -1) {
+                this._addressLockedFields.push(fieldKey);
+            }
+        },
+
+        /**
+         * Destrava um campo específico.
+         */
+        unlockField: function (fieldKey) {
+            var $wrapper = $('.gvn-fields-dynamic .gvn-field[data-field-key="' + fieldKey + '"]');
+            if (!$wrapper.length) return;
+
+            var $input = $wrapper.find('input, select, textarea').first();
+            $input.prop('readonly', false);
+            $wrapper.removeClass('gvn-field--cep-locked');
+            $wrapper.find('.gvn-field__unlock-btn').remove();
+
+            var idx = this._addressLockedFields.indexOf(fieldKey);
+            if (idx !== -1) {
+                this._addressLockedFields.splice(idx, 1);
+            }
+        },
+
+        /**
+         * Destrava todos os campos de endereço.
+         */
+        unlockAddressFields: function () {
+            var self = this;
+            var fields = self._addressLockedFields.slice();
+            for (var i = 0; i < fields.length; i++) {
+                self.unlockField(fields[i]);
+            }
         },
 
         /**
@@ -521,7 +655,11 @@
             if ($wrapper.length) {
                 var $input = $wrapper.find('input, select, textarea').first();
                 if ($input.length) {
+                    // Destravar temporariamente se estiver locked
+                    var wasReadonly = $input.prop('readonly');
+                    if (wasReadonly) $input.prop('readonly', false);
                     $input.val(value).trigger('change');
+                    if (wasReadonly) $input.prop('readonly', true);
                     return true;
                 }
             }
@@ -545,7 +683,10 @@
 
         showViaCEPMessage: function ($field, message, type) {
             this.removeViaCEPMessage($field);
-            var cssClass = type === 'success' ? 'gvn-viacep-msg--success' : 'gvn-viacep-msg--error';
+            var cssClass = 'gvn-viacep-msg--success';
+            if (type === 'error') cssClass = 'gvn-viacep-msg--error';
+            if (type === 'warning') cssClass = 'gvn-viacep-msg--warning';
+
             var $msg = $('<div class="gvn-viacep-msg ' + cssClass + '">' + message + '</div>').hide();
             $field.append($msg);
             $msg.slideDown(150);
@@ -554,6 +695,11 @@
                 setTimeout(function () {
                     $msg.slideUp(150, function () { $(this).remove(); });
                 }, 4000);
+            }
+            if (type === 'warning') {
+                setTimeout(function () {
+                    $msg.slideUp(150, function () { $(this).remove(); });
+                }, 8000);
             }
         },
 

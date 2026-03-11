@@ -1145,3 +1145,48 @@
 .gvn-viacep-msg--error {
     color: #dc2626;
 }
+
+.gvn-viacep-msg--warning {
+    color: #d97706;
+}
+
+/* ========================================
+   Campos travados via CEP (auto-fill lock)
+   ======================================== */
+
+.gvn-field--cep-locked .gvn-field__input {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    cursor: default;
+    border-color: #d1d5db;
+}
+
+.gvn-field--cep-locked .gvn-field__input:focus {
+    border-color: #d1d5db;
+    box-shadow: none;
+}
+
+.gvn-field__unlock-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    color: #6b7280;
+    font-size: 0.75rem;
+    width: 1.375rem;
+    height: 1.375rem;
+    margin-left: 0.375rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: all 0.15s ease;
+    vertical-align: middle;
+}
+
+.gvn-field__unlock-btn:hover {
+    color: var(--gvn-primary, #0066d4);
+    border-color: var(--gvn-primary, #0066d4);
+    background: #eff6ff;
+}

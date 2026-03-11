@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.0.0
+Stable tag: 1.13.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -43,6 +43,17 @@ O **GVN Checkout** substitui o checkout padrão do WooCommerce por um layout mod
 3. Vá em **WooCommerce > Configurações > GVN Checkout** para personalizar
 
 == Changelog ==
+
+= 1.13.0 =
+* Novo: Proxy server-side para consulta de CEP (ViaCEP) com cache via transients (7 dias)
+* Novo: Validação server-side de formato de CEP, UF válida e consistência CEP↔UF no checkout
+* Novo: Normalização automática de UF, cidade e CEP ao salvar pedidos
+* Novo: Campos de endereço (UF, cidade, bairro) são travados após auto-fill via CEP, com botão para edição manual
+* Novo: Foco automático no campo "número" após preenchimento de endereço via CEP
+* Novo: Alerta visual de inconsistência CEP↔UF no frontend
+* Novo: Retry automático em caso de falha de rede na consulta de CEP
+* Novo: Classe GVN_Address_Validation com lista completa de UFs brasileiras e mapeamento CEP→UF
+* Melhoria: Consulta de CEP agora passa pelo servidor (segurança e cache)
 
 = 1.0.0 =
 * Lançamento inicial

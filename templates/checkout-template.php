@@ -111,6 +111,41 @@ if ( $bump_product ) {
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
+
+                            <?php
+                            // Campos Padrão Brasileiros ativados
+                            $gvn_default_fields = GVN_Custom_Fields::get_active_default_fields();
+                            foreach ( $gvn_default_fields as $df_key => $df_def ) :
+                                // Pula campos de shipping (serão renderizados em outro lugar se necessário)
+                                if ( strpos( $df_key, 'shipping_' ) === 0 ) {
+                                    continue;
+                                }
+                                $df_label       = esc_html( $df_def['label'] );
+                                $df_type        = $df_def['type'];
+                                $df_required    = ! empty( $df_def['required'] );
+                                $df_placeholder = esc_attr( isset( $df_def['placeholder'] ) ? $df_def['placeholder'] : '' );
+                                $df_mask        = ! empty( $df_def['mask'] ) ? $df_def['mask'] : '';
+                                $df_value       = esc_attr( $checkout->get_value( $df_key ) );
+                            ?>
+                                <div class="gvn-field gvn-field--w50" data-field-key="<?php echo esc_attr( $df_key ); ?>" data-mask="<?php echo esc_attr( $df_mask ); ?>">
+                                    <label class="gvn-field__label" for="<?php echo esc_attr( $df_key ); ?>">
+                                        <?php echo $df_label; ?>
+                                        <?php if ( $df_required ) : ?><span class="gvn-field__required">*</span><?php endif; ?>
+                                    </label>
+                                    <?php if ( 'select' === $df_type ) :
+                                        $df_options = GVN_Custom_Fields::parse_select_options( isset( $df_def['options'] ) ? $df_def['options'] : '' );
+                                    ?>
+                                        <select class="gvn-field__input gvn-field__select" name="<?php echo esc_attr( $df_key ); ?>" id="<?php echo esc_attr( $df_key ); ?>" <?php echo $df_required ? 'required' : ''; ?>>
+                                            <option value="">-- Selecione --</option>
+                                            <?php foreach ( $df_options as $opt_value => $opt_label ) : ?>
+                                                <option value="<?php echo esc_attr( $opt_value ); ?>" <?php selected( $df_value, $opt_value ); ?>><?php echo esc_html( $opt_label ); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php else : ?>
+                                        <input type="<?php echo esc_attr( $df_type ); ?>" class="gvn-field__input" name="<?php echo esc_attr( $df_key ); ?>" id="<?php echo esc_attr( $df_key ); ?>" value="<?php echo $df_value; ?>" placeholder="<?php echo $df_placeholder; ?>" <?php echo $df_required ? 'required' : ''; ?> />
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
 
                         <?php do_action( 'woocommerce_after_checkout_billing_form', $checkout ); ?>

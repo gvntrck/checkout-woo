@@ -454,10 +454,12 @@
             this.$container = $('#gvn-default-fields-manager');
             if (!this.$container.length) return;
 
+            this.$list = $('#gvn-df-sortable-list');
             this.$saveBtn = $('#gvn-save-default-fields');
             this.$status = $('#gvn-default-fields-status');
 
             this.bindEvents();
+            this.initSortable();
         },
 
         bindEvents: function () {
@@ -474,15 +476,35 @@
             });
         },
 
+        initSortable: function () {
+            var self = this;
+            this.$list.sortable({
+                handle: '.gvn-df-field__drag',
+                axis: 'y',
+                opacity: 0.7,
+                placeholder: 'gvn-df-field-placeholder',
+                update: function () {
+                    self.updatePositions();
+                }
+            });
+        },
+
+        updatePositions: function () {
+            this.$list.find('.gvn-df-field').each(function (index) {
+                $(this).find('.gvn-df-field__pos').text('#' + (index + 1));
+            });
+        },
+
         saveConfig: function () {
             var self = this;
             var config = {};
 
-            this.$container.find('.gvn-df-field').each(function () {
+            this.$container.find('.gvn-df-field').each(function (index) {
                 var key = $(this).data('field-key');
                 config[key] = {
                     enabled: $(this).find('.gvn-df-enabled').is(':checked'),
-                    required: $(this).find('.gvn-df-required').is(':checked')
+                    required: $(this).find('.gvn-df-required').is(':checked'),
+                    position: index
                 };
             });
 

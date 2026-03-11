@@ -638,62 +638,85 @@ class GVN_Admin {
     }
 
     /**
+     * Achata todas as definições de campos padrão em uma lista plana ordenada.
+     */
+    public static function get_flat_default_fields() {
+        $definitions  = self::get_default_field_definitions();
+        $saved_config = self::get_saved_default_fields_config();
+        $flat         = array();
+        $index        = 0;
+
+        foreach ( $definitions as $section_key => $section ) {
+            foreach ( $section['groups'] as $group_key => $group ) {
+                foreach ( $group['fields'] as $field_key => $field_def ) {
+                    $config   = isset( $saved_config[ $field_key ] ) ? $saved_config[ $field_key ] : array();
+                    $flat[] = array(
+                        'key'         => $field_key,
+                        'label'       => $field_def['label'],
+                        'description' => $field_def['description'],
+                        'type'        => $field_def['type'],
+                        'group_icon'  => $group['icon'],
+                        'group_label' => $group['label'],
+                        'section'     => $section_key,
+                        'enabled'     => isset( $config['enabled'] ) ? (bool) $config['enabled'] : $field_def['default_enabled'],
+                        'required'    => isset( $config['required'] ) ? (bool) $config['required'] : $field_def['default_required'],
+                        'position'    => isset( $config['position'] ) ? intval( $config['position'] ) : $index,
+                    );
+                    $index++;
+                }
+            }
+        }
+
+        usort( $flat, function ( $a, $b ) {
+            return $a['position'] - $b['position'];
+        } );
+
+        return $flat;
+    }
+
+    /**
      * Renderiza a aba de campos padrão.
      */
     private function render_default_fields_tab() {
-        $definitions = self::get_default_field_definitions();
-        $saved_config = self::get_saved_default_fields_config();
+        $fields = self::get_flat_default_fields();
         ?>
         <div id="gvn-default-fields-manager">
             <h2>Campos Padrão do Checkout Brasileiro</h2>
-            <p class="description">Ative ou desative os campos padrão brasileiros no checkout. Esses campos são pré-configurados e não precisam ser criados manualmente na aba "Campos do Formulário".</p>
+            <p class="description">Ative ou desative os campos padrão brasileiros no checkout. Arraste para reordenar a posição no formulário de checkout.</p>
 
             <div class="gvn-default-fields-toolbar">
                 <button type="button" class="button button-primary" id="gvn-save-default-fields">💾 Salvar Configurações</button>
                 <span id="gvn-default-fields-status" style="display:none;"></span>
             </div>
 
-            <?php foreach ( $definitions as $section_key => $section ) : ?>
-                <div class="gvn-df-section">
-                    <h3 class="gvn-df-section__title"><?php echo esc_html( $section['label'] ); ?></h3>
-
-                    <?php foreach ( $section['groups'] as $group_key => $group ) : ?>
-                        <div class="gvn-df-group">
-                            <div class="gvn-df-group__header">
-                                <span class="gvn-df-group__icon"><?php echo esc_html( $group['icon'] ); ?></span>
-                                <span class="gvn-df-group__label"><?php echo esc_html( $group['label'] ); ?></span>
+            <div id="gvn-df-sortable-list">
+                <?php foreach ( $fields as $pos => $field ) : ?>
+                    <div class="gvn-df-field <?php echo $field['enabled'] ? 'gvn-df-field--active' : ''; ?>" data-field-key="<?php echo esc_attr( $field['key'] ); ?>">
+                        <div class="gvn-df-field__main">
+                            <span class="gvn-df-field__drag" title="Arrastar para reordenar">☰</span>
+                            <span class="gvn-df-field__pos">#<?php echo esc_html( $pos + 1 ); ?></span>
+                            <label class="gvn-df-field__toggle">
+                                <input type="checkbox" class="gvn-df-enabled" <?php checked( $field['enabled'] ); ?> />
+                                <span class="gvn-df-toggle-slider"></span>
+                            </label>
+                            <div class="gvn-df-field__info">
+                                <span class="gvn-df-field__label"><?php echo esc_html( $field['label'] ); ?></span>
+                                <span class="gvn-df-field__key"><?php echo esc_html( $field['key'] ); ?></span>
+                                <span class="gvn-df-field__desc"><?php echo esc_html( $field['description'] ); ?></span>
                             </div>
-                            <div class="gvn-df-group__fields">
-                                <?php foreach ( $group['fields'] as $field_key => $field_def ) :
-                                    $config   = isset( $saved_config[ $field_key ] ) ? $saved_config[ $field_key ] : array();
-                                    $enabled  = isset( $config['enabled'] ) ? (bool) $config['enabled'] : $field_def['default_enabled'];
-                                    $required = isset( $config['required'] ) ? (bool) $config['required'] : $field_def['default_required'];
-                                ?>
-                                    <div class="gvn-df-field <?php echo $enabled ? 'gvn-df-field--active' : ''; ?>" data-field-key="<?php echo esc_attr( $field_key ); ?>">
-                                        <div class="gvn-df-field__main">
-                                            <label class="gvn-df-field__toggle">
-                                                <input type="checkbox" class="gvn-df-enabled" <?php checked( $enabled ); ?> />
-                                                <span class="gvn-df-toggle-slider"></span>
-                                            </label>
-                                            <div class="gvn-df-field__info">
-                                                <span class="gvn-df-field__label"><?php echo esc_html( $field_def['label'] ); ?></span>
-                                                <span class="gvn-df-field__key"><?php echo esc_html( $field_key ); ?></span>
-                                                <span class="gvn-df-field__desc"><?php echo esc_html( $field_def['description'] ); ?></span>
-                                            </div>
-                                            <div class="gvn-df-field__options">
-                                                <label class="gvn-df-field__required-label">
-                                                    <input type="checkbox" class="gvn-df-required" <?php checked( $required ); ?> />
-                                                    Obrigatório
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
+                            <span class="gvn-df-field__section-badge gvn-df-field__section-badge--<?php echo esc_attr( $field['section'] ); ?>">
+                                <?php echo esc_html( $field['group_icon'] . ' ' . $field['group_label'] ); ?>
+                            </span>
+                            <div class="gvn-df-field__options">
+                                <label class="gvn-df-field__required-label">
+                                    <input type="checkbox" class="gvn-df-required" <?php checked( $field['required'] ); ?> />
+                                    Obrigatório
+                                </label>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endforeach; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
         <?php
     }
@@ -735,6 +758,7 @@ class GVN_Admin {
             $sanitized[ $key ] = array(
                 'enabled'  => ! empty( $values['enabled'] ),
                 'required' => ! empty( $values['required'] ),
+                'position' => isset( $values['position'] ) ? intval( $values['position'] ) : 999,
             );
         }
 

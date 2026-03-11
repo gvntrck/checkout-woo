@@ -453,6 +453,7 @@
     padding: 12px 16px;
     transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s;
     opacity: 0.65;
+    margin-bottom: 6px;
 }
 
 .gvn-df-field--active {
@@ -469,6 +470,64 @@
     display: flex;
     align-items: center;
     gap: 14px;
+}
+
+/* Drag Handle */
+
+.gvn-df-field__drag {
+    cursor: grab;
+    font-size: 16px;
+    color: #999;
+    user-select: none;
+    padding: 2px 4px;
+    flex-shrink: 0;
+}
+
+.gvn-df-field__drag:active {
+    cursor: grabbing;
+}
+
+/* Position Label */
+
+.gvn-df-field__pos {
+    font-size: 11px;
+    color: #999;
+    font-weight: 600;
+    min-width: 24px;
+    flex-shrink: 0;
+}
+
+/* Section Badge */
+
+.gvn-df-field__section-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.gvn-df-field__section-badge--billing {
+    background: #e8f0fe;
+    color: #1a56db;
+}
+
+.gvn-df-field__section-badge--shipping {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Sortable Placeholder */
+
+.gvn-df-field-placeholder {
+    background: #e8f0fe;
+    border: 2px dashed #2271b1;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    min-height: 52px;
 }
 
 /* Toggle Slider */

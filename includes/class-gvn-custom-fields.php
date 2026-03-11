@@ -231,7 +231,7 @@ class GVN_Custom_Fields {
     }
 
     /**
-     * Retorna os campos padrão brasileiros ativados com suas configurações.
+     * Retorna os campos padrão brasileiros ativados com suas configurações, ordenados por posição.
      */
     public static function get_active_default_fields() {
         if ( ! class_exists( 'GVN_Admin' ) ) {
@@ -241,6 +241,7 @@ class GVN_Custom_Fields {
         $config      = GVN_Admin::get_saved_default_fields_config();
         $definitions = GVN_Admin::get_default_field_definitions();
         $active      = array();
+        $index       = 0;
 
         foreach ( $definitions as $section ) {
             foreach ( $section['groups'] as $group ) {
@@ -249,10 +250,12 @@ class GVN_Custom_Fields {
                     $enabled = isset( $field_config['enabled'] ) ? (bool) $field_config['enabled'] : $def['default_enabled'];
 
                     if ( ! $enabled ) {
+                        $index++;
                         continue;
                     }
 
                     $required = isset( $field_config['required'] ) ? (bool) $field_config['required'] : $def['default_required'];
+                    $position = isset( $field_config['position'] ) ? intval( $field_config['position'] ) : $index;
 
                     $active[ $key ] = array(
                         'label'       => $def['label'],
@@ -261,10 +264,18 @@ class GVN_Custom_Fields {
                         'mask'        => isset( $def['mask'] ) ? $def['mask'] : '',
                         'placeholder' => isset( $def['placeholder'] ) ? $def['placeholder'] : '',
                         'options'     => isset( $def['options'] ) ? $def['options'] : '',
+                        'position'    => $position,
                     );
+
+                    $index++;
                 }
             }
         }
+
+        // Ordena por posição
+        uasort( $active, function ( $a, $b ) {
+            return $a['position'] - $b['position'];
+        } );
 
         return $active;
     }

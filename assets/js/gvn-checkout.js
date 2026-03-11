@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - JavaScript
- * @version 1.0.0
+ * @version 1.12.1
  */
 
 (function ($) {
@@ -15,6 +15,7 @@
             this.bindMasks();
             this.bindConditionalFields();
             this.bindPersonTypeDependencies();
+            this.bindViaCEP();
             this.showFirstGatewayFields();
         },
 
@@ -443,6 +444,121 @@
                     $(this).val(masks[maskType]($(this).val()));
                 }
             });
+        },
+
+        /* ============================
+           ViaCEP - Preenchimento automático
+           ============================ */
+
+        bindViaCEP: function () {
+            var self = this;
+            var lastCep = '';
+
+            // Escuta campos com máscara CEP ou key billing_postcode
+            $(document).on('input', '.gvn-field[data-mask="cep"] input, #billing_postcode', function () {
+                var raw = $(this).val().replace(/\D/g, '');
+
+                if (raw.length === 8 && raw !== lastCep) {
+                    lastCep = raw;
+                    self.fetchViaCEP(raw, $(this));
+                }
+            });
+        },
+
+        fetchViaCEP: function (cep, $input) {
+            var self = this;
+            var $field = $input.closest('.gvn-field');
+
+            // Feedback visual: loading
+            $field.addClass('gvn-field--loading');
+            self.removeViaCEPMessage($field);
+
+            $.ajax({
+                url: 'https://viacep.com.br/ws/' + cep + '/json/',
+                dataType: 'json',
+                timeout: 8000,
+                success: function (data) {
+                    if (data.erro) {
+                        self.showViaCEPMessage($field, 'CEP não encontrado.', 'error');
+                        return;
+                    }
+
+                    // Mapeamento ViaCEP → campos do checkout
+                    var mapping = {
+                        'billing_address_1': data.logradouro || '',
+                        'billing_neighborhood': data.bairro || '',
+                        'billing_city': data.localidade || '',
+                        'billing_state': data.uf || ''
+                    };
+
+                    var filled = 0;
+                    $.each(mapping, function (fieldKey, value) {
+                        if (value && self.setCheckoutFieldValue(fieldKey, value)) {
+                            filled++;
+                        }
+                    });
+
+                    if (filled > 0) {
+                        self.showViaCEPMessage($field, 'Endereço preenchido automaticamente.', 'success');
+                    }
+                },
+                error: function () {
+                    self.showViaCEPMessage($field, 'Erro ao consultar o CEP. Tente novamente.', 'error');
+                },
+                complete: function () {
+                    $field.removeClass('gvn-field--loading');
+                }
+            });
+        },
+
+        /**
+         * Define o valor de um campo do checkout (visível ou hidden).
+         * Retorna true se o campo foi encontrado e preenchido.
+         */
+        setCheckoutFieldValue: function (fieldKey, value) {
+            // Tentar campo dinâmico (renderizado pelo template)
+            var $wrapper = $('.gvn-fields-dynamic .gvn-field[data-field-key="' + fieldKey + '"]');
+            if ($wrapper.length) {
+                var $input = $wrapper.find('input, select, textarea').first();
+                if ($input.length) {
+                    $input.val(value).trigger('change');
+                    return true;
+                }
+            }
+
+            // Tentar campo hidden ou nativo do WooCommerce
+            var $hidden = $('input[name="' + fieldKey + '"]');
+            if ($hidden.length) {
+                $hidden.val(value).trigger('change');
+                return true;
+            }
+
+            // Tentar por ID
+            var $byId = $('#' + fieldKey);
+            if ($byId.length) {
+                $byId.val(value).trigger('change');
+                return true;
+            }
+
+            return false;
+        },
+
+        showViaCEPMessage: function ($field, message, type) {
+            this.removeViaCEPMessage($field);
+            var cssClass = type === 'success' ? 'gvn-viacep-msg--success' : 'gvn-viacep-msg--error';
+            var $msg = $('<div class="gvn-viacep-msg ' + cssClass + '">' + message + '</div>').hide();
+            $field.append($msg);
+            $msg.slideDown(150);
+
+            if (type === 'success') {
+                setTimeout(function () {
+                    $msg.slideUp(150, function () { $(this).remove(); });
+                }, 4000);
+            }
+        },
+
+        removeViaCEPMessage: function ($field) {
+            $field.find('.gvn-viacep-msg').remove();
         }
     };
 

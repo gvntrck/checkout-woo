@@ -243,13 +243,32 @@ class GVN_Custom_Fields {
         $active      = array();
         $index       = 0;
 
+        // Primeiro passo: coletar quais campos estão habilitados
+        $enabled_keys = array();
         foreach ( $definitions as $section ) {
             foreach ( $section['groups'] as $group ) {
                 foreach ( $group['fields'] as $key => $def ) {
                     $field_config = isset( $config[ $key ] ) ? $config[ $key ] : array();
-                    $enabled = isset( $field_config['enabled'] ) ? (bool) $field_config['enabled'] : $def['default_enabled'];
+                    $is_enabled   = isset( $field_config['enabled'] ) ? (bool) $field_config['enabled'] : $def['default_enabled'];
+                    if ( $is_enabled ) {
+                        $enabled_keys[] = $key;
+                    }
+                }
+            }
+        }
 
-                    if ( ! $enabled ) {
+        // Segundo passo: montar lista ativa (inclui campos com depends_on se o campo pai estiver ativo)
+        foreach ( $definitions as $section ) {
+            foreach ( $section['groups'] as $group ) {
+                foreach ( $group['fields'] as $key => $def ) {
+                    $field_config = isset( $config[ $key ] ) ? $config[ $key ] : array();
+                    $enabled      = isset( $field_config['enabled'] ) ? (bool) $field_config['enabled'] : $def['default_enabled'];
+
+                    // Se tem depends_on, ativa automaticamente quando o campo pai estiver ativo
+                    $has_dep    = ! empty( $def['depends_on'] );
+                    $parent_on  = $has_dep && in_array( $def['depends_on']['field'], $enabled_keys, true );
+
+                    if ( ! $enabled && ! $parent_on ) {
                         $index++;
                         continue;
                     }

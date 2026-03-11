@@ -169,6 +169,7 @@ class GVN_Custom_Fields {
                 'enabled'     => ! empty( $field['enabled'] ),
                 'mask'        => sanitize_text_field( $field['mask'] ),
                 'is_default'  => ! empty( $field['is_default'] ),
+                'is_woo_default' => ! empty( $field['is_woo_default'] ),
                 'options'        => sanitize_textarea_field( isset( $field['options'] ) ? $field['options'] : '' ),
                 'default_option' => sanitize_text_field( isset( $field['default_option'] ) ? $field['default_option'] : '' ),
                 'conditions'     => self::sanitize_conditions( isset( $field['conditions'] ) ? $field['conditions'] : array() ),

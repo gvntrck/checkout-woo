@@ -36,6 +36,10 @@
                 self.saveFields();
             });
 
+            $('#gvn-import-woo-fields').on('click', function() {
+                self.importWooFields();
+            });
+
             this.$list.on('click', '.gvn-field-remove', function () {
                 var $row = $(this).closest('.gvn-field-row');
                 if ($row.data('default') === true || $row.data('default') === 'true') {
@@ -318,6 +322,65 @@
                     self.$saveBtn.prop('disabled', false).text('💾 Salvar Campos');
                 }
             });
+        },
+
+        importWooFields: function() {
+            var self = this;
+            var wooFields = [
+                { key: 'billing_address_1', label: 'Endereço 1 (Logradouro)', placeholder: 'Nome da rua', width: '75', type: 'text', required: true },
+                { key: 'billing_address_2', label: 'Endereço 2 (Complemento)', placeholder: 'Apartamento, suite, unidade, etc. (opcional)', width: '25', type: 'text', required: false },
+                { key: 'billing_city', label: 'Cidade', placeholder: 'Cidade', width: '50', type: 'text', required: true },
+                { key: 'billing_state', label: 'Estado', placeholder: 'Estado / Província', width: '50', type: 'text', required: true },
+                { key: 'billing_postcode', label: 'CEP', placeholder: '00000-000', width: '50', type: 'text', required: true, mask: 'cep' },
+                { key: 'billing_country', label: 'País', placeholder: 'País / Região', width: '100', type: 'text', required: true },
+                { key: 'billing_company', label: 'Empresa', placeholder: 'Nome da empresa (opcional)', width: '100', type: 'text', required: false }
+            ];
+
+            // Coletar keys existentes (campos personalizados + padrão brasileiros)
+            var existingKeys = {};
+            self.$list.find('.gvn-field-row').each(function() {
+                var k = $(this).attr('data-key');
+                if (k) existingKeys[k] = true;
+            });
+
+            // Também verifica campos padrão brasileiros
+            var defaultFields = (typeof gvn_admin_params !== 'undefined' && gvn_admin_params.default_fields) ? gvn_admin_params.default_fields : [];
+            for (var d = 0; d < defaultFields.length; d++) {
+                existingKeys[defaultFields[d].key] = true;
+            }
+
+            var added = 0;
+            $.each(wooFields, function(i, wField) {
+                if (existingKeys[wField.key]) return; // pula se já existe
+
+                var fieldData = {
+                    key: wField.key,
+                    label: wField.label,
+                    type: wField.type,
+                    required: wField.required,
+                    width: wField.width,
+                    position: self.$list.children().length + 1,
+                    placeholder: wField.placeholder,
+                    enabled: true,
+                    mask: wField.mask || '',
+                    is_default: false,
+                    is_woo_default: true,
+                    options: '',
+                    default_option: '',
+                    conditions: { logic: 'and', rules: [] }
+                };
+                
+                var fieldHtml = self.buildFieldRow(fieldData);
+                self.$list.append(fieldHtml);
+                added++;
+            });
+
+            if (added > 0) {
+                this.updatePositions();
+                alert(added + ' campo(s) nativo(s) importado(s) e adicionado(s) ao final da lista. Clique no botão de configurações para ajustá-los e não esqueça de Salvar.');
+            } else {
+                alert('Todos os campos nativos do WooCommerce já estão na lista.');
+            }
         },
 
         escHtml: function (str) {

@@ -157,12 +157,39 @@ if ( $bump_product ) {
 
                         <?php do_action( 'woocommerce_after_checkout_billing_form', $checkout ); ?>
 
-                        <!-- Campos ocultos necessários do WooCommerce -->
-                        <input type="hidden" name="billing_country" value="BR" />
-                        <input type="hidden" name="billing_address_1" value="-" />
-                        <input type="hidden" name="billing_city" value="-" />
-                        <input type="hidden" name="billing_state" value="-" />
-                        <input type="hidden" name="billing_postcode" value="00000-000" />
+                        <?php
+                        // Campos ocultos padrão do WooCommerce: só renderizar os que o admin NÃO inseriu como campo visual
+                        $woo_hidden_defaults = array(
+                            'billing_country'   => 'BR',
+                            'billing_address_1' => '-',
+                            'billing_address_2' => '',
+                            'billing_city'      => '-',
+                            'billing_state'     => '-',
+                            'billing_postcode'  => '00000-000',
+                            'billing_company'   => '',
+                        );
+
+                        // Verificar campos da aba Campos do Formulário (custom + woo importados)
+                        foreach ( $gvn_fields as $f ) {
+                            if ( ! empty( $f['enabled'] ) && isset( $woo_hidden_defaults[ $f['key'] ] ) ) {
+                                unset( $woo_hidden_defaults[ $f['key'] ] );
+                            }
+                        }
+
+                        // Verificar campos padrão brasileiros ativos (billing_number, billing_neighborhood)
+                        if ( isset( $gvn_default_fields ) && is_array( $gvn_default_fields ) ) {
+                            foreach ( $gvn_default_fields as $df_key => $df_def ) {
+                                if ( isset( $woo_hidden_defaults[ $df_key ] ) ) {
+                                    unset( $woo_hidden_defaults[ $df_key ] );
+                                }
+                            }
+                        }
+
+                        // Renderiza os que sobraram como hidden
+                        foreach ( $woo_hidden_defaults as $wk => $wval ) {
+                            echo '<input type="hidden" name="' . esc_attr( $wk ) . '" value="' . esc_attr( $wval ) . '" />';
+                        }
+                        ?>
                     </div>
                 </div>
             </section>

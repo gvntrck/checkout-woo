@@ -329,17 +329,21 @@ class GVN_Admin {
 
             <div class="gvn-fields-toolbar">
                 <button type="button" class="button button-secondary" id="gvn-add-field">+ Adicionar Campo</button>
+                <button type="button" class="button button-secondary" id="gvn-import-woo-fields" title="Adiciona campos nativos de endereço do WooCommerce à lista">📥 Importar Campos Padrões do WooCommerce</button>
                 <button type="button" class="button button-primary" id="gvn-save-fields">💾 Salvar Campos</button>
                 <span id="gvn-fields-status" style="display:none;"></span>
             </div>
 
             <div id="gvn-fields-list">
                 <?php foreach ( $fields as $field ) : ?>
-                    <div class="gvn-field-row<?php echo empty( $field['enabled'] ) ? ' gvn-field-row--disabled' : ''; ?>" data-key="<?php echo esc_attr( $field['key'] ); ?>" data-default="<?php echo $field['is_default'] ? 'true' : 'false'; ?>">
+                    <div class="gvn-field-row<?php echo empty( $field['enabled'] ) ? ' gvn-field-row--disabled' : ''; ?>" data-key="<?php echo esc_attr( $field['key'] ); ?>" data-default="<?php echo $field['is_default'] ? 'true' : 'false'; ?>" data-woo-default="<?php echo ! empty( $field['is_woo_default'] ) ? 'true' : 'false'; ?>">
                         <div class="gvn-field-row__header">
                             <span class="gvn-field-drag" title="Arrastar para reordenar">☰</span>
                             <span class="gvn-field-pos-label">#<?php echo esc_html( $field['position'] ); ?></span>
                             <span class="gvn-field-label-display"><?php echo esc_html( $field['label'] ?: '(sem label)' ); ?></span>
+                            <?php if ( ! empty( $field['is_woo_default'] ) ) : ?>
+                                <span class="gvn-field-badge gvn-field-badge--woo">Padrão Woo</span>
+                            <?php endif; ?>
                             <span class="gvn-field-width-badge"><?php echo esc_html( $field['width'] ); ?>%</span>
                             <span class="gvn-field-row__actions">
                                 <label class="gvn-field-enabled-label">

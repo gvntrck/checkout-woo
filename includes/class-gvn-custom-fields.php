@@ -4,7 +4,7 @@
  * CRUD, ordenação e largura dos campos do formulário de checkout.
  *
  * @package GVN_Checkout
- * @version 1.0.8
+ * @version 1.11.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -29,11 +29,13 @@ class GVN_Custom_Fields {
         add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'save_custom_fields_to_order' ), 10, 1 );
         add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'display_custom_fields_in_admin' ), 10, 1 );
         add_filter( 'woocommerce_checkout_fields', array( $this, 'register_custom_fields_with_woo' ), 20 );
-        add_filter( 'woocommerce_checkout_fields', array( $this, 'register_default_fields_with_woo' ), 25 );
+
+        // Migração automática dos campos padrão brasileiros (se existirem na config antiga)
+        add_action( 'admin_init', array( $this, 'maybe_migrate_default_fields' ) );
     }
 
     /**
-     * Campos padrão que vêm pré-configurados.
+     * Campos padrão que vêm pré-configurados (inclui campos brasileiros).
      */
     public static function get_default_fields() {
         return array(
@@ -62,15 +64,64 @@ class GVN_Custom_Fields {
                 'is_default'  => true,
             ),
             array(
+                'key'         => 'billing_persontype',
+                'label'       => 'Tipo de Pessoa',
+                'type'        => 'select',
+                'required'    => false,
+                'width'       => '100',
+                'position'    => 3,
+                'placeholder' => '',
+                'enabled'     => false,
+                'mask'        => '',
+                'is_default'  => true,
+                'options'     => "pf|Pessoa Física\npj|Pessoa Jurídica",
+            ),
+            array(
                 'key'         => 'billing_cpf',
                 'label'       => 'CPF',
                 'type'        => 'text',
                 'required'    => true,
                 'width'       => '100',
-                'position'    => 3,
+                'position'    => 4,
                 'placeholder' => '000.000.000-00',
                 'enabled'     => true,
                 'mask'        => 'cpf',
+                'is_default'  => true,
+            ),
+            array(
+                'key'         => 'billing_rg',
+                'label'       => 'RG',
+                'type'        => 'text',
+                'required'    => false,
+                'width'       => '50',
+                'position'    => 5,
+                'placeholder' => '',
+                'enabled'     => false,
+                'mask'        => 'rg',
+                'is_default'  => true,
+            ),
+            array(
+                'key'         => 'billing_cnpj',
+                'label'       => 'CNPJ',
+                'type'        => 'text',
+                'required'    => false,
+                'width'       => '100',
+                'position'    => 6,
+                'placeholder' => '00.000.000/0000-00',
+                'enabled'     => false,
+                'mask'        => 'cnpj',
+                'is_default'  => true,
+            ),
+            array(
+                'key'         => 'billing_ie',
+                'label'       => 'Inscrição Estadual',
+                'type'        => 'text',
+                'required'    => false,
+                'width'       => '50',
+                'position'    => 7,
+                'placeholder' => '',
+                'enabled'     => false,
+                'mask'        => '',
                 'is_default'  => true,
             ),
             array(
@@ -79,9 +130,21 @@ class GVN_Custom_Fields {
                 'type'        => 'tel',
                 'required'    => true,
                 'width'       => '50',
-                'position'    => 4,
+                'position'    => 8,
                 'placeholder' => '(00) 00000-0000',
                 'enabled'     => true,
+                'mask'        => 'phone',
+                'is_default'  => true,
+            ),
+            array(
+                'key'         => 'billing_cellphone',
+                'label'       => 'Celular (Adicional)',
+                'type'        => 'tel',
+                'required'    => false,
+                'width'       => '50',
+                'position'    => 9,
+                'placeholder' => '(00) 00000-0000',
+                'enabled'     => false,
                 'mask'        => 'phone',
                 'is_default'  => true,
             ),
@@ -91,9 +154,82 @@ class GVN_Custom_Fields {
                 'type'        => 'email',
                 'required'    => true,
                 'width'       => '50',
-                'position'    => 5,
+                'position'    => 10,
                 'placeholder' => '',
                 'enabled'     => true,
+                'mask'        => '',
+                'is_default'  => true,
+            ),
+            array(
+                'key'         => 'billing_birthdate',
+                'label'       => 'Data de Nascimento',
+                'type'        => 'text',
+                'required'    => false,
+                'width'       => '50',
+                'position'    => 11,
+                'placeholder' => 'DD/MM/AAAA',
+                'enabled'     => false,
+                'mask'        => 'date',
+                'is_default'  => true,
+            ),
+            array(
+                'key'         => 'billing_gender',
+                'label'       => 'Gênero',
+                'type'        => 'select',
+                'required'    => false,
+                'width'       => '50',
+                'position'    => 12,
+                'placeholder' => '',
+                'enabled'     => false,
+                'mask'        => '',
+                'is_default'  => true,
+                'options'     => "prefiro_nao_dizer|Prefiro não dizer\nfeminino|Feminino\nmasculino|Masculino\noutro|Outro",
+            ),
+            array(
+                'key'         => 'billing_number',
+                'label'       => 'Número',
+                'type'        => 'text',
+                'required'    => true,
+                'width'       => '25',
+                'position'    => 13,
+                'placeholder' => '',
+                'enabled'     => false,
+                'mask'        => '',
+                'is_default'  => true,
+            ),
+            array(
+                'key'         => 'billing_neighborhood',
+                'label'       => 'Bairro',
+                'type'        => 'text',
+                'required'    => false,
+                'width'       => '50',
+                'position'    => 14,
+                'placeholder' => '',
+                'enabled'     => false,
+                'mask'        => '',
+                'is_default'  => true,
+            ),
+            array(
+                'key'         => 'shipping_number',
+                'label'       => 'Número (Entrega)',
+                'type'        => 'text',
+                'required'    => true,
+                'width'       => '25',
+                'position'    => 15,
+                'placeholder' => '',
+                'enabled'     => false,
+                'mask'        => '',
+                'is_default'  => true,
+            ),
+            array(
+                'key'         => 'shipping_neighborhood',
+                'label'       => 'Bairro (Entrega)',
+                'type'        => 'text',
+                'required'    => false,
+                'width'       => '50',
+                'position'    => 16,
+                'placeholder' => '',
+                'enabled'     => false,
                 'mask'        => '',
                 'is_default'  => true,
             ),
@@ -103,7 +239,7 @@ class GVN_Custom_Fields {
                 'type'        => 'textarea',
                 'required'    => false,
                 'width'       => '100',
-                'position'    => 6,
+                'position'    => 17,
                 'placeholder' => 'Observações sobre seu pedido, ex.: observações especiais sobre entrega.',
                 'enabled'     => true,
                 'mask'        => '',
@@ -232,109 +368,6 @@ class GVN_Custom_Fields {
     }
 
     /**
-     * Retorna os campos padrão brasileiros ativados com suas configurações, ordenados por posição.
-     */
-    public static function get_active_default_fields() {
-        if ( ! class_exists( 'GVN_Admin' ) ) {
-            return array();
-        }
-
-        $config      = GVN_Admin::get_saved_default_fields_config();
-        $definitions = GVN_Admin::get_default_field_definitions();
-        $active      = array();
-        $index       = 0;
-
-        // Primeiro passo: coletar quais campos estão habilitados
-        $enabled_keys = array();
-        foreach ( $definitions as $section ) {
-            foreach ( $section['groups'] as $group ) {
-                foreach ( $group['fields'] as $key => $def ) {
-                    $field_config = isset( $config[ $key ] ) ? $config[ $key ] : array();
-                    $is_enabled   = isset( $field_config['enabled'] ) ? (bool) $field_config['enabled'] : $def['default_enabled'];
-                    if ( $is_enabled ) {
-                        $enabled_keys[] = $key;
-                    }
-                }
-            }
-        }
-
-        // Segundo passo: montar lista ativa (inclui campos com depends_on se o campo pai estiver ativo)
-        foreach ( $definitions as $section ) {
-            foreach ( $section['groups'] as $group ) {
-                foreach ( $group['fields'] as $key => $def ) {
-                    $field_config = isset( $config[ $key ] ) ? $config[ $key ] : array();
-                    $enabled      = isset( $field_config['enabled'] ) ? (bool) $field_config['enabled'] : $def['default_enabled'];
-
-                    // Se tem depends_on, ativa automaticamente quando o campo pai estiver ativo
-                    $has_dep    = ! empty( $def['depends_on'] );
-                    $parent_on  = $has_dep && in_array( $def['depends_on']['field'], $enabled_keys, true );
-
-                    if ( ! $enabled && ! $parent_on ) {
-                        $index++;
-                        continue;
-                    }
-
-                    $required = isset( $field_config['required'] ) ? (bool) $field_config['required'] : $def['default_required'];
-                    $position = isset( $field_config['position'] ) ? intval( $field_config['position'] ) : $index;
-
-                    $active[ $key ] = array(
-                        'label'       => $def['label'],
-                        'type'        => $def['type'],
-                        'required'    => $required,
-                        'mask'        => isset( $def['mask'] ) ? $def['mask'] : '',
-                        'placeholder' => isset( $def['placeholder'] ) ? $def['placeholder'] : '',
-                        'options'     => isset( $def['options'] ) ? $def['options'] : '',
-                        'position'    => $position,
-                        'depends_on'  => isset( $def['depends_on'] ) ? $def['depends_on'] : null,
-                    );
-
-                    $index++;
-                }
-            }
-        }
-
-        // Ordena por posição
-        uasort( $active, function ( $a, $b ) {
-            return $a['position'] - $b['position'];
-        } );
-
-        return $active;
-    }
-
-    /**
-     * Registra campos padrão brasileiros ativados no WooCommerce.
-     */
-    public function register_default_fields_with_woo( $checkout_fields ) {
-        $active_defaults = self::get_active_default_fields();
-
-        foreach ( $active_defaults as $key => $field ) {
-            $section = 'billing';
-            if ( strpos( $key, 'shipping_' ) === 0 ) {
-                $section = 'shipping';
-            }
-
-            $woo_field = array(
-                'type'        => $field['type'],
-                'label'       => $field['label'],
-                'required'    => $field['required'],
-                'placeholder' => $field['placeholder'],
-                'priority'    => 200,
-                'class'       => array( 'form-row-wide' ),
-            );
-
-            if ( 'select' === $field['type'] && ! empty( $field['options'] ) ) {
-                $parsed = self::parse_select_options( $field['options'] );
-                $woo_field['type']    = 'select';
-                $woo_field['options'] = array_merge( array( '' => '-- Selecione --' ), $parsed );
-            }
-
-            $checkout_fields[ $section ][ $key ] = $woo_field;
-        }
-
-        return $checkout_fields;
-    }
-
-    /**
      * Registra campos personalizados no WooCommerce para validação.
      * Campos com condições são registrados como NÃO obrigatórios no WooCommerce
      * (a obrigatoriedade é controlada via JS no frontend).
@@ -348,7 +381,7 @@ class GVN_Custom_Fields {
             $required = $is_conditional ? false : $field['required'];
 
             if ( strpos( $key, 'billing_' ) === 0 ) {
-                $checkout_fields['billing'][ $key ] = array(
+                $woo_field = array(
                     'type'        => $field['type'],
                     'label'       => $field['label'],
                     'required'    => $required,
@@ -356,6 +389,25 @@ class GVN_Custom_Fields {
                     'priority'    => $field['position'] * 10,
                     'class'       => array( 'form-row-wide' ),
                 );
+
+                if ( 'select' === $field['type'] && ! empty( $field['options'] ) ) {
+                    $parsed = self::parse_select_options( $field['options'] );
+                    $woo_field['type']    = 'select';
+                    $woo_field['options'] = array_merge( array( '' => '-- Selecione --' ), $parsed );
+                }
+
+                $checkout_fields['billing'][ $key ] = $woo_field;
+            } elseif ( strpos( $key, 'shipping_' ) === 0 ) {
+                $woo_field = array(
+                    'type'        => $field['type'],
+                    'label'       => $field['label'],
+                    'required'    => $required,
+                    'placeholder' => $field['placeholder'],
+                    'priority'    => $field['position'] * 10,
+                    'class'       => array( 'form-row-wide' ),
+                );
+
+                $checkout_fields['shipping'][ $key ] = $woo_field;
             } elseif ( $key !== 'order_comments' && strpos( $key, 'gvn_' ) === 0 ) {
                 $checkout_fields['billing'][ $key ] = array(
                     'type'        => $field['type'],
@@ -372,7 +424,13 @@ class GVN_Custom_Fields {
             'billing_company', 'billing_address_1', 'billing_address_2',
             'billing_city', 'billing_postcode', 'billing_country', 'billing_state',
         );
+
+        // Não ocultar campos que foram adicionados explicitamente pelo admin
+        $enabled_keys = wp_list_pluck( $fields, 'key' );
         foreach ( $hide_fields as $field_key ) {
+            if ( in_array( $field_key, $enabled_keys, true ) ) {
+                continue; // O admin adicionou este campo, não ocultar
+            }
             if ( isset( $checkout_fields['billing'][ $field_key ] ) ) {
                 $checkout_fields['billing'][ $field_key ]['required'] = false;
                 $checkout_fields['billing'][ $field_key ]['class'][]  = 'gvn-hidden-field';
@@ -383,28 +441,32 @@ class GVN_Custom_Fields {
     }
 
     /**
-     * Salva campos custom e campos padrão ativados no pedido.
+     * Salva campos custom no pedido.
      */
     public function save_custom_fields_to_order( $order_id ) {
-        // Salva campos personalizados
         $fields = self::get_enabled_fields();
+
+        // Lista de campos nativos do WooCommerce que ele já salva sozinho
+        $woo_native_keys = array(
+            'billing_first_name', 'billing_last_name', 'billing_email',
+            'billing_phone', 'billing_company', 'billing_address_1',
+            'billing_address_2', 'billing_city', 'billing_state',
+            'billing_postcode', 'billing_country',
+        );
 
         foreach ( $fields as $field ) {
             $key = $field['key'];
 
-            if ( $field['is_default'] && $key !== 'billing_cpf' ) {
+            // Pula campos nativos do WooCommerce (ele já salva)
+            if ( in_array( $key, $woo_native_keys, true ) ) {
                 continue;
             }
 
-            if ( isset( $_POST[ $key ] ) ) {
-                $value = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
-                update_post_meta( $order_id, '_' . $key, $value );
+            // Pula order_comments (Woo já salva)
+            if ( 'order_comments' === $key ) {
+                continue;
             }
-        }
 
-        // Salva campos padrão brasileiros ativados
-        $default_fields = self::get_active_default_fields();
-        foreach ( $default_fields as $key => $def ) {
             if ( isset( $_POST[ $key ] ) ) {
                 $value = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
                 update_post_meta( $order_id, '_' . $key, $value );
@@ -413,16 +475,23 @@ class GVN_Custom_Fields {
     }
 
     /**
-     * Exibe campos custom e padrão no admin do pedido.
+     * Exibe campos custom no admin do pedido.
      */
     public function display_custom_fields_in_admin( $order ) {
-        // Campos personalizados
         $fields = self::get_enabled_fields();
+
+        // Lista de campos nativos do WooCommerce que já são exibidos pelo Woo
+        $woo_native_keys = array(
+            'billing_first_name', 'billing_last_name', 'billing_email',
+            'billing_phone', 'billing_company', 'billing_address_1',
+            'billing_address_2', 'billing_city', 'billing_state',
+            'billing_postcode', 'billing_country', 'order_comments',
+        );
 
         foreach ( $fields as $field ) {
             $key = $field['key'];
 
-            if ( $field['is_default'] && $key !== 'billing_cpf' ) {
+            if ( in_array( $key, $woo_native_keys, true ) ) {
                 continue;
             }
 
@@ -431,15 +500,154 @@ class GVN_Custom_Fields {
                 echo '<p><strong>' . esc_html( $field['label'] ) . ':</strong> ' . esc_html( $value ) . '</p>';
             }
         }
+    }
 
-        // Campos padrão brasileiros
-        $default_fields = self::get_active_default_fields();
-        foreach ( $default_fields as $key => $def ) {
-            $value = $order->get_meta( '_' . $key );
-            if ( $value ) {
-                echo '<p><strong>' . esc_html( $def['label'] ) . ':</strong> ' . esc_html( $value ) . '</p>';
+    /**
+     * Migra campos da aba "Campos Padrão" antiga para a lista unificada.
+     * Executa apenas uma vez, quando detecta a opção antiga.
+     */
+    public function maybe_migrate_default_fields() {
+        $old_config = get_option( 'gvn_checkout_default_fields_config', false );
+
+        if ( false === $old_config || ! is_array( $old_config ) || empty( $old_config ) ) {
+            return; // Nada a migrar
+        }
+
+        $current_fields = get_option( self::OPTION_KEY, false );
+
+        if ( false === $current_fields || ! is_array( $current_fields ) || empty( $current_fields ) ) {
+            $current_fields = self::get_default_fields();
+        }
+
+        // Coletar keys existentes
+        $existing_keys = array();
+        foreach ( $current_fields as $f ) {
+            $existing_keys[] = $f['key'];
+        }
+
+        // Definições dos campos brasileiros para referência
+        $brazilian_defs = self::get_brazilian_field_definitions();
+
+        $max_position = 0;
+        foreach ( $current_fields as $f ) {
+            if ( intval( $f['position'] ) > $max_position ) {
+                $max_position = intval( $f['position'] );
             }
         }
+
+        $added = false;
+        foreach ( $old_config as $key => $config ) {
+            if ( in_array( $key, $existing_keys, true ) ) {
+                // Campo já existe; atualizar enabled/required se estava ativo na config antiga
+                if ( ! empty( $config['enabled'] ) ) {
+                    foreach ( $current_fields as &$cf ) {
+                        if ( $cf['key'] === $key ) {
+                            $cf['enabled']  = true;
+                            $cf['required'] = ! empty( $config['required'] );
+                            break;
+                        }
+                    }
+                    unset( $cf );
+                    $added = true;
+                }
+                continue;
+            }
+
+            // Campo não existe — adicionar se estava ativo
+            if ( ! empty( $config['enabled'] ) && isset( $brazilian_defs[ $key ] ) ) {
+                $def = $brazilian_defs[ $key ];
+                $max_position++;
+                $current_fields[] = array(
+                    'key'         => $key,
+                    'label'       => $def['label'],
+                    'type'        => $def['type'],
+                    'required'    => ! empty( $config['required'] ),
+                    'width'       => '50',
+                    'position'    => $max_position,
+                    'placeholder' => isset( $def['placeholder'] ) ? $def['placeholder'] : '',
+                    'enabled'     => true,
+                    'mask'        => isset( $def['mask'] ) ? $def['mask'] : '',
+                    'is_default'  => true,
+                    'options'     => isset( $def['options'] ) ? $def['options'] : '',
+                );
+                $added = true;
+            }
+        }
+
+        if ( $added ) {
+            update_option( self::OPTION_KEY, $current_fields );
+        }
+
+        // Remove a opção antiga para não migrar novamente
+        delete_option( 'gvn_checkout_default_fields_config' );
+    }
+
+    /**
+     * Definições dos campos brasileiros para uso na migração.
+     */
+    private static function get_brazilian_field_definitions() {
+        return array(
+            'billing_persontype' => array(
+                'label'   => 'Tipo de Pessoa',
+                'type'    => 'select',
+                'mask'    => '',
+                'options' => "pf|Pessoa Física\npj|Pessoa Jurídica",
+            ),
+            'billing_cpf' => array(
+                'label'       => 'CPF',
+                'type'        => 'text',
+                'mask'        => 'cpf',
+                'placeholder' => '000.000.000-00',
+            ),
+            'billing_rg' => array(
+                'label' => 'RG',
+                'type'  => 'text',
+                'mask'  => 'rg',
+            ),
+            'billing_cnpj' => array(
+                'label'       => 'CNPJ',
+                'type'        => 'text',
+                'mask'        => 'cnpj',
+                'placeholder' => '00.000.000/0000-00',
+            ),
+            'billing_ie' => array(
+                'label' => 'Inscrição Estadual',
+                'type'  => 'text',
+            ),
+            'billing_birthdate' => array(
+                'label'       => 'Data de Nascimento',
+                'type'        => 'text',
+                'mask'        => 'date',
+                'placeholder' => 'DD/MM/AAAA',
+            ),
+            'billing_gender' => array(
+                'label'   => 'Gênero',
+                'type'    => 'select',
+                'options' => "prefiro_nao_dizer|Prefiro não dizer\nfeminino|Feminino\nmasculino|Masculino\noutro|Outro",
+            ),
+            'billing_number' => array(
+                'label' => 'Número',
+                'type'  => 'text',
+            ),
+            'billing_neighborhood' => array(
+                'label' => 'Bairro',
+                'type'  => 'text',
+            ),
+            'billing_cellphone' => array(
+                'label'       => 'Celular (Adicional)',
+                'type'        => 'tel',
+                'mask'        => 'phone',
+                'placeholder' => '(00) 00000-0000',
+            ),
+            'shipping_number' => array(
+                'label' => 'Número (Entrega)',
+                'type'  => 'text',
+            ),
+            'shipping_neighborhood' => array(
+                'label' => 'Bairro (Entrega)',
+                'type'  => 'text',
+            ),
+        );
     }
 
     /**

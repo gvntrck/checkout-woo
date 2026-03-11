@@ -1,14 +1,14 @@
 /**
  * GVN Checkout - Admin Fields Manager
  * Drag-and-drop, CRUD, largura e ordenação de campos.
- * @version 1.0.8
+ * @version 1.11.0
  */
 
 (function ($) {
     'use strict';
 
     /* ===================================================
-     *  Gerenciador de Campos Personalizados (Fields Tab)
+     *  Gerenciador de Campos (Fields Tab)
      * =================================================== */
     var GVNAdminFields = {
 
@@ -38,6 +38,10 @@
 
             $('#gvn-import-woo-fields').on('click', function() {
                 self.importWooFields();
+            });
+
+            $('#gvn-import-br-fields').on('click', function() {
+                self.importBrazilianFields();
             });
 
             this.$list.on('click', '.gvn-field-remove', function () {
@@ -146,9 +150,6 @@
         addField: function () {
             var timestamp = Date.now();
             var key = 'gvn_custom_' + timestamp;
-            var types = this.getTypeOptions();
-            var widths = this.getWidthOptions('100');
-            var masks = this.getMaskOptions('');
 
             var html = this.buildFieldRow({
                 key: key,
@@ -336,21 +337,56 @@
                 { key: 'billing_company', label: 'Empresa', placeholder: 'Nome da empresa (opcional)', width: '100', type: 'text', required: false }
             ];
 
-            // Coletar keys existentes (campos personalizados + padrão brasileiros)
+            var added = this._importFieldList(wooFields, true);
+
+            if (added > 0) {
+                alert(added + ' campo(s) nativo(s) importado(s) e adicionado(s) ao final da lista. Clique no botão de configurações para ajustá-los e não esqueça de Salvar.');
+            } else {
+                alert('Todos os campos nativos do WooCommerce já estão na lista.');
+            }
+        },
+
+        importBrazilianFields: function() {
+            var self = this;
+            var brFields = [
+                { key: 'billing_persontype', label: 'Tipo de Pessoa', placeholder: '', width: '100', type: 'select', required: false, mask: '', options: 'pf|Pessoa Física\npj|Pessoa Jurídica' },
+                { key: 'billing_cpf', label: 'CPF', placeholder: '000.000.000-00', width: '100', type: 'text', required: true, mask: 'cpf' },
+                { key: 'billing_rg', label: 'RG', placeholder: '', width: '50', type: 'text', required: false, mask: 'rg' },
+                { key: 'billing_cnpj', label: 'CNPJ', placeholder: '00.000.000/0000-00', width: '100', type: 'text', required: false, mask: 'cnpj' },
+                { key: 'billing_ie', label: 'Inscrição Estadual', placeholder: '', width: '50', type: 'text', required: false },
+                { key: 'billing_birthdate', label: 'Data de Nascimento', placeholder: 'DD/MM/AAAA', width: '50', type: 'text', required: false, mask: 'date' },
+                { key: 'billing_gender', label: 'Gênero', placeholder: '', width: '50', type: 'select', required: false, options: 'prefiro_nao_dizer|Prefiro não dizer\nfeminino|Feminino\nmasculino|Masculino\noutro|Outro' },
+                { key: 'billing_number', label: 'Número', placeholder: '', width: '25', type: 'text', required: true },
+                { key: 'billing_neighborhood', label: 'Bairro', placeholder: '', width: '50', type: 'text', required: false },
+                { key: 'billing_cellphone', label: 'Celular (Adicional)', placeholder: '(00) 00000-0000', width: '50', type: 'tel', required: false, mask: 'phone' },
+                { key: 'shipping_number', label: 'Número (Entrega)', placeholder: '', width: '25', type: 'text', required: true },
+                { key: 'shipping_neighborhood', label: 'Bairro (Entrega)', placeholder: '', width: '50', type: 'text', required: false }
+            ];
+
+            var added = this._importFieldList(brFields, false);
+
+            if (added > 0) {
+                alert(added + ' campo(s) brasileiro(s) importado(s) e adicionado(s) ao final da lista. Ajuste as configurações e não esqueça de Salvar.');
+            } else {
+                alert('Todos os campos brasileiros já estão na lista.');
+            }
+        },
+
+        /**
+         * Importa uma lista de campos, retornando quantos foram adicionados.
+         */
+        _importFieldList: function(fieldList, isWooDefault) {
+            var self = this;
+
+            // Coletar keys existentes
             var existingKeys = {};
             self.$list.find('.gvn-field-row').each(function() {
                 var k = $(this).attr('data-key');
                 if (k) existingKeys[k] = true;
             });
 
-            // Também verifica campos padrão brasileiros
-            var defaultFields = (typeof gvn_admin_params !== 'undefined' && gvn_admin_params.default_fields) ? gvn_admin_params.default_fields : [];
-            for (var d = 0; d < defaultFields.length; d++) {
-                existingKeys[defaultFields[d].key] = true;
-            }
-
             var added = 0;
-            $.each(wooFields, function(i, wField) {
+            $.each(fieldList, function(i, wField) {
                 if (existingKeys[wField.key]) return; // pula se já existe
 
                 var fieldData = {
@@ -360,16 +396,16 @@
                     required: wField.required,
                     width: wField.width,
                     position: self.$list.children().length + 1,
-                    placeholder: wField.placeholder,
+                    placeholder: wField.placeholder || '',
                     enabled: true,
                     mask: wField.mask || '',
-                    is_default: false,
-                    is_woo_default: true,
-                    options: '',
+                    is_default: !isWooDefault,
+                    is_woo_default: isWooDefault,
+                    options: wField.options || '',
                     default_option: '',
                     conditions: { logic: 'and', rules: [] }
                 };
-                
+
                 var fieldHtml = self.buildFieldRow(fieldData);
                 self.$list.append(fieldHtml);
                 added++;
@@ -377,10 +413,9 @@
 
             if (added > 0) {
                 this.updatePositions();
-                alert(added + ' campo(s) nativo(s) importado(s) e adicionado(s) ao final da lista. Clique no botão de configurações para ajustá-los e não esqueça de Salvar.');
-            } else {
-                alert('Todos os campos nativos do WooCommerce já estão na lista.');
             }
+
+            return added;
         },
 
         escHtml: function (str) {
@@ -398,7 +433,6 @@
             var rules = conditions.rules || [];
             var logic = conditions.logic || 'and';
             var currentKey = field.key;
-            var fieldOptions = this.getFieldOptionsForConditions(currentKey);
             var logicDisplay = rules.length === 0 ? 'display:none;' : '';
 
             var html = '<div class="gvn-conditions-section">' +
@@ -437,7 +471,7 @@
         getFieldOptionsForConditions: function (excludeKey, selectedKey) {
             var html = '';
 
-            // Campos personalizados
+            // Todos os campos da lista (unificados)
             this.$list.find('.gvn-field-row').each(function () {
                 var key = $(this).find('.gvn-field-key-input').val();
                 var label = $(this).find('.gvn-field-label-input').val() || key;
@@ -445,20 +479,6 @@
                     html += '<option value="' + key + '"' + (key === selectedKey ? ' selected' : '') + '>' + label + '</option>';
                 }
             });
-
-            // Campos Padrão Brasileiros (vindos do PHP)
-            var defaultFields = (typeof gvn_admin_params !== 'undefined' && gvn_admin_params.default_fields) ? gvn_admin_params.default_fields : [];
-            if (defaultFields.length > 0) {
-                html += '<optgroup label="📋 Campos Padrão Brasileiros">';
-                for (var i = 0; i < defaultFields.length; i++) {
-                    var dfKey = defaultFields[i].key;
-                    var dfLabel = defaultFields[i].label + ' (' + dfKey + ')';
-                    if (dfKey !== excludeKey) {
-                        html += '<option value="' + dfKey + '"' + (dfKey === selectedKey ? ' selected' : '') + '>' + dfLabel + '</option>';
-                    }
-                }
-                html += '</optgroup>';
-            }
 
             return html;
         },
@@ -526,101 +546,10 @@
     };
 
     /* ===================================================
-     *  Gerenciador de Campos Padrão (Default Fields Tab)
-     * =================================================== */
-    var GVNDefaultFields = {
-
-        init: function () {
-            this.$container = $('#gvn-default-fields-manager');
-            if (!this.$container.length) return;
-
-            this.$list = $('#gvn-df-sortable-list');
-            this.$saveBtn = $('#gvn-save-default-fields');
-            this.$status = $('#gvn-default-fields-status');
-
-            this.bindEvents();
-            this.initSortable();
-        },
-
-        bindEvents: function () {
-            var self = this;
-
-            this.$saveBtn.on('click', function () {
-                self.saveConfig();
-            });
-
-            // Toggle active class on field card
-            this.$container.on('change', '.gvn-df-enabled', function () {
-                var $field = $(this).closest('.gvn-df-field');
-                $field.toggleClass('gvn-df-field--active', this.checked);
-            });
-        },
-
-        initSortable: function () {
-            var self = this;
-            this.$list.sortable({
-                handle: '.gvn-df-field__drag',
-                axis: 'y',
-                opacity: 0.7,
-                placeholder: 'gvn-df-field-placeholder',
-                update: function () {
-                    self.updatePositions();
-                }
-            });
-        },
-
-        updatePositions: function () {
-            this.$list.find('.gvn-df-field').each(function (index) {
-                $(this).find('.gvn-df-field__pos').text('#' + (index + 1));
-            });
-        },
-
-        saveConfig: function () {
-            var self = this;
-            var config = {};
-
-            this.$container.find('.gvn-df-field').each(function (index) {
-                var key = $(this).data('field-key');
-                config[key] = {
-                    enabled: $(this).find('.gvn-df-enabled').is(':checked'),
-                    required: $(this).find('.gvn-df-required').is(':checked'),
-                    position: index
-                };
-            });
-
-            this.$saveBtn.prop('disabled', true).text('Salvando...');
-
-            $.ajax({
-                url: gvn_admin_params.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'gvn_save_default_fields_config',
-                    nonce: gvn_admin_params.nonce,
-                    config: JSON.stringify(config)
-                },
-                success: function (response) {
-                    if (response.success) {
-                        self.$status.html('<span style="color:#16a34a;">✓ ' + response.data.message + '</span>').show().delay(3000).fadeOut();
-                    } else {
-                        self.$status.html('<span style="color:#dc2626;">✕ ' + response.data.message + '</span>').show();
-                    }
-                },
-                error: function () {
-                    self.$status.html('<span style="color:#dc2626;">Erro ao salvar.</span>').show();
-                },
-                complete: function () {
-                    self.$saveBtn.prop('disabled', false).text('💾 Salvar Configurações');
-                }
-            });
-        }
-    };
-
-    /* ===================================================
      *  Inicialização
      * =================================================== */
     $(document).ready(function () {
         GVNAdminFields.init();
-        GVNDefaultFields.init();
     });
 
 })(jQuery);

@@ -4,7 +4,7 @@
  * Gerencia a página de configurações no painel do WordPress.
  *
  * @package GVN_Checkout
- * @version 1.0.8
+ * @version 1.11.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,8 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class GVN_Admin {
 
     private static $instance = null;
-
-    const DEFAULT_FIELDS_OPTION = 'gvn_checkout_default_fields_config';
 
     public static function get_instance() {
         if ( null === self::$instance ) {
@@ -30,7 +28,6 @@ class GVN_Admin {
         add_action( 'woocommerce_update_options_gvn_checkout', array( $this, 'save_settings' ) );
         add_filter( 'plugin_action_links_' . GVN_CHECKOUT_PLUGIN_BASENAME, array( $this, 'add_plugin_links' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
-        add_action( 'wp_ajax_gvn_save_default_fields_config', array( $this, 'ajax_save_default_fields_config' ) );
     }
 
     /**
@@ -45,7 +42,7 @@ class GVN_Admin {
      * Retorna a sub-aba ativa.
      */
     private function get_current_subtab() {
-        $valid = array( 'settings', 'fields', 'default_fields' );
+        $valid = array( 'settings', 'fields' );
         $subtab = isset( $_GET['subtab'] ) ? sanitize_key( $_GET['subtab'] ) : 'settings';
         return in_array( $subtab, $valid, true ) ? $subtab : 'settings';
     }
@@ -58,9 +55,8 @@ class GVN_Admin {
         $base_url = admin_url( 'admin.php?page=wc-settings&tab=gvn_checkout' );
 
         $subtabs = array(
-            'settings'       => 'Configurações',
-            'fields'         => 'Campos do Formulário',
-            'default_fields' => 'Campos Padrão',
+            'settings' => 'Configurações',
+            'fields'   => 'Campos do Formulário',
         );
         ?>
         <nav class="gvn-subtabs nav-tab-wrapper">
@@ -76,9 +72,6 @@ class GVN_Admin {
         switch ( $current_subtab ) {
             case 'fields':
                 $this->render_fields_manager();
-                break;
-            case 'default_fields':
-                $this->render_default_fields_tab();
                 break;
             default:
                 woocommerce_admin_fields( $this->get_settings() );
@@ -300,20 +293,9 @@ class GVN_Admin {
             true
         );
 
-        // Prepara campos padrão para o JS usar nas condições de exibição
-        $flat_fields = self::get_flat_default_fields();
-        $df_for_js   = array();
-        foreach ( $flat_fields as $f ) {
-            $df_for_js[] = array(
-                'key'   => $f['key'],
-                'label' => $f['label'],
-            );
-        }
-
         wp_localize_script( 'gvn-admin-fields-js', 'gvn_admin_params', array(
-            'ajax_url'       => admin_url( 'admin-ajax.php' ),
-            'nonce'          => wp_create_nonce( 'gvn_admin_fields_nonce' ),
-            'default_fields' => $df_for_js,
+            'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'nonce'    => wp_create_nonce( 'gvn_admin_fields_nonce' ),
         ) );
     }
 
@@ -330,6 +312,7 @@ class GVN_Admin {
             <div class="gvn-fields-toolbar">
                 <button type="button" class="button button-secondary" id="gvn-add-field">+ Adicionar Campo</button>
                 <button type="button" class="button button-secondary" id="gvn-import-woo-fields" title="Adiciona campos nativos de endereço do WooCommerce à lista">📥 Importar Campos Padrões do WooCommerce</button>
+                <button type="button" class="button button-secondary" id="gvn-import-br-fields" title="Adiciona campos brasileiros (CPF, CNPJ, RG, etc.) à lista">🇧🇷 Importar Campos Brasileiros</button>
                 <button type="button" class="button button-primary" id="gvn-save-fields">💾 Salvar Campos</button>
                 <span id="gvn-fields-status" style="display:none;"></span>
             </div>
@@ -464,323 +447,5 @@ class GVN_Admin {
             </div>
         </div>
         <?php
-    }
-
-    /**
-     * Definições de todos os campos padrão brasileiros configuráveis.
-     */
-    public static function get_default_field_definitions() {
-        return array(
-            'billing' => array(
-                'label'  => 'Campos de Cobrança (Billing)',
-                'groups' => array(
-                    'identification' => array(
-                        'label'  => 'Identificação Pessoal / Empresarial',
-                        'icon'   => '🪪',
-                        'fields' => array(
-                            'billing_persontype' => array(
-                                'label'       => 'Tipo de Pessoa',
-                                'description' => 'Pessoa Física ou Jurídica',
-                                'type'        => 'select',
-                                'options'     => "pf|Pessoa Física\npj|Pessoa Jurídica",
-                                'mask'        => '',
-                                'default_enabled'  => false,
-                                'default_required' => false,
-                                'can_disable'      => true,
-                            ),
-                            'billing_cpf' => array(
-                                'label'       => 'CPF',
-                                'description' => 'Para pessoa física',
-                                'type'        => 'text',
-                                'options'     => '',
-                                'mask'        => 'cpf',
-                                'placeholder' => '000.000.000-00',
-                                'default_enabled'  => true,
-                                'default_required' => true,
-                                'can_disable'      => true,
-                                'depends_on'       => array( 'field' => 'billing_persontype', 'value' => 'pf' ),
-                            ),
-                            'billing_rg' => array(
-                                'label'       => 'RG',
-                                'description' => 'Opcional, configurável',
-                                'type'        => 'text',
-                                'options'     => '',
-                                'mask'        => 'rg',
-                                'placeholder' => '',
-                                'default_enabled'  => false,
-                                'default_required' => false,
-                                'can_disable'      => true,
-                            ),
-                            'billing_cnpj' => array(
-                                'label'       => 'CNPJ',
-                                'description' => 'Para pessoa jurídica',
-                                'type'        => 'text',
-                                'options'     => '',
-                                'mask'        => 'cnpj',
-                                'placeholder' => '00.000.000/0000-00',
-                                'default_enabled'  => false,
-                                'default_required' => false,
-                                'can_disable'      => true,
-                                'depends_on'       => array( 'field' => 'billing_persontype', 'value' => 'pj' ),
-                            ),
-                            'billing_ie' => array(
-                                'label'       => 'Inscrição Estadual',
-                                'description' => 'Opcional, configurável',
-                                'type'        => 'text',
-                                'options'     => '',
-                                'mask'        => '',
-                                'placeholder' => '',
-                                'default_enabled'  => false,
-                                'default_required' => false,
-                                'can_disable'      => true,
-                            ),
-                        ),
-                    ),
-                    'demographic' => array(
-                        'label'  => 'Demográficos',
-                        'icon'   => '👤',
-                        'fields' => array(
-                            'billing_birthdate' => array(
-                                'label'       => 'Data de Nascimento',
-                                'description' => 'Opcional, configurável',
-                                'type'        => 'text',
-                                'options'     => '',
-                                'mask'        => 'date',
-                                'placeholder' => 'DD/MM/AAAA',
-                                'default_enabled'  => false,
-                                'default_required' => false,
-                                'can_disable'      => true,
-                            ),
-                            'billing_gender' => array(
-                                'label'       => 'Gênero',
-                                'description' => 'Prefiro não dizer, Feminino, Masculino, Outro',
-                                'type'        => 'select',
-                                'options'     => "prefiro_nao_dizer|Prefiro não dizer\nfeminino|Feminino\nmasculino|Masculino\noutro|Outro",
-                                'mask'        => '',
-                                'placeholder' => '',
-                                'default_enabled'  => false,
-                                'default_required' => false,
-                                'can_disable'      => true,
-                            ),
-                        ),
-                    ),
-                    'address' => array(
-                        'label'  => 'Endereço',
-                        'icon'   => '📍',
-                        'fields' => array(
-                            'billing_number' => array(
-                                'label'       => 'Número',
-                                'description' => 'Número do endereço (obrigatório)',
-                                'type'        => 'text',
-                                'options'     => '',
-                                'mask'        => '',
-                                'placeholder' => '',
-                                'default_enabled'  => false,
-                                'default_required' => true,
-                                'can_disable'      => true,
-                            ),
-                            'billing_neighborhood' => array(
-                                'label'       => 'Bairro',
-                                'description' => 'Obrigatoriedade configurável',
-                                'type'        => 'text',
-                                'options'     => '',
-                                'mask'        => '',
-                                'placeholder' => '',
-                                'default_enabled'  => false,
-                                'default_required' => false,
-                                'can_disable'      => true,
-                            ),
-                        ),
-                    ),
-                    'contact' => array(
-                        'label'  => 'Contato',
-                        'icon'   => '📱',
-                        'fields' => array(
-                            'billing_cellphone' => array(
-                                'label'       => 'Celular',
-                                'description' => 'Opcional, configurável',
-                                'type'        => 'tel',
-                                'options'     => '',
-                                'mask'        => 'phone',
-                                'placeholder' => '(00) 00000-0000',
-                                'default_enabled'  => false,
-                                'default_required' => false,
-                                'can_disable'      => true,
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-            'shipping' => array(
-                'label'  => 'Campos de Entrega (Shipping)',
-                'groups' => array(
-                    'shipping_address' => array(
-                        'label'  => 'Endereço',
-                        'icon'   => '🚚',
-                        'fields' => array(
-                            'shipping_number' => array(
-                                'label'       => 'Número',
-                                'description' => 'Número do endereço (obrigatório)',
-                                'type'        => 'text',
-                                'options'     => '',
-                                'mask'        => '',
-                                'placeholder' => '',
-                                'default_enabled'  => false,
-                                'default_required' => true,
-                                'can_disable'      => true,
-                            ),
-                            'shipping_neighborhood' => array(
-                                'label'       => 'Bairro',
-                                'description' => 'Obrigatoriedade configurável',
-                                'type'        => 'text',
-                                'options'     => '',
-                                'mask'        => '',
-                                'placeholder' => '',
-                                'default_enabled'  => false,
-                                'default_required' => false,
-                                'can_disable'      => true,
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-        );
-    }
-
-    /**
-     * Retorna as configurações salvas dos campos padrão.
-     */
-    public static function get_saved_default_fields_config() {
-        return get_option( self::DEFAULT_FIELDS_OPTION, array() );
-    }
-
-    /**
-     * Achata todas as definições de campos padrão em uma lista plana ordenada.
-     */
-    public static function get_flat_default_fields() {
-        $definitions  = self::get_default_field_definitions();
-        $saved_config = self::get_saved_default_fields_config();
-        $flat         = array();
-        $index        = 0;
-
-        foreach ( $definitions as $section_key => $section ) {
-            foreach ( $section['groups'] as $group_key => $group ) {
-                foreach ( $group['fields'] as $field_key => $field_def ) {
-                    $config   = isset( $saved_config[ $field_key ] ) ? $saved_config[ $field_key ] : array();
-                    $flat[] = array(
-                        'key'         => $field_key,
-                        'label'       => $field_def['label'],
-                        'description' => $field_def['description'],
-                        'type'        => $field_def['type'],
-                        'group_icon'  => $group['icon'],
-                        'group_label' => $group['label'],
-                        'section'     => $section_key,
-                        'enabled'     => isset( $config['enabled'] ) ? (bool) $config['enabled'] : $field_def['default_enabled'],
-                        'required'    => isset( $config['required'] ) ? (bool) $config['required'] : $field_def['default_required'],
-                        'position'    => isset( $config['position'] ) ? intval( $config['position'] ) : $index,
-                    );
-                    $index++;
-                }
-            }
-        }
-
-        usort( $flat, function ( $a, $b ) {
-            return $a['position'] - $b['position'];
-        } );
-
-        return $flat;
-    }
-
-    /**
-     * Renderiza a aba de campos padrão.
-     */
-    private function render_default_fields_tab() {
-        $fields = self::get_flat_default_fields();
-        ?>
-        <div id="gvn-default-fields-manager">
-            <h2>Campos Padrão do Checkout Brasileiro</h2>
-            <p class="description">Ative ou desative os campos padrão brasileiros no checkout. Arraste para reordenar a posição no formulário de checkout.</p>
-
-            <div class="gvn-default-fields-toolbar">
-                <button type="button" class="button button-primary" id="gvn-save-default-fields">💾 Salvar Configurações</button>
-                <span id="gvn-default-fields-status" style="display:none;"></span>
-            </div>
-
-            <div id="gvn-df-sortable-list">
-                <?php foreach ( $fields as $pos => $field ) : ?>
-                    <div class="gvn-df-field <?php echo $field['enabled'] ? 'gvn-df-field--active' : ''; ?>" data-field-key="<?php echo esc_attr( $field['key'] ); ?>">
-                        <div class="gvn-df-field__main">
-                            <span class="gvn-df-field__drag" title="Arrastar para reordenar">☰</span>
-                            <span class="gvn-df-field__pos">#<?php echo esc_html( $pos + 1 ); ?></span>
-                            <label class="gvn-df-field__toggle">
-                                <input type="checkbox" class="gvn-df-enabled" <?php checked( $field['enabled'] ); ?> />
-                                <span class="gvn-df-toggle-slider"></span>
-                            </label>
-                            <div class="gvn-df-field__info">
-                                <span class="gvn-df-field__label"><?php echo esc_html( $field['label'] ); ?></span>
-                                <span class="gvn-df-field__key"><?php echo esc_html( $field['key'] ); ?></span>
-                                <span class="gvn-df-field__desc"><?php echo esc_html( $field['description'] ); ?></span>
-                            </div>
-                            <span class="gvn-df-field__section-badge gvn-df-field__section-badge--<?php echo esc_attr( $field['section'] ); ?>">
-                                <?php echo esc_html( $field['group_icon'] . ' ' . $field['group_label'] ); ?>
-                            </span>
-                            <div class="gvn-df-field__options">
-                                <label class="gvn-df-field__required-label">
-                                    <input type="checkbox" class="gvn-df-required" <?php checked( $field['required'] ); ?> />
-                                    Obrigatório
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-        <?php
-    }
-
-    /**
-     * AJAX: Salva configurações de campos padrão.
-     */
-    public function ajax_save_default_fields_config() {
-        check_ajax_referer( 'gvn_admin_fields_nonce', 'nonce' );
-
-        if ( ! current_user_can( 'manage_woocommerce' ) ) {
-            wp_send_json_error( array( 'message' => 'Permissão negada.' ) );
-        }
-
-        $raw = isset( $_POST['config'] ) ? wp_unslash( $_POST['config'] ) : '';
-        $config = json_decode( $raw, true );
-
-        if ( ! is_array( $config ) ) {
-            wp_send_json_error( array( 'message' => 'Dados inválidos.' ) );
-        }
-
-        $definitions = self::get_default_field_definitions();
-        $valid_keys  = array();
-
-        foreach ( $definitions as $section ) {
-            foreach ( $section['groups'] as $group ) {
-                foreach ( $group['fields'] as $key => $def ) {
-                    $valid_keys[] = $key;
-                }
-            }
-        }
-
-        $sanitized = array();
-        foreach ( $config as $key => $values ) {
-            $key = sanitize_key( $key );
-            if ( ! in_array( $key, $valid_keys, true ) ) {
-                continue;
-            }
-            $sanitized[ $key ] = array(
-                'enabled'  => ! empty( $values['enabled'] ),
-                'required' => ! empty( $values['required'] ),
-                'position' => isset( $values['position'] ) ? intval( $values['position'] ) : 999,
-            );
-        }
-
-        update_option( self::DEFAULT_FIELDS_OPTION, $sanitized );
-
-        wp_send_json_success( array( 'message' => 'Campos padrão salvos com sucesso!' ) );
     }
 }

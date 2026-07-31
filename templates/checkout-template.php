@@ -27,7 +27,7 @@ $cart               = WC()->cart;
 $bump_in_cart = false;
 if ( $bump_product ) {
     foreach ( $cart->get_cart() as $cart_item ) {
-        if ( $cart_item['product_id'] == $bump_product_id && ! empty( $cart_item['gvn_order_bump'] ) ) {
+        if ( isset( $cart_item['product_id'] ) && (int) $cart_item['product_id'] === (int) $bump_product_id && ! empty( $cart_item['gvn_order_bump'] ) ) {
             $bump_in_cart = true;
             break;
         }
@@ -80,7 +80,8 @@ if ( $bump_product ) {
                                 $f_placeholder = esc_attr( $gvn_field['placeholder'] );
                                 $f_width       = $gvn_field['width'];
                                 $f_mask        = ! empty( $gvn_field['mask'] ) ? $gvn_field['mask'] : '';
-                                $f_value       = esc_attr( $checkout->get_value( $f_key ) );
+                                $f_raw_value   = $checkout->get_value( $gvn_field['key'] );
+                                $f_value       = esc_attr( $f_raw_value );
                                 $width_class   = 'gvn-field--w' . $f_width;
                                 $f_conditions  = isset( $gvn_field['conditions'] ) ? $gvn_field['conditions'] : array( 'logic' => 'and', 'rules' => array() );
                                 $has_conditions = GVN_Custom_Fields::has_conditions( $gvn_field );
@@ -93,18 +94,22 @@ if ( $bump_product ) {
                                         <?php if ( ! $f_required && $f_key === 'order_comments' ) : ?><span class="gvn-field__optional">(opcional)</span><?php endif; ?>
                                     </label>
                                     <?php if ( 'textarea' === $f_type ) : ?>
-                                        <textarea class="gvn-field__input gvn-field__textarea" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" rows="3" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?>><?php echo esc_textarea( $checkout->get_value( $f_key ) ); ?></textarea>
+                                        <textarea class="gvn-field__input gvn-field__textarea" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" rows="3" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?>><?php echo esc_textarea( $f_raw_value ); ?></textarea>
                                     <?php elseif ( 'select' === $f_type ) :
                                         $f_options_raw  = isset( $gvn_field['options'] ) ? $gvn_field['options'] : '';
                                         $f_options      = GVN_Custom_Fields::parse_select_options( $f_options_raw );
                                         $f_default_opt  = isset( $gvn_field['default_option'] ) ? $gvn_field['default_option'] : '';
-                                        $f_select_value = '' !== $f_value ? $f_value : $f_default_opt;
+                                        $f_select_value = '' !== $f_raw_value ? $f_raw_value : $f_default_opt;
                                     ?>
                                         <select class="gvn-field__input gvn-field__select" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" <?php echo $f_required ? 'required' : ''; ?>>
                                             <option value=""><?php echo $f_placeholder ? esc_html( $f_placeholder ) : '-- Selecione --'; ?></option>
-                                            <?php foreach ( $f_options as $opt_value => $opt_label ) : ?>
-                                                <option value="<?php echo esc_attr( $opt_value ); ?>" <?php selected( $f_select_value, $opt_value ); ?>><?php echo esc_html( $opt_label ); ?></option>
-                                            <?php endforeach; ?>
+                                            <?php if ( empty( $f_options ) ) : ?>
+                                                <option value="" disabled><?php echo esc_html__( 'Nenhuma opção configurada', 'gvn-checkout' ); ?></option>
+                                            <?php else : ?>
+                                                <?php foreach ( $f_options as $opt_value => $opt_label ) : ?>
+                                                    <option value="<?php echo esc_attr( $opt_value ); ?>" <?php selected( $f_select_value, $opt_value ); ?>><?php echo esc_html( $opt_label ); ?></option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
                                         </select>
                                     <?php else : ?>
                                         <input type="<?php echo esc_attr( $f_type ); ?>" class="gvn-field__input" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" value="<?php echo $f_value; ?>" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?> />
@@ -119,11 +124,11 @@ if ( $bump_product ) {
                         // Campos ocultos padrão do WooCommerce: só renderizar os que o admin NÃO inseriu como campo visual
                         $woo_hidden_defaults = array(
                             'billing_country'   => 'BR',
-                            'billing_address_1' => '-',
+                            'billing_address_1' => '',
                             'billing_address_2' => '',
-                            'billing_city'      => '-',
-                            'billing_state'     => '-',
-                            'billing_postcode'  => '00000-000',
+                            'billing_city'      => '',
+                            'billing_state'     => '',
+                            'billing_postcode'  => '',
                             'billing_company'   => '',
                         );
 
@@ -302,7 +307,12 @@ if ( $bump_product ) {
 
                         <!-- Order Bump -->
                         <?php if ( $bump_product ) :
-                            $bump_display_price = $bump_price ? wc_price( floatval( $bump_price ) ) : wc_price( $bump_product->get_price() );
+                            $bump_price_raw = $bump_price;
+                            if ( '' !== $bump_price_raw && floatval( $bump_price_raw ) > 0 ) {
+                                $bump_display_price = wc_price( floatval( $bump_price_raw ) );
+                            } else {
+                                $bump_display_price = wc_price( $bump_product->get_price() );
+                            }
                         ?>
                             <div class="gvn-order-bump" id="gvn-order-bump">
                                 <div class="gvn-order-bump__inner">

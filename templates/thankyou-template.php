@@ -165,7 +165,10 @@ $header_badge_text = get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGUR
                 if ( isset( $gateways[ $payment_method ] ) ) :
                     $gateway = $gateways[ $payment_method ];
                     ob_start();
+                    // Hook específico do método de pagamento.
                     do_action( 'woocommerce_thankyou_' . $payment_method, $order->get_id() );
+                    // Hook global do WC (plugins de e-mail, tracking, etc. dependem dele).
+                    do_action( 'woocommerce_thankyou', $order->get_id() );
                     $gateway_output = ob_get_clean();
                     if ( ! empty( trim( $gateway_output ) ) ) :
             ?>
@@ -208,8 +211,16 @@ $header_badge_text = get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGUR
                                 <?php
                                 $custom_fields = GVN_Custom_Fields::get_enabled_fields();
                                 $has_custom = false;
+                                // Campos já exibidos acima ou tratados pelo Woo nativamente.
+                                $skip_keys = array(
+                                    'billing_first_name', 'billing_last_name', 'billing_email',
+                                    'billing_phone', 'billing_company', 'billing_address_1',
+                                    'billing_address_2', 'billing_city', 'billing_state',
+                                    'billing_postcode', 'billing_country', 'order_comments',
+                                    'billing_cpf',
+                                );
                                 foreach ( $custom_fields as $field ) {
-                                    if ( $field['is_default'] || $field['key'] === 'billing_cpf' || $field['key'] === 'order_comments' ) continue;
+                                    if ( ! empty( $field['is_default'] ) || in_array( $field['key'], $skip_keys, true ) ) continue;
                                     $val = $order->get_meta( '_' . $field['key'] );
                                     if ( $val ) {
                                         if ( ! $has_custom ) {

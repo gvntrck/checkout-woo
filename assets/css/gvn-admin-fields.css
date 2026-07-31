@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - Admin Fields Manager Styles
- * @version 1.0.8
+ * @version 1.13.3
  */
 
 /* ===== Sub-tabs Navigation ===== */
@@ -647,4 +647,141 @@
 
 .gvn-df-field__required-label input[type="checkbox"] {
     margin: 0;
+}
+
+/* ===== Help Page (Como Usar) ===== */
+
+.gvn-help-wrap {
+    max-width: 980px;
+    margin: 20px 0;
+}
+
+.gvn-help-hero {
+    background: linear-gradient(135deg, #3a4759 0%, #0066d4 100%);
+    color: #fff;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+}
+
+.gvn-help-hero h2 {
+    color: #fff;
+    font-size: 1.5em;
+    margin: 0 0 6px;
+}
+
+.gvn-help-hero p {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.95;
+}
+
+.gvn-help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 18px;
+}
+
+.gvn-help-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.gvn-help-card:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.gvn-help-card__icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #0066d4;
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gvn-help-card__body {
+    flex: 1;
+}
+
+.gvn-help-card__body h3 {
+    margin: 0 0 8px;
+    font-size: 1.05em;
+    color: #1d2327;
+}
+
+.gvn-help-card__body p {
+    margin: 0 0 10px;
+    color: #50575e;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.gvn-help-shortcode {
+    display: inline-block;
+    background: #f0f0f1;
+    border: 1px dashed #8c8f94;
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin: 4px 0 10px;
+    font-family: Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: #1d2327;
+    user-select: all;
+}
+
+.gvn-help-tip {
+    font-size: 12px;
+    color: #646970;
+    background: #f0f7ff;
+    border-left: 3px solid #0066d4;
+    padding: 8px 10px;
+    border-radius: 0 4px 4px 0;
+}
+
+.gvn-help-warning {
+    display: inline-block;
+    color: #996800;
+    background: #fff8e5;
+    border-left: 3px solid #ffb900;
+    padding: 6px 10px;
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+}
+
+.gvn-help-footer {
+    margin-top: 28px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 8px;
+    padding: 20px 24px;
+}
+
+.gvn-help-footer h3 {
+    margin: 0 0 12px;
+    font-size: 1.1em;
+    color: #1d2327;
+}
+
+.gvn-help-footer ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #50575e;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.gvn-help-footer ul li strong {
+    color: #1d2327;
 }

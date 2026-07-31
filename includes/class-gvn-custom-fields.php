@@ -27,7 +27,8 @@ class GVN_Custom_Fields {
     private function __construct() {
         add_action( 'wp_ajax_gvn_save_fields', array( $this, 'ajax_save_fields' ) );
         add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'save_custom_fields_to_order' ), 10, 1 );
-        add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'display_custom_fields_in_admin' ), 10, 1 );
+        add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'display_custom_fields_in_admin_billing' ), 10, 1 );
+        add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'display_custom_fields_in_admin_shipping' ), 10, 1 );
         add_filter( 'woocommerce_checkout_fields', array( $this, 'register_custom_fields_with_woo' ), 20 );
 
         // Migração automática dos campos padrão brasileiros (se existirem na config antiga)
@@ -258,11 +259,37 @@ class GVN_Custom_Fields {
             return self::get_default_fields();
         }
 
-        usort( $fields, function ( $a, $b ) {
+        // Normaliza cada campo garantindo todos os índices esperados.
+        $defaults = array(
+            'key'            => '',
+            'label'          => '',
+            'type'           => 'text',
+            'required'       => false,
+            'width'          => '100',
+            'position'       => 0,
+            'placeholder'    => '',
+            'enabled'        => true,
+            'mask'           => '',
+            'is_default'     => false,
+            'is_woo_default' => false,
+            'options'        => '',
+            'default_option' => '',
+            'conditions'     => array( 'logic' => 'and', 'rules' => array() ),
+        );
+
+        $normalized = array();
+        foreach ( $fields as $field ) {
+            if ( ! is_array( $field ) || empty( $field['key'] ) ) {
+                continue;
+            }
+            $normalized[] = array_merge( $defaults, $field );
+        }
+
+        usort( $normalized, function ( $a, $b ) {
             return intval( $a['position'] ) - intval( $b['position'] );
         } );
 
-        return $fields;
+        return $normalized;
     }
 
     /**
@@ -291,23 +318,48 @@ class GVN_Custom_Fields {
             wp_send_json_error( array( 'message' => 'Dados inválidos.' ) );
         }
 
-        $sanitized = array();
+        $valid_types = array_keys( self::get_field_types() );
+        $valid_masks = array_keys( self::get_available_masks() );
+        $valid_widths = array( '25', '33', '50', '75', '100' );
+
+        $sanitized    = array();
+        $seen_keys    = array();
 
         foreach ( $fields as $index => $field ) {
+            $key = sanitize_key( isset( $field['key'] ) ? $field['key'] : '' );
+
+            // Pula campos sem chave válida ou duplicados.
+            if ( '' === $key || isset( $seen_keys[ $key ] ) ) {
+                continue;
+            }
+            $seen_keys[ $key ] = true;
+
+            $type  = isset( $field['type'] ) ? sanitize_text_field( $field['type'] ) : 'text';
+            $mask  = isset( $field['mask'] ) ? sanitize_text_field( $field['mask'] ) : '';
+            $width = isset( $field['width'] ) ? $field['width'] : '100';
+
+            $options_raw      = isset( $field['options'] ) ? $field['options'] : '';
+            $parsed_options   = self::parse_select_options( sanitize_textarea_field( $options_raw ) );
+            $default_option   = sanitize_text_field( isset( $field['default_option'] ) ? $field['default_option'] : '' );
+            // Só aceita default_option se ele existir nas opções parseadas.
+            if ( '' !== $default_option && ! isset( $parsed_options[ $default_option ] ) ) {
+                $default_option = '';
+            }
+
             $sanitized[] = array(
-                'key'         => sanitize_key( $field['key'] ),
-                'label'       => sanitize_text_field( $field['label'] ),
-                'type'        => sanitize_text_field( $field['type'] ),
-                'required'    => ! empty( $field['required'] ),
-                'width'       => in_array( $field['width'], array( '25', '33', '50', '75', '100' ), true ) ? $field['width'] : '100',
-                'position'    => $index + 1,
-                'placeholder' => sanitize_text_field( $field['placeholder'] ),
-                'enabled'     => ! empty( $field['enabled'] ),
-                'mask'        => sanitize_text_field( $field['mask'] ),
-                'is_default'  => ! empty( $field['is_default'] ),
+                'key'            => $key,
+                'label'          => sanitize_text_field( isset( $field['label'] ) ? $field['label'] : '' ),
+                'type'           => in_array( $type, $valid_types, true ) ? $type : 'text',
+                'required'       => ! empty( $field['required'] ),
+                'width'          => in_array( $width, $valid_widths, true ) ? $width : '100',
+                'position'       => $index + 1,
+                'placeholder'    => sanitize_text_field( isset( $field['placeholder'] ) ? $field['placeholder'] : '' ),
+                'enabled'        => ! empty( $field['enabled'] ),
+                'mask'           => in_array( $mask, $valid_masks, true ) ? $mask : '',
+                'is_default'     => ! empty( $field['is_default'] ),
                 'is_woo_default' => ! empty( $field['is_woo_default'] ),
-                'options'        => sanitize_textarea_field( isset( $field['options'] ) ? $field['options'] : '' ),
-                'default_option' => sanitize_text_field( isset( $field['default_option'] ) ? $field['default_option'] : '' ),
+                'options'        => sanitize_textarea_field( $options_raw ),
+                'default_option' => $default_option,
                 'conditions'     => self::sanitize_conditions( isset( $field['conditions'] ) ? $field['conditions'] : array() ),
             );
         }
@@ -375,48 +427,47 @@ class GVN_Custom_Fields {
     public function register_custom_fields_with_woo( $checkout_fields ) {
         $fields = self::get_enabled_fields();
 
+        $width_class_map = array(
+            '25'  => array( 'form-row-first' ),
+            '33'  => array( 'form-row-first' ),
+            '50'  => array( 'form-row-first' ),
+            '75'  => array( 'form-row-wide' ),
+            '100' => array( 'form-row-wide' ),
+        );
+
         foreach ( $fields as $field ) {
-            $key = $field['key'];
+            $key            = $field['key'];
             $is_conditional = self::has_conditions( $field );
-            $required = $is_conditional ? false : $field['required'];
+            $required       = $is_conditional ? false : ! empty( $field['required'] );
+            $width          = isset( $field['width'] ) ? $field['width'] : '100';
+            $classes        = isset( $width_class_map[ $width ] ) ? $width_class_map[ $width ] : array( 'form-row-wide' );
+
+            $woo_field = array(
+                'type'        => $field['type'],
+                'label'       => isset( $field['label'] ) ? $field['label'] : '',
+                'required'    => $required,
+                'placeholder' => isset( $field['placeholder'] ) ? $field['placeholder'] : '',
+                'priority'    => ( isset( $field['position'] ) ? intval( $field['position'] ) : 0 ) * 10,
+                'class'       => $classes,
+            );
+
+            if ( 'select' === $field['type'] && ! empty( $field['options'] ) ) {
+                $parsed = self::parse_select_options( $field['options'] );
+                $woo_field['type']    = 'select';
+                $woo_field['options'] = array_merge( array( '' => '-- Selecione --' ), $parsed );
+                if ( ! empty( $field['default_option'] ) && isset( $parsed[ $field['default_option'] ] ) ) {
+                    $woo_field['default'] = $field['default_option'];
+                }
+            }
 
             if ( strpos( $key, 'billing_' ) === 0 ) {
-                $woo_field = array(
-                    'type'        => $field['type'],
-                    'label'       => $field['label'],
-                    'required'    => $required,
-                    'placeholder' => $field['placeholder'],
-                    'priority'    => $field['position'] * 10,
-                    'class'       => array( 'form-row-wide' ),
-                );
-
-                if ( 'select' === $field['type'] && ! empty( $field['options'] ) ) {
-                    $parsed = self::parse_select_options( $field['options'] );
-                    $woo_field['type']    = 'select';
-                    $woo_field['options'] = array_merge( array( '' => '-- Selecione --' ), $parsed );
-                }
-
                 $checkout_fields['billing'][ $key ] = $woo_field;
             } elseif ( strpos( $key, 'shipping_' ) === 0 ) {
-                $woo_field = array(
-                    'type'        => $field['type'],
-                    'label'       => $field['label'],
-                    'required'    => $required,
-                    'placeholder' => $field['placeholder'],
-                    'priority'    => $field['position'] * 10,
-                    'class'       => array( 'form-row-wide' ),
-                );
-
                 $checkout_fields['shipping'][ $key ] = $woo_field;
-            } elseif ( $key !== 'order_comments' && strpos( $key, 'gvn_' ) === 0 ) {
-                $checkout_fields['billing'][ $key ] = array(
-                    'type'        => $field['type'],
-                    'label'       => $field['label'],
-                    'required'    => $required,
-                    'placeholder' => $field['placeholder'],
-                    'priority'    => $field['position'] * 10,
-                    'class'       => array( 'form-row-wide' ),
-                );
+            } elseif ( $key !== 'order_comments' ) {
+                // Campos custom sem prefixo billing/shipping vão para billing
+                // para que o WooCommerce valide e processe no checkout.
+                $checkout_fields['billing'][ $key ] = $woo_field;
             }
         }
 
@@ -454,6 +505,13 @@ class GVN_Custom_Fields {
             'billing_postcode', 'billing_country',
         );
 
+        $order = wc_get_order( $order_id );
+        if ( ! $order ) {
+            return;
+        }
+
+        $changed = false;
+
         foreach ( $fields as $field ) {
             $key = $field['key'];
 
@@ -468,30 +526,75 @@ class GVN_Custom_Fields {
             }
 
             if ( isset( $_POST[ $key ] ) ) {
-                $value = sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
-                update_post_meta( $order_id, '_' . $key, $value );
+                $raw   = wp_unslash( $_POST[ $key ] );
+                $value = ( 'textarea' === $field['type'] )
+                    ? sanitize_textarea_field( $raw )
+                    : sanitize_text_field( $raw );
+
+                // Usa a API HPOS-compatible em vez de update_post_meta direto.
+                $order->update_meta_data( '_' . $key, $value );
+                $changed = true;
             }
+        }
+
+        if ( $changed ) {
+            $order->save();
         }
     }
 
     /**
      * Exibe campos custom no admin do pedido.
      */
-    public function display_custom_fields_in_admin( $order ) {
+    /**
+     * Exibe campos customizados (não nativos) no admin após o endereço de faturamento.
+     * Campos shipping_* são exibidos após o endereço de entrega.
+     */
+    public function display_custom_fields_in_admin_billing( $order ) {
+        $this->display_custom_fields_in_admin( $order, 'billing' );
+    }
+
+    /**
+     * Exibe campos customizados shipping_* no admin após o endereço de entrega.
+     */
+    public function display_custom_fields_in_admin_shipping( $order ) {
+        $this->display_custom_fields_in_admin( $order, 'shipping' );
+    }
+
+    /**
+     * Exibe campos customizados (não nativos) no admin.
+     *
+     * @param WC_Order $order
+     * @param string   $scope 'billing' ou 'shipping'. Se 'shipping', exibe apenas campos shipping_*.
+     *                        Se 'billing', exibe campos que NÃO são shipping_*.
+     */
+    private function display_custom_fields_in_admin( $order, $scope = 'billing' ) {
         $fields = self::get_enabled_fields();
 
-        // Lista de campos nativos do WooCommerce que já são exibidos pelo Woo
+        // Lista de campos nativos do WooCommerce que já são exibidos pelo Woo.
         $woo_native_keys = array(
             'billing_first_name', 'billing_last_name', 'billing_email',
             'billing_phone', 'billing_company', 'billing_address_1',
             'billing_address_2', 'billing_city', 'billing_state',
             'billing_postcode', 'billing_country', 'order_comments',
+            'shipping_first_name', 'shipping_last_name', 'shipping_company',
+            'shipping_address_1', 'shipping_address_2', 'shipping_city',
+            'shipping_state', 'shipping_postcode', 'shipping_country',
         );
 
         foreach ( $fields as $field ) {
             $key = $field['key'];
 
             if ( in_array( $key, $woo_native_keys, true ) ) {
+                continue;
+            }
+
+            // Filtra por scope: shipping_* só aparece no hook de shipping.
+            $is_shipping_field = ( strpos( $key, 'shipping_' ) === 0 );
+
+            if ( 'shipping' === $scope && ! $is_shipping_field ) {
+                continue;
+            }
+            if ( 'billing' === $scope && $is_shipping_field ) {
                 continue;
             }
 
@@ -507,6 +610,10 @@ class GVN_Custom_Fields {
      * Executa apenas uma vez, quando detecta a opção antiga.
      */
     public function maybe_migrate_default_fields() {
+        if ( ! current_user_can( 'manage_woocommerce' ) ) {
+            return;
+        }
+
         $old_config = get_option( 'gvn_checkout_default_fields_config', false );
 
         if ( false === $old_config || ! is_array( $old_config ) || empty( $old_config ) ) {
@@ -669,6 +776,11 @@ class GVN_Custom_Fields {
             } else {
                 $value = sanitize_title( $line );
                 $label = $line;
+                // Fallback: se sanitize_title gerar vazio (emoji/acentos estranhos),
+                // usa um hash curto do label para garantir unicidade.
+                if ( '' === $value ) {
+                    $value = 'opt_' . substr( md5( $line ), 0, 8 );
+                }
             }
 
             if ( '' !== $value && '' !== $label ) {

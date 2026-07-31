@@ -3,7 +3,7 @@
  * Plugin Name: GVN Checkout for WooCommerce
  * Plugin URI: https://github.com/gvntrck/checkout-woo
  * Description: Checkout personalizado e otimizado para WooCommerce com layout moderno, order bump e configurações avançadas.
- * Version:1.13.1
+ * Version: 1.13.3
  * Author: GVN Track
  * Author URI: https://projetoalfa.org
  * License: GPL-2.0+
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('GVN_CHECKOUT_VERSION', '1.13.1');
+define('GVN_CHECKOUT_VERSION', '1.13.3');
 define('GVN_CHECKOUT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GVN_CHECKOUT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('GVN_CHECKOUT_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -55,6 +55,8 @@ function gvn_checkout_init()
     if (!gvn_checkout_check_woocommerce()) {
         return;
     }
+
+    load_plugin_textdomain('gvn-checkout', false, dirname(GVN_CHECKOUT_PLUGIN_BASENAME) . '/languages');
 
     require_once GVN_CHECKOUT_PLUGIN_DIR . 'includes/class-gvn-custom-fields.php';
     require_once GVN_CHECKOUT_PLUGIN_DIR . 'includes/class-gvn-checkout.php';
@@ -110,3 +112,15 @@ function gvn_checkout_activate()
     }
 }
 register_activation_hook(__FILE__, 'gvn_checkout_activate');
+
+/**
+ * Desativação do plugin — limpa transients de cache de CEP.
+ */
+function gvn_checkout_deactivate()
+{
+    global $wpdb;
+    $wpdb->query(
+        "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_gvn_cep_%' OR option_name LIKE '_transient_timeout_gvn_cep_%'"
+    );
+}
+register_deactivation_hook(__FILE__, 'gvn_checkout_deactivate');

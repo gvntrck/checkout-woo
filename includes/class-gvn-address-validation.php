@@ -146,7 +146,10 @@ class GVN_Address_Validation {
         // Consultar ViaCEP
         $response = wp_remote_get( 'https://viacep.com.br/ws/' . $cep . '/json/', array(
             'timeout' => 10,
-            'headers' => array( 'Accept' => 'application/json' ),
+            'headers' => array(
+                'Accept'     => 'application/json',
+                'User-Agent' => 'GVN-Checkout/' . GVN_CHECKOUT_VERSION . '; WordPress/' . get_bloginfo( 'version' ),
+            ),
         ) );
 
         if ( is_wp_error( $response ) ) {
@@ -180,7 +183,8 @@ class GVN_Address_Validation {
      * @return array Dados normalizados.
      */
     public static function normalize_viacep_data( $raw, $cep ) {
-        $uf = isset( $raw['uf'] ) ? mb_strtoupper( trim( $raw['uf'] ) ) : '';
+        $uf          = isset( $raw['uf'] ) ? mb_strtoupper( trim( $raw['uf'] ) ) : '';
+        $uf_esperada = self::get_uf_from_cep( $cep );
 
         return array(
             'cep'          => $cep,
@@ -191,8 +195,8 @@ class GVN_Address_Validation {
             'uf'           => $uf,
             'uf_nome'      => isset( self::UF_NAMES[ $uf ] ) ? self::UF_NAMES[ $uf ] : $uf,
             'ibge'         => isset( $raw['ibge'] ) ? sanitize_text_field( $raw['ibge'] ) : '',
-            'uf_esperada'  => self::get_uf_from_cep( $cep ),
-            'consistente'  => ( $uf === self::get_uf_from_cep( $cep ) ),
+            'uf_esperada'  => $uf_esperada,
+            'consistente'  => ( $uf === $uf_esperada ),
         );
     }
 
@@ -335,25 +339,30 @@ class GVN_Address_Validation {
 
         // --- Validação de CEP ---
         if ( in_array( 'billing_postcode', $enabled_keys, true ) ) {
-            $cep = isset( $data['billing_postcode'] ) ? $data['billing_postcode'] : '';
+            $cep       = isset( $data['billing_postcode'] ) ? $data['billing_postcode'] : '';
             $cep_clean = preg_replace( '/\D/', '', $cep );
 
             if ( ! empty( $cep_clean ) && ! self::is_valid_cep_format( $cep_clean ) ) {
                 $errors->add( 'gvn_invalid_cep', '<strong>CEP</strong> deve conter exatamente 8 dígitos.' );
             }
+        }
 
-            // --- Validação de UF ---
-            if ( in_array( 'billing_state', $enabled_keys, true ) ) {
-                $uf = isset( $data['billing_state'] ) ? $data['billing_state'] : '';
+        // --- Validação de UF (independente do CEP) ---
+        if ( in_array( 'billing_state', $enabled_keys, true ) ) {
+            $uf = isset( $data['billing_state'] ) ? $data['billing_state'] : '';
 
-                if ( ! empty( $uf ) && ! self::is_valid_uf( $uf ) ) {
-                    $errors->add( 'gvn_invalid_uf', '<strong>Estado (UF)</strong> inválido. Selecione um estado brasileiro válido.' );
-                }
+            if ( ! empty( $uf ) && ! self::is_valid_uf( $uf ) ) {
+                $errors->add( 'gvn_invalid_uf', '<strong>Estado (UF)</strong> inválido. Selecione um estado brasileiro válido.' );
+            }
 
-                // --- Consistência CEP ↔ UF ---
+            // --- Consistência CEP ↔ UF ---
+            if ( in_array( 'billing_postcode', $enabled_keys, true ) ) {
+                $cep       = isset( $data['billing_postcode'] ) ? $data['billing_postcode'] : '';
+                $cep_clean = preg_replace( '/\D/', '', $cep );
+
                 if ( ! empty( $cep_clean ) && strlen( $cep_clean ) === 8 && ! empty( $uf ) && self::is_valid_uf( $uf ) ) {
                     if ( ! self::is_cep_consistent_with_uf( $cep_clean, $uf ) ) {
-                        $expected_uf = self::get_uf_from_cep( $cep_clean );
+                        $expected_uf   = self::get_uf_from_cep( $cep_clean );
                         $expected_name = isset( self::UF_NAMES[ $expected_uf ] ) ? self::UF_NAMES[ $expected_uf ] : $expected_uf;
                         $errors->add(
                             'gvn_cep_uf_mismatch',
@@ -388,34 +397,56 @@ class GVN_Address_Validation {
      * @param array    $data  Dados do checkout.
      */
     public function normalize_order_address( $order, $data ) {
-        // Normalizar UF
-        $uf = $order->get_billing_state();
-        if ( ! empty( $uf ) ) {
-            $normalized_uf = self::normalize_uf( $uf );
+        // Normalizar UF (billing e shipping)
+        $billing_uf = $order->get_billing_state();
+        if ( ! empty( $billing_uf ) ) {
+            $normalized_uf = self::normalize_uf( $billing_uf );
             if ( ! empty( $normalized_uf ) ) {
                 $order->set_billing_state( $normalized_uf );
             }
         }
-
-        // Normalizar cidade
-        $city = $order->get_billing_city();
-        if ( ! empty( $city ) ) {
-            $order->set_billing_city( self::normalize_city( $city ) );
+        $shipping_uf = $order->get_shipping_state();
+        if ( ! empty( $shipping_uf ) ) {
+            $normalized_uf = self::normalize_uf( $shipping_uf );
+            if ( ! empty( $normalized_uf ) ) {
+                $order->set_shipping_state( $normalized_uf );
+            }
         }
 
-        // Normalizar CEP (formato com máscara)
-        $cep = $order->get_billing_postcode();
-        if ( ! empty( $cep ) ) {
-            $cep_clean = preg_replace( '/\D/', '', $cep );
+        // Normalizar cidade (billing e shipping)
+        $billing_city = $order->get_billing_city();
+        if ( ! empty( $billing_city ) ) {
+            $order->set_billing_city( self::normalize_city( $billing_city ) );
+        }
+        $shipping_city = $order->get_shipping_city();
+        if ( ! empty( $shipping_city ) ) {
+            $order->set_shipping_city( self::normalize_city( $shipping_city ) );
+        }
+
+        // Normalizar CEP (formato com máscara) — billing e shipping
+        $billing_postcode = $order->get_billing_postcode();
+        if ( ! empty( $billing_postcode ) ) {
+            $cep_clean = preg_replace( '/\D/', '', $billing_postcode );
             if ( strlen( $cep_clean ) === 8 ) {
                 $order->set_billing_postcode( self::format_cep( $cep_clean ) );
             }
         }
+        $shipping_postcode = $order->get_shipping_postcode();
+        if ( ! empty( $shipping_postcode ) ) {
+            $cep_clean = preg_replace( '/\D/', '', $shipping_postcode );
+            if ( strlen( $cep_clean ) === 8 ) {
+                $order->set_shipping_postcode( self::format_cep( $cep_clean ) );
+            }
+        }
 
-        // Normalizar endereço (trim)
-        $address = $order->get_billing_address_1();
-        if ( ! empty( $address ) ) {
-            $order->set_billing_address_1( trim( $address ) );
+        // Normalizar endereço (trim) — billing e shipping
+        $billing_address = $order->get_billing_address_1();
+        if ( ! empty( $billing_address ) ) {
+            $order->set_billing_address_1( trim( $billing_address ) );
+        }
+        $shipping_address = $order->get_shipping_address_1();
+        if ( ! empty( $shipping_address ) ) {
+            $order->set_shipping_address_1( trim( $shipping_address ) );
         }
     }
 }

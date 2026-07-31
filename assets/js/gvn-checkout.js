@@ -213,12 +213,17 @@
             var $conditionalFields = $container.find('.gvn-field--conditional');
             if (!$conditionalFields.length) return;
 
-            // Avalia todas as condições ao mudar qualquer campo
+            // Avalia todas as condições ao mudar qualquer campo.
+            // Reavalia em cascata (até 3 níveis) para suportar condições
+            // que dependem de outros campos condicionais.
             $container.on('input change', '.gvn-field__input', function () {
+                self.evaluateAllConditions($container, $conditionalFields);
+                // Segunda passagem para propagar mudanças de visibilidade.
                 self.evaluateAllConditions($container, $conditionalFields);
             });
 
-            // Avalia no carregamento inicial
+            // Avalia no carregamento inicial.
+            this.evaluateAllConditions($container, $conditionalFields);
             this.evaluateAllConditions($container, $conditionalFields);
         },
 
@@ -322,9 +327,15 @@
                 $field.addClass('gvn-field--conditional-hidden');
                 $field.slideUp(200);
 
-                // Remover required e limpar valor
+                // Remover required e limpar valor para não ser enviado no submit.
                 var $input = $field.find('input, select, textarea').first();
                 $input.prop('required', false);
+                if ($input.is(':checkbox') || $input.is(':radio')) {
+                    $input.prop('checked', false);
+                } else {
+                    $input.val('');
+                }
+                $input.trigger('change');
             }
         },
 
@@ -469,9 +480,11 @@
                     self.fetchCEP(raw, $(this));
                 }
 
-                // Limpar locks se CEP foi apagado
+                // Limpar locks se CEP foi apagado ou alterado para menos de 8 dígitos.
                 if (raw.length < 8) {
                     self.unlockAddressFields();
+                    // Permite reconsultar o mesmo CEP após apagar.
+                    self._lastCep = '';
                 }
             });
 
@@ -687,7 +700,9 @@
             if (type === 'error') cssClass = 'gvn-viacep-msg--error';
             if (type === 'warning') cssClass = 'gvn-viacep-msg--warning';
 
-            var $msg = $('<div class="gvn-viacep-msg ' + cssClass + '">' + message + '</div>').hide();
+            // Cria o container e injeta a mensagem como texto (não HTML) para evitar XSS.
+            var $msg = $('<div class="gvn-viacep-msg ' + cssClass + '"></div>').hide();
+            $msg.text(message);
             $field.append($msg);
             $msg.slideDown(150);
 

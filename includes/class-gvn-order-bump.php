@@ -34,6 +34,10 @@ class GVN_Order_Bump {
     public function toggle_order_bump() {
         check_ajax_referer( 'gvn_checkout_nonce', 'nonce' );
 
+        if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+            wp_send_json_error( array( 'message' => 'Carrinho não disponível.' ) );
+        }
+
         $action     = isset( $_POST['bump_action'] ) ? sanitize_text_field( wp_unslash( $_POST['bump_action'] ) ) : '';
         $product_id = absint( get_option( 'gvn_checkout_order_bump_product_id', 0 ) );
 
@@ -72,6 +76,7 @@ class GVN_Order_Bump {
             } else {
                 wp_send_json_success( array( 'message' => 'Produto não estava no carrinho.' ) );
             }
+            return;
         }
 
         wp_send_json_error( array( 'message' => 'Ação inválida.' ) );
@@ -81,8 +86,11 @@ class GVN_Order_Bump {
      * Busca o item do order bump no carrinho.
      */
     private function find_bump_in_cart( $product_id ) {
+        if ( ! WC()->cart ) {
+            return false;
+        }
         foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-            if ( $cart_item['product_id'] == $product_id && ! empty( $cart_item['gvn_order_bump'] ) ) {
+            if ( isset( $cart_item['product_id'] ) && (int) $cart_item['product_id'] === (int) $product_id && ! empty( $cart_item['gvn_order_bump'] ) ) {
                 return $cart_item_key;
             }
         }
@@ -97,16 +105,30 @@ class GVN_Order_Bump {
             return;
         }
 
-        $bump_price = get_option( 'gvn_checkout_order_bump_price', '' );
+        $bump_price_raw = get_option( 'gvn_checkout_order_bump_price', '' );
 
-        if ( '' === $bump_price ) {
+        if ( '' === $bump_price_raw ) {
             return;
         }
 
-        $bump_price = floatval( $bump_price );
+        $bump_price    = floatval( $bump_price_raw );
+        $bump_product  = absint( get_option( 'gvn_checkout_order_bump_product_id', 0 ) );
 
-        foreach ( $cart->get_cart() as $cart_item ) {
-            if ( ! empty( $cart_item['gvn_order_bump'] ) ) {
+        // Preço inválido (negativo ou zero) — ignora e usa preço padrão.
+        if ( $bump_price <= 0 || ! $bump_product ) {
+            return;
+        }
+
+        if ( is_a( $cart, 'WC_Cart' ) ) {
+            $cart_contents = $cart->get_cart();
+        } else {
+            return;
+        }
+
+        foreach ( $cart_contents as $cart_item ) {
+            if ( ! empty( $cart_item['gvn_order_bump'] )
+                && isset( $cart_item['product_id'] )
+                && (int) $cart_item['product_id'] === $bump_product ) {
                 $cart_item['data']->set_price( $bump_price );
             }
         }
@@ -118,7 +140,7 @@ class GVN_Order_Bump {
     private function get_cart_data( $message = '' ) {
         return array(
             'message'  => $message,
-            'total'    => WC()->cart->get_total(),
+            'total'    => wc_price( WC()->cart->get_total( 'edit' ) ),
             'subtotal' => wc_price( WC()->cart->get_subtotal() ),
             'discount' => wc_price( WC()->cart->get_discount_total() ),
             'items'    => $this->get_cart_items_html(),
@@ -129,6 +151,9 @@ class GVN_Order_Bump {
      * Gera o HTML dos itens do carrinho para atualização via AJAX.
      */
     private function get_cart_items_html() {
+        if ( ! WC()->cart ) {
+            return '';
+        }
         $html = '';
         foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
             $product  = $cart_item['data'];

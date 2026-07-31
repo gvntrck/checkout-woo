@@ -182,6 +182,7 @@
             var masks = this.getMaskOptions(field.mask);
             var pos = field.position || 1;
             var isDefault = field.is_default ? 'true' : 'false';
+            var isWooDefault = field.is_woo_default ? 'true' : 'false';
             var enabledChecked = field.enabled ? 'checked' : '';
             var requiredChecked = field.required ? 'checked' : '';
             var disabledClass = field.enabled ? '' : ' gvn-field-row--disabled';
@@ -189,12 +190,13 @@
             var labelDisplay = field.label || '(novo campo)';
 
             return '' +
-                '<div class="gvn-field-row' + disabledClass + '" data-key="' + field.key + '" data-default="' + isDefault + '">' +
+                '<div class="gvn-field-row' + disabledClass + '" data-key="' + this.escAttr(field.key) + '" data-default="' + isDefault + '" data-woo-default="' + isWooDefault + '">' +
                 '  <div class="gvn-field-row__header">' +
                 '    <span class="gvn-field-drag" title="Arrastar para reordenar">☰</span>' +
                 '    <span class="gvn-field-pos-label">#' + pos + '</span>' +
                 '    <span class="gvn-field-label-display">' + this.escHtml(labelDisplay) + '</span>' +
-                '    <span class="gvn-field-width-badge">' + field.width + '%</span>' +
+                (isWooDefault === 'true' ? '    <span class="gvn-field-badge gvn-field-badge--woo">Padrão Woo</span>' : '') +
+                '    <span class="gvn-field-width-badge">' + this.escHtml(field.width) + '%</span>' +
                 '    <span class="gvn-field-row__actions">' +
                 '      <label class="gvn-field-enabled-label"><input type="checkbox" class="gvn-field-enabled" ' + enabledChecked + ' /> Ativo</label>' +
                 '      <button type="button" class="gvn-field-toggle button-link"><span class="gvn-toggle-icon">▼</span></button>' +
@@ -204,6 +206,7 @@
                 '  <div class="gvn-field-row__body" style="display:none;">' +
                 '    <input type="hidden" class="gvn-field-position" value="' + pos + '" />' +
                 '    <input type="hidden" class="gvn-field-is-default" value="' + isDefault + '" />' +
+                '    <input type="hidden" class="gvn-field-is-woo-default" value="' + isWooDefault + '" />' +
                 '    <div class="gvn-field-grid">' +
                 '      <div class="gvn-field-col">' +
                 '        <label>Chave (key)</label>' +
@@ -295,6 +298,7 @@
                     enabled: $row.find('.gvn-field-enabled').is(':checked'),
                     mask: $row.find('.gvn-field-mask-select').val(),
                     is_default: $row.find('.gvn-field-is-default').val() === 'true',
+                    is_woo_default: $row.find('.gvn-field-is-woo-default').val() === 'true',
                     options: $row.find('.gvn-field-options-input').val() || '',
                     default_option: $row.find('.gvn-field-default-option-select').val() || '',
                     conditions: self.collectConditions($row)
@@ -312,16 +316,20 @@
                 success: function (response) {
                     if (response.success) {
                         self.$status.html('<span style="color:#16a34a;">✓ ' + response.data.message + '</span>').show().delay(3000).fadeOut();
+                        if (typeof callback === 'function') {
+                            callback(true);
+                        }
                     } else {
                         self.$status.html('<span style="color:#dc2626;">✕ ' + response.data.message + '</span>').show();
+                        if (typeof callback === 'function') {
+                            callback(false);
+                        }
                     }
                 },
                 error: function () {
                     self.$status.html('<span style="color:#dc2626;">Erro ao salvar.</span>').show();
-                },
-                complete: function () {
                     if (typeof callback === 'function') {
-                        callback();
+                        callback(false);
                     }
                 }
             });
@@ -337,15 +345,25 @@
 
             $form.on('submit', function (e) {
                 // Se já estamos no processo de submit após o AJAX, deixa prosseguir
-                if (self._submitting) return true;
+                if (self._submitting) {
+                    self._submitting = false; // reset para próximo submit
+                    return true;
+                }
 
                 e.preventDefault();
 
                 var $submitBtn = $form.find('.woocommerce-save-button');
                 $submitBtn.prop('disabled', true).val('Salvando...');
 
-                self.saveFields(function () {
+                self.saveFields(function (success) {
+                    // Só prossegue com o submit do form Woo se o save dos campos foi bem-sucedido.
+                    if (!success) {
+                        $submitBtn.prop('disabled', false).val('Salvar alterações');
+                        return;
+                    }
                     self._submitting = true;
+                    // Reabilita o botão antes do re-submit (o WC pode re-validar).
+                    $submitBtn.prop('disabled', false);
                     $form.submit();
                 });
 
@@ -498,13 +516,14 @@
 
         getFieldOptionsForConditions: function (excludeKey, selectedKey) {
             var html = '';
+            var self = this;
 
             // Todos os campos da lista (unificados)
             this.$list.find('.gvn-field-row').each(function () {
                 var key = $(this).find('.gvn-field-key-input').val();
                 var label = $(this).find('.gvn-field-label-input').val() || key;
                 if (key && key !== excludeKey) {
-                    html += '<option value="' + key + '"' + (key === selectedKey ? ' selected' : '') + '>' + label + '</option>';
+                    html += '<option value="' + self.escAttr(key) + '"' + (key === selectedKey ? ' selected' : '') + '>' + self.escHtml(label) + '</option>';
                 }
             });
 

@@ -4,7 +4,7 @@
  * Gerencia a página de configurações no painel do WordPress.
  *
  * @package GVN_Checkout
- * @version 1.12.2
+ * @version 1.13.3
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -42,8 +42,8 @@ class GVN_Admin {
      * Retorna a sub-aba ativa.
      */
     private function get_current_subtab() {
-        $valid = array( 'settings', 'fields' );
-        $subtab = isset( $_GET['subtab'] ) ? sanitize_key( $_GET['subtab'] ) : 'settings';
+        $valid = array( 'settings', 'fields', 'help' );
+        $subtab = isset( $_GET['subtab'] ) ? sanitize_key( wp_unslash( $_GET['subtab'] ) ) : 'settings';
         return in_array( $subtab, $valid, true ) ? $subtab : 'settings';
     }
 
@@ -57,6 +57,7 @@ class GVN_Admin {
         $subtabs = array(
             'settings' => 'Configurações',
             'fields'   => 'Campos do Formulário',
+            'help'     => 'Como Usar',
         );
         ?>
         <nav class="gvn-subtabs nav-tab-wrapper">
@@ -72,6 +73,9 @@ class GVN_Admin {
         switch ( $current_subtab ) {
             case 'fields':
                 $this->render_fields_manager();
+                break;
+            case 'help':
+                $this->render_help_page();
                 break;
             default:
                 woocommerce_admin_fields( $this->get_settings() );
@@ -238,8 +242,8 @@ class GVN_Admin {
         $products = array( '' => '-- Selecione um produto --' );
 
         $args = array(
-            'status' => 'publish',
-            'limit'  => 100,
+            'status'  => 'publish',
+            'limit'   => 100,
             'orderby' => 'title',
             'order'   => 'ASC',
         );
@@ -248,7 +252,10 @@ class GVN_Admin {
 
         if ( $wc_products ) {
             foreach ( $wc_products as $product ) {
-                $products[ $product->get_id() ] = $product->get_name() . ' (' . wc_price( $product->get_price() ) . ')';
+                // Usa strip_tags para remover HTML de wc_price dentro de <option>.
+                $price_html = wc_price( $product->get_price() );
+                $price_text = wp_strip_all_tags( $price_html );
+                $products[ $product->get_id() ] = $product->get_name() . ' (' . $price_text . ')';
             }
         }
 
@@ -272,7 +279,7 @@ class GVN_Admin {
             return;
         }
 
-        if ( ! isset( $_GET['tab'] ) || 'gvn_checkout' !== $_GET['tab'] ) {
+        if ( ! isset( $_GET['tab'] ) || 'gvn_checkout' !== sanitize_key( wp_unslash( $_GET['tab'] ) ) ) {
             return;
         }
 
@@ -414,26 +421,30 @@ class GVN_Admin {
                                     </select>
                                 </div>
                                 <div class="gvn-conditions-rules">
-                                    <?php foreach ( $rules as $rule ) : ?>
+                                    <?php foreach ( $rules as $rule ) :
+                                        $rule_field    = isset( $rule['field'] ) ? $rule['field'] : '';
+                                        $rule_operator = isset( $rule['operator'] ) ? $rule['operator'] : '';
+                                        $rule_value    = isset( $rule['value'] ) ? $rule['value'] : '';
+                                    ?>
                                         <div class="gvn-condition-rule">
                                             <select class="gvn-rule-field">
                                                 <option value="">-- Campo --</option>
                                                 <?php foreach ( $all_fields as $af ) : ?>
                                                     <?php if ( $af['key'] !== $field['key'] ) : ?>
-                                                        <option value="<?php echo esc_attr( $af['key'] ); ?>" <?php selected( $rule['field'], $af['key'] ); ?>><?php echo esc_html( $af['label'] ?: $af['key'] ); ?></option>
+                                                        <option value="<?php echo esc_attr( $af['key'] ); ?>" <?php selected( $rule_field, $af['key'] ); ?>><?php echo esc_html( $af['label'] ?: $af['key'] ); ?></option>
                                                     <?php endif; ?>
                                                 <?php endforeach; ?>
                                             </select>
                                             <select class="gvn-rule-operator">
-                                                <option value="equals" <?php selected( $rule['operator'], 'equals' ); ?>>Igual a</option>
-                                                <option value="not_equals" <?php selected( $rule['operator'], 'not_equals' ); ?>>Diferente de</option>
-                                                <option value="filled" <?php selected( $rule['operator'], 'filled' ); ?>>Preenchido</option>
-                                                <option value="empty" <?php selected( $rule['operator'], 'empty' ); ?>>Vazio</option>
-                                                <option value="contains" <?php selected( $rule['operator'], 'contains' ); ?>>Contém</option>
-                                                <option value="greater" <?php selected( $rule['operator'], 'greater' ); ?>>Maior que</option>
-                                                <option value="less" <?php selected( $rule['operator'], 'less' ); ?>>Menor que</option>
+                                                <option value="equals" <?php selected( $rule_operator, 'equals' ); ?>>Igual a</option>
+                                                <option value="not_equals" <?php selected( $rule_operator, 'not_equals' ); ?>>Diferente de</option>
+                                                <option value="filled" <?php selected( $rule_operator, 'filled' ); ?>>Preenchido</option>
+                                                <option value="empty" <?php selected( $rule_operator, 'empty' ); ?>>Vazio</option>
+                                                <option value="contains" <?php selected( $rule_operator, 'contains' ); ?>>Contém</option>
+                                                <option value="greater" <?php selected( $rule_operator, 'greater' ); ?>>Maior que</option>
+                                                <option value="less" <?php selected( $rule_operator, 'less' ); ?>>Menor que</option>
                                             </select>
-                                            <input type="text" class="gvn-rule-value" value="<?php echo esc_attr( $rule['value'] ); ?>" placeholder="Valor" <?php echo in_array( $rule['operator'], array( 'filled', 'empty' ), true ) ? 'style="display:none;"' : ''; ?> />
+                                            <input type="text" class="gvn-rule-value" value="<?php echo esc_attr( $rule_value ); ?>" placeholder="Valor" <?php echo in_array( $rule_operator, array( 'filled', 'empty' ), true ) ? 'style="display:none;"' : ''; ?> />
                                             <button type="button" class="gvn-rule-remove button-link" title="Remover condição">✕</button>
                                         </div>
                                     <?php endforeach; ?>
@@ -444,6 +455,104 @@ class GVN_Admin {
                     </div>
                 <?php endforeach; ?>
             </div>
+        </div>
+        <?php
+    }
+
+    /**
+     * Renderiza a página de ajuda "Como Usar".
+     */
+    private function render_help_page() {
+        $checkout_page_id = wc_get_page_id( 'checkout' );
+        $checkout_url     = $checkout_page_id ? get_permalink( $checkout_page_id ) : '';
+        $settings_url     = admin_url( 'admin.php?page=wc-settings&tab=gvn_checkout' );
+        $fields_url       = admin_url( 'admin.php?page=wc-settings&tab=gvn_checkout&subtab=fields' );
+        $pages_url        = admin_url( 'edit.php?post_type=page' );
+        $wc_advanced_url  = admin_url( 'admin.php?page=wc-settings&tab=advanced' );
+        ?>
+        <div class="gvn-help-wrap">
+
+            <div class="gvn-help-hero">
+                <h2>Como usar o GVN Checkout</h2>
+                <p>Guia rápido para configurar o seu checkout personalizado em poucos minutos.</p>
+            </div>
+
+            <div class="gvn-help-grid">
+
+                <div class="gvn-help-card">
+                    <div class="gvn-help-card__icon">1</div>
+                    <div class="gvn-help-card__body">
+                        <h3>Criar a página de checkout</h3>
+                        <p>O plugin funciona através de um shortcode nativo. Crie uma página e insira o shortcode abaixo no conteúdo:</p>
+                        <code class="gvn-help-shortcode">[gvn-checkout]</code>
+                        <p>Depois publique a página.</p>
+                        <a href="<?php echo esc_url( $pages_url ); ?>" class="button button-secondary">Ir para Páginas</a>
+                    </div>
+                </div>
+
+                <div class="gvn-help-card">
+                    <div class="gvn-help-card__icon">2</div>
+                    <div class="gvn-help-card__body">
+                        <h3>Definir a página oficial de checkout</h3>
+                        <p>Para que os clientes sejam redirecionados corretamente, configure a página criada como a página oficial de checkout do WooCommerce.</p>
+                        <p class="gvn-help-tip"><strong>Dica:</strong> WooCommerce &rsaquo; Configurações &rsaquo; Avançado &rsaquo; Página de checkout.</p>
+                        <a href="<?php echo esc_url( $wc_advanced_url ); ?>" class="button button-secondary">Abrir Configurações Avançadas</a>
+                    </div>
+                </div>
+
+                <div class="gvn-help-card">
+                    <div class="gvn-help-card__icon">3</div>
+                    <div class="gvn-help-card__body">
+                        <h3>Personalizar a identidade visual</h3>
+                        <p>Na aba <strong>Configurações</strong> você define cores (primária, botões, cabeçalho e badges), textos do header e do botão de finalização, alinhando tudo à identidade da sua marca.</p>
+                        <a href="<?php echo esc_url( $settings_url ); ?>" class="button button-secondary">Abrir Configurações</a>
+                    </div>
+                </div>
+
+                <div class="gvn-help-card">
+                    <div class="gvn-help-card__icon">4</div>
+                    <div class="gvn-help-card__body">
+                        <h3>Configurar o Order Bump</h3>
+                        <p>Ofereça um produto adicional com desconto diretamente no checkout para aumentar o ticket médio. Ative o Order Bump na aba <strong>Configurações</strong>, selecione o produto, defina título, descrição, preço promocional e o texto do CTA.</p>
+                    </div>
+                </div>
+
+                <div class="gvn-help-card">
+                    <div class="gvn-help-card__icon">5</div>
+                    <div class="gvn-help-card__body">
+                        <h3>Gerenciar campos do formulário</h3>
+                        <p>Na aba <strong>Campos do Formulário</strong> você adiciona, remove, reordena (arrastando) e configura a largura dos campos do checkout. Também é possível importar campos padrões do WooCommerce ou campos brasileiros (CPF, CNPJ, RG, etc.) com 1 clique.</p>
+                        <a href="<?php echo esc_url( $fields_url ); ?>" class="button button-secondary">Gerenciar Campos</a>
+                    </div>
+                </div>
+
+                <div class="gvn-help-card">
+                    <div class="gvn-help-card__icon">6</div>
+                    <div class="gvn-help-card__body">
+                        <h3>Testar o checkout</h3>
+                        <p>Adicione um produto ao carrinho e acesse a página de checkout para validar o layout, máscaras (CPF/Celular), autocompletar de CEP e o Order Bump.</p>
+                        <?php if ( $checkout_url ) : ?>
+                            <a href="<?php echo esc_url( $checkout_url ); ?>" class="button button-secondary" target="_blank">Abrir página de checkout</a>
+                        <?php else : ?>
+                            <span class="gvn-help-warning">Página de checkout ainda não definida. Conclua o passo 2.</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="gvn-help-footer">
+                <h3>Recursos disponíveis</h3>
+                <ul>
+                    <li><strong>Layout one-page checkout:</strong> focado em conversão, limpo e responsivo.</li>
+                    <li><strong>Autocompletar de CEP:</strong> via ViaCEP com cache de 7 dias (Transients).</li>
+                    <li><strong>Máscaras automáticas:</strong> CPF e Celular formatados em tempo real.</li>
+                    <li><strong>Order Bump:</strong> oferta adicional com 1 clique para aumentar o ticket médio.</li>
+                    <li><strong>Cupom dinâmico:</strong> seção de cupom com toggle moderno.</li>
+                    <li><strong>Campos personalizáveis:</strong> com condições de exibição e largura por campo.</li>
+                </ul>
+            </div>
+
         </div>
         <?php
     }

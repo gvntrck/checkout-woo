@@ -36,6 +36,55 @@ class GVN_Custom_Fields {
     }
 
     /**
+     * Identifica campos relacionados ao endereço para organizar o checkout.
+     *
+     * A classificação prioriza as chaves nativas do WooCommerce e também
+     * reconhece chaves/labels de campos customizados com termos de endereço.
+     * Campos de contato/documentação têm prioridade para não classificar
+     * "Endereço de e-mail" como endereço físico.
+     *
+     * @param array $field Configuração do campo.
+     * @return bool
+     */
+    public static function is_address_field( $field ) {
+        $key   = isset( $field['key'] ) ? strtolower( trim( $field['key'] ) ) : '';
+        $label = isset( $field['label'] ) ? wp_strip_all_tags( $field['label'] ) : '';
+
+        if ( function_exists( 'remove_accents' ) ) {
+            $label = remove_accents( $label );
+        }
+
+        $label = strtolower( trim( $label ) );
+
+        $address_keys = array(
+            'billing_company', 'billing_address_1', 'billing_address_2',
+            'billing_city', 'billing_state', 'billing_postcode',
+            'billing_country', 'shipping_company', 'shipping_address_1',
+            'shipping_address_2', 'shipping_city', 'shipping_state',
+            'shipping_postcode', 'shipping_country', 'billing_number',
+            'billing_neighborhood', 'shipping_number', 'shipping_neighborhood',
+        );
+
+        if ( in_array( $key, $address_keys, true ) ) {
+            return true;
+        }
+
+        $identity = $key . ' ' . $label;
+        $non_address_pattern = '/(email|e-mail|phone|telefone|celular|cpf|cnpj|rg|birth|nascimento|gender|genero|pessoa)/u';
+        if ( preg_match( $non_address_pattern, $identity ) ) {
+            return false;
+        }
+
+        $address_key_pattern = '/(^|_)(address|endereco|logradouro|complemento?|city|cidade|state|estado|postcode|postal|zip|cep|country|pais|bairro|neighborhood|numero|number|rua)(_|$)/u';
+        if ( preg_match( $address_key_pattern, $key ) ) {
+            return true;
+        }
+
+        $address_label_pattern = '/\b(endereco|logradouro|complemento|cidade|estado|postcode|postal|zip|cep|bairro|neighborhood|numero|number|rua|pais)\b/u';
+        return (bool) preg_match( $address_label_pattern, $label );
+    }
+
+    /**
      * Campos padrão que vêm pré-configurados (inclui campos brasileiros).
      */
     public static function get_default_fields() {

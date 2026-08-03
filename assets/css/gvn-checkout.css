@@ -177,6 +177,29 @@
     gap: 1.25rem;
 }
 
+.gvn-fields-divider {
+    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    margin: 0.35rem 0 -0.15rem;
+    color: #6b7280;
+    font-size: 0.65rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.gvn-fields-divider::before,
+.gvn-fields-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e7eb;
+}
+
 .gvn-field {
     min-width: 0;
 }

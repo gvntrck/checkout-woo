@@ -73,22 +73,44 @@ if ( $bump_product ) {
                         <?php do_action( 'woocommerce_before_checkout_billing_form', $checkout ); ?>
 
                         <?php $gvn_fields = GVN_Custom_Fields::get_enabled_fields(); ?>
+                        <?php
+                        $gvn_field_groups = array(
+                            array(
+                                'label'  => '',
+                                'fields' => array(),
+                            ),
+                            array(
+                                'label'  => 'Endereço',
+                                'fields' => array(),
+                            ),
+                        );
+
+                        foreach ( $gvn_fields as $gvn_field ) {
+                            $gvn_group_index = GVN_Custom_Fields::is_address_field( $gvn_field ) ? 1 : 0;
+                            $gvn_field_groups[ $gvn_group_index ]['fields'][] = $gvn_field;
+                        }
+                        ?>
                         <div class="gvn-fields-dynamic">
-                            <?php foreach ( $gvn_fields as $gvn_field ) :
-                                $f_key         = esc_attr( $gvn_field['key'] );
-                                $f_label       = esc_html( $gvn_field['label'] );
-                                $f_type        = $gvn_field['type'];
-                                $f_required    = ! empty( $gvn_field['required'] );
-                                $f_placeholder = esc_attr( $gvn_field['placeholder'] );
-                                $f_width       = $gvn_field['width'];
-                                $f_mask        = ! empty( $gvn_field['mask'] ) ? $gvn_field['mask'] : '';
-                                $f_raw_value   = $checkout->get_value( $gvn_field['key'] );
-                                $f_value       = esc_attr( $f_raw_value );
-                                $width_class   = 'gvn-field--w' . $f_width;
-                                $f_conditions  = isset( $gvn_field['conditions'] ) ? $gvn_field['conditions'] : array( 'logic' => 'and', 'rules' => array() );
-                                $has_conditions = GVN_Custom_Fields::has_conditions( $gvn_field );
-                                $f_orig_required = $f_required;
-                            ?>
+                            <?php foreach ( $gvn_field_groups as $gvn_group ) : ?>
+                                <?php if ( ! empty( $gvn_group['fields'] ) ) : ?>
+                                    <?php if ( ! empty( $gvn_group['label'] ) ) : ?>
+                                        <h3 class="gvn-fields-divider"><?php echo esc_html( $gvn_group['label'] ); ?></h3>
+                                    <?php endif; ?>
+                                    <?php foreach ( $gvn_group['fields'] as $gvn_field ) :
+                                    $f_key         = esc_attr( $gvn_field['key'] );
+                                    $f_label       = esc_html( $gvn_field['label'] );
+                                    $f_type        = $gvn_field['type'];
+                                    $f_required    = ! empty( $gvn_field['required'] );
+                                    $f_placeholder = esc_attr( $gvn_field['placeholder'] );
+                                    $f_width       = $gvn_field['width'];
+                                    $f_mask        = ! empty( $gvn_field['mask'] ) ? $gvn_field['mask'] : '';
+                                    $f_raw_value   = $checkout->get_value( $gvn_field['key'] );
+                                    $f_value       = esc_attr( $f_raw_value );
+                                    $width_class   = 'gvn-field--w' . $f_width;
+                                    $f_conditions  = isset( $gvn_field['conditions'] ) ? $gvn_field['conditions'] : array( 'logic' => 'and', 'rules' => array() );
+                                    $has_conditions = GVN_Custom_Fields::has_conditions( $gvn_field );
+                                    $f_orig_required = $f_required;
+                                ?>
                                 <div class="gvn-field <?php echo esc_attr( $width_class ); ?><?php echo $has_conditions ? ' gvn-field--conditional' : ''; ?>" data-field-key="<?php echo $f_key; ?>" data-mask="<?php echo esc_attr( $f_mask ); ?>"<?php if ( $has_conditions ) : ?> data-conditions="<?php echo esc_attr( wp_json_encode( $f_conditions ) ); ?>" data-required="<?php echo $f_orig_required ? '1' : '0'; ?>"<?php endif; ?>>
                                     <label class="gvn-field__label" for="<?php echo $f_key; ?>">
                                         <?php echo $f_label; ?>
@@ -117,6 +139,8 @@ if ( $bump_product ) {
                                         <input type="<?php echo esc_attr( $f_type ); ?>" class="gvn-field__input" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" value="<?php echo $f_value; ?>" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?> />
                                     <?php endif; ?>
                                 </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             <?php endforeach; ?>
                         </div>
 

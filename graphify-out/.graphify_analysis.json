@@ -1,0 +1,220 @@
+{
+  "communities": {
+    "0": [
+      "includes_class_gvn_custom_fields",
+      "includes_class_gvn_custom_fields_gvn_custom_fields",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_ajax_save_fields",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_construct",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_display_custom_fields_in_admin",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_display_custom_fields_in_admin_billing",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_display_custom_fields_in_admin_shipping",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_get_available_masks",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_get_brazilian_field_definitions",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_get_default_fields",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_get_enabled_fields",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_get_field_types",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_get_fields",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_get_instance",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_has_conditions",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_maybe_migrate_default_fields",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_parse_select_options",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_register_custom_fields_with_woo",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_sanitize_conditions",
+      "includes_class_gvn_custom_fields_gvn_custom_fields_save_custom_fields_to_order"
+    ],
+    "1": [
+      "includes_class_gvn_address_validation",
+      "includes_class_gvn_address_validation_gvn_address_validation",
+      "includes_class_gvn_address_validation_gvn_address_validation_ajax_cep_lookup",
+      "includes_class_gvn_address_validation_gvn_address_validation_construct",
+      "includes_class_gvn_address_validation_gvn_address_validation_format_cep",
+      "includes_class_gvn_address_validation_gvn_address_validation_get_instance",
+      "includes_class_gvn_address_validation_gvn_address_validation_get_uf_from_cep",
+      "includes_class_gvn_address_validation_gvn_address_validation_get_uf_options",
+      "includes_class_gvn_address_validation_gvn_address_validation_is_cep_consistent_with_uf",
+      "includes_class_gvn_address_validation_gvn_address_validation_is_valid_cep_format",
+      "includes_class_gvn_address_validation_gvn_address_validation_is_valid_uf",
+      "includes_class_gvn_address_validation_gvn_address_validation_normalize_city",
+      "includes_class_gvn_address_validation_gvn_address_validation_normalize_order_address",
+      "includes_class_gvn_address_validation_gvn_address_validation_normalize_text",
+      "includes_class_gvn_address_validation_gvn_address_validation_normalize_uf",
+      "includes_class_gvn_address_validation_gvn_address_validation_normalize_viacep_data",
+      "includes_class_gvn_address_validation_gvn_address_validation_validate_address_fields"
+    ],
+    "2": [
+      "includes_class_gvn_admin",
+      "includes_class_gvn_admin_gvn_admin",
+      "includes_class_gvn_admin_gvn_admin_add_plugin_links",
+      "includes_class_gvn_admin_gvn_admin_add_settings_tab",
+      "includes_class_gvn_admin_gvn_admin_construct",
+      "includes_class_gvn_admin_gvn_admin_enqueue_admin_assets",
+      "includes_class_gvn_admin_gvn_admin_get_current_subtab",
+      "includes_class_gvn_admin_gvn_admin_get_instance",
+      "includes_class_gvn_admin_gvn_admin_get_products_list",
+      "includes_class_gvn_admin_gvn_admin_get_settings",
+      "includes_class_gvn_admin_gvn_admin_render_fields_manager",
+      "includes_class_gvn_admin_gvn_admin_render_help_page",
+      "includes_class_gvn_admin_gvn_admin_render_settings_page",
+      "includes_class_gvn_admin_gvn_admin_save_settings"
+    ],
+    "3": [
+      "includes_class_gvn_checkout",
+      "includes_class_gvn_checkout_gvn_checkout",
+      "includes_class_gvn_checkout_gvn_checkout_ajax_apply_coupon",
+      "includes_class_gvn_checkout_gvn_checkout_ajax_remove_coupon",
+      "includes_class_gvn_checkout_gvn_checkout_construct",
+      "includes_class_gvn_checkout_gvn_checkout_enqueue_assets",
+      "includes_class_gvn_checkout_gvn_checkout_enqueue_inline_colors",
+      "includes_class_gvn_checkout_gvn_checkout_get_instance",
+      "includes_class_gvn_checkout_gvn_checkout_override_thankyou_template",
+      "includes_class_gvn_checkout_gvn_checkout_render_checkout",
+      "includes_class_gvn_checkout_gvn_checkout_render_thankyou_page"
+    ],
+    "4": [
+      "includes_class_gvn_order_bump",
+      "includes_class_gvn_order_bump_gvn_order_bump",
+      "includes_class_gvn_order_bump_gvn_order_bump_apply_bump_price",
+      "includes_class_gvn_order_bump_gvn_order_bump_construct",
+      "includes_class_gvn_order_bump_gvn_order_bump_find_bump_in_cart",
+      "includes_class_gvn_order_bump_gvn_order_bump_get_cart_data",
+      "includes_class_gvn_order_bump_gvn_order_bump_get_cart_items_html",
+      "includes_class_gvn_order_bump_gvn_order_bump_get_instance",
+      "includes_class_gvn_order_bump_gvn_order_bump_toggle_order_bump"
+    ],
+    "5": [
+      "gvn_checkout",
+      "gvn_checkout_gvn_checkout_activate",
+      "gvn_checkout_gvn_checkout_check_woocommerce",
+      "gvn_checkout_gvn_checkout_deactivate",
+      "gvn_checkout_gvn_checkout_declare_compatibility",
+      "gvn_checkout_gvn_checkout_init",
+      "gvn_checkout_gvn_checkout_woocommerce_missing_notice"
+    ],
+    "6": [
+      "assets_js_gvn_admin_fields"
+    ],
+    "7": [
+      "assets_js_gvn_checkout"
+    ],
+    "8": [
+      "templates_checkout_template"
+    ],
+    "9": [
+      "templates_thankyou_template"
+    ],
+    "10": [
+      "uninstall"
+    ]
+  },
+  "cohesion": {
+    "0": 0.11052631578947368,
+    "1": 0.11764705882352941,
+    "2": 0.21978021978021978,
+    "3": 0.21818181818181817,
+    "4": 0.3055555555555556,
+    "5": 0.3333333333333333,
+    "6": 1.0,
+    "7": 1.0,
+    "8": 1.0,
+    "9": 1.0,
+    "10": 1.0
+  },
+  "gods": [
+    {
+      "id": "includes_class_gvn_custom_fields_gvn_custom_fields",
+      "label": "GVN_Custom_Fields",
+      "degree": 22
+    },
+    {
+      "id": "includes_class_gvn_address_validation_gvn_address_validation",
+      "label": "GVN_Address_Validation",
+      "degree": 17
+    },
+    {
+      "id": "includes_class_gvn_admin_gvn_admin",
+      "label": "GVN_Admin",
+      "degree": 14
+    },
+    {
+      "id": "includes_class_gvn_checkout_gvn_checkout",
+      "label": "GVN_Checkout",
+      "degree": 11
+    },
+    {
+      "id": "includes_class_gvn_order_bump_gvn_order_bump",
+      "label": "GVN_Order_Bump",
+      "degree": 9
+    },
+    {
+      "id": "gvn_checkout_gvn_checkout_init",
+      "label": "gvn_checkout_init()",
+      "degree": 7
+    },
+    {
+      "id": "gvn_checkout_gvn_checkout_check_woocommerce",
+      "label": "gvn_checkout_check_woocommerce()",
+      "degree": 2
+    }
+  ],
+  "surprises": [
+    {
+      "source": "gvn_checkout_init()",
+      "target": "GVN_Address_Validation",
+      "source_files": [
+        "gvn-checkout.php",
+        "includes/class-gvn-address-validation.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "gvn_checkout_init()",
+      "target": "GVN_Admin",
+      "source_files": [
+        "gvn-checkout.php",
+        "includes/class-gvn-admin.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "gvn_checkout_init()",
+      "target": "GVN_Checkout",
+      "source_files": [
+        "gvn-checkout.php",
+        "includes/class-gvn-checkout.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "gvn_checkout_init()",
+      "target": "GVN_Custom_Fields",
+      "source_files": [
+        "gvn-checkout.php",
+        "includes/class-gvn-custom-fields.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "gvn_checkout_init()",
+      "target": "GVN_Order_Bump",
+      "source_files": [
+        "gvn-checkout.php",
+        "includes/class-gvn-order-bump.php"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    }
+  ],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

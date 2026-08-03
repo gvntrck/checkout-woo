@@ -141,6 +141,34 @@ class GVN_Admin {
                 'id'   => 'gvn_checkout_header_section',
             ),
 
+            // Seção: Textos do Checkout
+            array(
+                'title' => 'Textos do Checkout',
+                'type'  => 'title',
+                'desc'  => 'Personalize o título e o subtítulo exibidos acima do formulário de inscrição.',
+                'id'    => 'gvn_checkout_text_section',
+            ),
+            array(
+                'title'    => 'Título principal',
+                'desc'     => 'Texto principal exibido acima do formulário de inscrição.',
+                'id'       => 'gvn_checkout_title_text',
+                'type'     => 'text',
+                'default'  => 'Finalize sua inscrição',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => 'Subtítulo',
+                'desc'     => 'Texto complementar exibido abaixo do título principal.',
+                'id'       => 'gvn_checkout_subtitle_text',
+                'type'     => 'text',
+                'default'  => 'Acesso imediato após confirmação do pagamento',
+                'desc_tip' => true,
+            ),
+            array(
+                'type' => 'sectionend',
+                'id'   => 'gvn_checkout_text_section',
+            ),
+
             // Seção: Visual
             array(
                 'title' => 'Configurações Visuais',

@@ -12,6 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $header_text       = get_option( 'gvn_checkout_header_text', 'EFEAD - Conectando Saberes' );
 $header_badge_text = get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGURA' );
+$title_text        = get_option( 'gvn_checkout_title_text', 'Finalize sua inscrição' );
+$subtitle_text     = get_option( 'gvn_checkout_subtitle_text', 'Acesso imediato após confirmação do pagamento' );
 $button_text       = get_option( 'gvn_checkout_button_text', 'Finalizar pedido' );
 $bump_enabled      = 'yes' === get_option( 'gvn_checkout_order_bump_enabled', 'no' );
 $bump_product_id   = absint( get_option( 'gvn_checkout_order_bump_product_id', 0 ) );
@@ -53,9 +55,9 @@ if ( $bump_product ) {
     <!-- Título -->
     <div class="gvn-title">
         <h1 class="gvn-title__heading">
-            <span class="gvn-title__dot">&bull;</span> Finalize sua inscrição
+            <span class="gvn-title__dot">&bull;</span> <?php echo esc_html( $title_text ); ?>
         </h1>
-        <p class="gvn-title__sub">Acesso imediato após confirmação do pagamento</p>
+        <p class="gvn-title__sub"><?php echo esc_html( $subtitle_text ); ?></p>
     </div>
 
     <!-- Form de Checkout do WooCommerce -->

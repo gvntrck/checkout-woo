@@ -123,7 +123,7 @@
     {
       "id": "includes_class_gvn_custom_fields_gvn_custom_fields",
       "label": "GVN_Custom_Fields",
-      "degree": 22
+      "degree": 21
     },
     {
       "id": "includes_class_gvn_address_validation_gvn_address_validation",
@@ -213,8 +213,36 @@
       "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
     }
   ],
-  "tokens": {
-    "input": 0,
-    "output": 0
-  }
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `gvn_checkout_init()` connect `Community 5` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 4`?",
+      "why": "High betweenness centrality (0.669) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `GVN_Custom_Fields` connect `Community 0` to `Community 1`, `Community 5`?",
+      "why": "High betweenness centrality (0.389) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `GVN_Address_Validation` connect `Community 1` to `Community 5`?",
+      "why": "High betweenness centrality (0.318) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 2 inferred relationships involving `GVN_Custom_Fields` (e.g. with `gvn_checkout_init()` and `.validate_address_fields()`) actually correct?",
+      "why": "`GVN_Custom_Fields` has 2 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.11052631578947368 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 1` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.11764705882352941 - nodes in this community are weakly interconnected."
+    }
+  ]
 }

@@ -78,7 +78,14 @@ class SettingsSchemaTest extends TestCase {
         $this->assertContains('billing_cpf', $keys);
         $this->assertContains('billing_cnpj', $keys);
         $this->assertContains('billing_cellphone', $keys);
+        $this->assertContains('billing_postcode', $keys);
         $this->assertContains('billing_number', $keys);
         $this->assertContains('billing_neighborhood', $keys);
+
+        $postcode = $fields[array_search('billing_postcode', $keys, true)];
+        $this->assertTrue($postcode['required']);
+        $this->assertTrue($postcode['enabled']);
+        $this->assertTrue($postcode['is_default']);
+        $this->assertEquals('cep', $postcode['mask']);
     }
 }

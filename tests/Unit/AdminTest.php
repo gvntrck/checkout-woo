@@ -25,6 +25,31 @@ class AdminTest extends TestCase {
         SettingsRepository::flush_cache();
     }
 
+    public function test_saved_fields_receive_required_default_billing_postcode(): void {
+        global $wp_mock_options;
+        $wp_mock_options[GVN_Custom_Fields::OPTION_KEY] = [
+            [
+                'key' => 'billing_first_name',
+                'label' => 'Nome',
+                'enabled' => true,
+            ],
+        ];
+
+        $fields = GVN_Custom_Fields::get_fields();
+        $keys = array_column($fields, 'key');
+        $postcode = $fields[array_search('billing_postcode', $keys, true)];
+
+        $this->assertTrue($postcode['required']);
+        $this->assertTrue($postcode['enabled']);
+        $this->assertTrue($postcode['is_default']);
+
+        $checkoutFields = GVN_Custom_Fields::get_instance()->register_custom_fields_with_woo([
+            'billing' => ['billing_postcode' => ['class' => []]],
+        ]);
+        $this->assertTrue($checkoutFields['billing']['billing_postcode']['required']);
+        $this->assertNotContains('gvn-hidden-field', $checkoutFields['billing']['billing_postcode']['class']);
+    }
+
     public function test_render_settings_page_denies_unauthorized_users(): void {
         global $wp_mock_user_caps;
         $wp_mock_user_caps = []; // Sem nenhuma capacidade

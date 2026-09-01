@@ -131,6 +131,18 @@ class SettingsSchema {
                 ],
             ],
             [
+                'key'         => 'billing_postcode',
+                'label'       => 'CEP',
+                'type'        => 'text',
+                'required'    => true,
+                'width'       => '50',
+                'position'    => 'billing',
+                'placeholder' => '00000-000',
+                'enabled'     => true,
+                'mask'        => 'cep',
+                'is_default'  => true,
+            ],
+            [
                 'key'         => 'billing_number',
                 'label'       => 'Número',
                 'type'        => 'text',

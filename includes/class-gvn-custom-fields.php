@@ -245,12 +245,24 @@ class GVN_Custom_Fields {
                 'options'     => "prefiro_nao_dizer|Prefiro não dizer\nfeminino|Feminino\nmasculino|Masculino\noutro|Outro",
             ),
             array(
+                'key'         => 'billing_postcode',
+                'label'       => 'CEP',
+                'type'        => 'text',
+                'required'    => true,
+                'width'       => '50',
+                'position'    => 13,
+                'placeholder' => '00000-000',
+                'enabled'     => true,
+                'mask'        => 'cep',
+                'is_default'  => true,
+            ),
+            array(
                 'key'         => 'billing_number',
                 'label'       => 'Número',
                 'type'        => 'text',
                 'required'    => true,
                 'width'       => '25',
-                'position'    => 13,
+                'position'    => 14,
                 'placeholder' => '',
                 'enabled'     => false,
                 'mask'        => '',
@@ -262,7 +274,7 @@ class GVN_Custom_Fields {
                 'type'        => 'text',
                 'required'    => false,
                 'width'       => '50',
-                'position'    => 14,
+                'position'    => 15,
                 'placeholder' => '',
                 'enabled'     => false,
                 'mask'        => '',
@@ -274,7 +286,7 @@ class GVN_Custom_Fields {
                 'type'        => 'text',
                 'required'    => true,
                 'width'       => '25',
-                'position'    => 15,
+                'position'    => 16,
                 'placeholder' => '',
                 'enabled'     => false,
                 'mask'        => '',
@@ -286,7 +298,7 @@ class GVN_Custom_Fields {
                 'type'        => 'text',
                 'required'    => false,
                 'width'       => '50',
-                'position'    => 16,
+                'position'    => 17,
                 'placeholder' => '',
                 'enabled'     => false,
                 'mask'        => '',
@@ -298,7 +310,7 @@ class GVN_Custom_Fields {
                 'type'        => 'textarea',
                 'required'    => false,
                 'width'       => '100',
-                'position'    => 17,
+                'position'    => 18,
                 'placeholder' => 'Observações sobre seu pedido, ex.: observações especiais sobre entrega.',
                 'enabled'     => true,
                 'mask'        => '',
@@ -341,6 +353,15 @@ class GVN_Custom_Fields {
                 continue;
             }
             $normalized[] = array_merge( $defaults, $field );
+        }
+
+        if ( ! in_array( 'billing_postcode', array_column( $normalized, 'key' ), true ) ) {
+            foreach ( self::get_default_fields() as $default_field ) {
+                if ( 'billing_postcode' === $default_field['key'] ) {
+                    $normalized[] = array_merge( $defaults, $default_field );
+                    break;
+                }
+            }
         }
 
         usort( $normalized, function ( $a, $b ) {
@@ -803,6 +824,12 @@ class GVN_Custom_Fields {
                 'label'   => 'Gênero',
                 'type'    => 'select',
                 'options' => "prefiro_nao_dizer|Prefiro não dizer\nfeminino|Feminino\nmasculino|Masculino\noutro|Outro",
+            ),
+            'billing_postcode' => array(
+                'label'       => 'CEP',
+                'type'        => 'text',
+                'mask'        => 'cep',
+                'placeholder' => '00000-000',
             ),
             'billing_number' => array(
                 'label' => 'Número',

@@ -40,7 +40,8 @@ if (!function_exists('esc_url')) {
 
 if (!function_exists('sanitize_text_field')) {
     function sanitize_text_field($str) {
-        return trim(strip_tags((string) $str));
+        $text = preg_replace('@<(script|style)[^>]*?>.*?</\\1>@siu', '', (string) $str);
+        return trim(strip_tags($text));
     }
 }
 
@@ -71,8 +72,34 @@ if (!function_exists('apply_filters')) {
     }
 }
 
-if (!function_exists('do_action')) {
-    function do_action($tag, ...$arg) {
-        // No-op em testes unitários.
+if (!function_exists('get_option')) {
+    function get_option($option, $default = false) {
+        global $wp_mock_options;
+        if (!is_array($wp_mock_options)) {
+            $wp_mock_options = [];
+        }
+        return array_key_exists($option, $wp_mock_options) ? $wp_mock_options[$option] : $default;
+    }
+}
+
+if (!function_exists('update_option')) {
+    function update_option($option, $value, $autoload = null) {
+        global $wp_mock_options;
+        if (!is_array($wp_mock_options)) {
+            $wp_mock_options = [];
+        }
+        $wp_mock_options[$option] = $value;
+        return true;
+    }
+}
+
+if (!function_exists('delete_option')) {
+    function delete_option($option) {
+        global $wp_mock_options;
+        if (is_array($wp_mock_options) && array_key_exists($option, $wp_mock_options)) {
+            unset($wp_mock_options[$option]);
+            return true;
+        }
+        return false;
     }
 }

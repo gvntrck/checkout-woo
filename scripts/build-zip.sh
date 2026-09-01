@@ -12,13 +12,15 @@ rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR/${PLUGIN_SLUG}"
 mkdir -p "$OUTPUT_DIR"
 
-# Copia apenas arquivos de runtime
-cp -r assets html includes templates languages gvn-checkout.php readme.txt readme.md uninstall.php "$BUILD_DIR/${PLUGIN_SLUG}/" 2>/dev/null || true
+# Copia apenas arquivos de runtime (incluindo src/, excludes dev/tests)
+cp -r assets html includes src templates languages gvn-checkout.php readme.txt readme.md uninstall.php "$BUILD_DIR/${PLUGIN_SLUG}/" 2>/dev/null || true
 
-# Remove artefatos temporários
+# Remove artefatos temporários e ocultos
 find "$BUILD_DIR" -name ".DS_Store" -delete 2>/dev/null || true
 find "$BUILD_DIR" -name "Thumbs.db" -delete 2>/dev/null || true
 find "$BUILD_DIR" -name "*~" -delete 2>/dev/null || true
+find "$BUILD_DIR" -name "*.bak" -delete 2>/dev/null || true
+find "$BUILD_DIR" -name "*.log" -delete 2>/dev/null || true
 
 # Empacotamento via PHP ZipArchive (portátil e determinístico)
 php -r "
@@ -47,3 +49,4 @@ rm -rf "$BUILD_DIR"
 
 echo "==> Pacote gerado com sucesso em: ${ZIP_FILE}"
 sha256sum "$ZIP_FILE"
+ls -lh "$ZIP_FILE"

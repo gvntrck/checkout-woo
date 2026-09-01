@@ -3,7 +3,7 @@
  * Template de confirmação de pedido (Thank You) do GVN Checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.0
+ * @version 1.13.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

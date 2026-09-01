@@ -4,7 +4,7 @@
  * Registra o shortcode [gvn-checkout] e gerencia hooks do WooCommerce.
  *
  * @package GVN_Checkout
- * @version 1.0.0
+ * @version 1.13.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

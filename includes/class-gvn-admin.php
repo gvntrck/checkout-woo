@@ -4,7 +4,7 @@
  * Gerencia a página de configurações no painel do WordPress.
  *
  * @package GVN_Checkout
- * @version 1.13.3
+ * @version 1.13.9
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

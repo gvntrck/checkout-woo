@@ -1,7 +1,7 @@
 /**
  * GVN Checkout - Admin Fields Manager
  * Drag-and-drop, CRUD, largura e ordenação de campos.
- * @version 1.12.0
+ * @version 1.13.9
  */
 
 (function ($) {

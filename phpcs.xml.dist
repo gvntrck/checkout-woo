@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<ruleset name="GVN Checkout Coding Standards">
+    <description>Regras de estilo PHPCS para GVN Checkout for WooCommerce.</description>
+
+    <!-- Pastas a inspecionar -->
+    <file>.</file>
+    <exclude-pattern>/vendor/*</exclude-pattern>
+    <exclude-pattern>/node_modules/*</exclude-pattern>
+    <exclude-pattern>/tests/fixtures/*</exclude-pattern>
+
+    <!-- Argumentos padrão -->
+    <arg name="basepath" value="."/>
+    <arg name="parallel" value="8"/>
+    <arg name="extensions" value="php"/>
+    <arg value="ps"/>
+
+    <!-- Regras do WordPress -->
+    <rule ref="WordPress-Core"/>
+    <rule ref="WordPress-Extra"/>
+
+    <!-- Compatibilidade PHP 7.4+ -->
+    <rule ref="PHPCompatibilityWP"/>
+    <config name="testVersion" value="7.4-"/>
+
+    <!-- Configuração de textdomain -->
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array">
+                <element value="gvn-checkout"/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Prefixo de funções e variáveis globais -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array">
+                <element value="gvn_checkout"/>
+                <element value="GVN_Checkout"/>
+                <element value="GVN"/>
+            </property>
+        </properties>
+    </rule>
+</ruleset>

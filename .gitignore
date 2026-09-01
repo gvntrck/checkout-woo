@@ -1,6 +1,7 @@
 # Pacotes e Releases
 *.zip
 *.tar.gz
+/dist/
 
 # Dependências
 /vendor/

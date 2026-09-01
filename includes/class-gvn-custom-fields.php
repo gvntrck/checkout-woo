@@ -4,12 +4,18 @@
  * CRUD, ordenação e largura dos campos do formulário de checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.9
+ * @version 1.13.24
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+use GVN\Checkout\Fields\FieldConditionEvaluator;
+use GVN\Checkout\Fields\FieldOrderPersister;
+use GVN\Checkout\Fields\FieldSanitizer;
+use GVN\Checkout\Fields\FieldSecurityPolicy;
+use GVN\Checkout\Fields\FieldValidator;
 
 class GVN_Custom_Fields {
 
@@ -26,6 +32,9 @@ class GVN_Custom_Fields {
 
     private function __construct() {
         add_action( 'wp_ajax_gvn_save_fields', array( $this, 'ajax_save_fields' ) );
+        add_action( 'woocommerce_checkout_process', array( $this, 'validate_custom_fields_process' ) );
+        add_action( 'woocommerce_after_checkout_validation', array( $this, 'validate_custom_fields_after' ), 10, 2 );
+        add_action( 'woocommerce_checkout_create_order', array( $this, 'persist_custom_fields_on_order_create' ), 10, 2 );
         add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'save_custom_fields_to_order' ), 10, 1 );
         add_action( 'woocommerce_admin_order_data_after_billing_address', array( $this, 'display_custom_fields_in_admin_billing' ), 10, 1 );
         add_action( 'woocommerce_admin_order_data_after_shipping_address', array( $this, 'display_custom_fields_in_admin_shipping' ), 10, 1 );
@@ -375,15 +384,18 @@ class GVN_Custom_Fields {
         $seen_keys    = array();
 
         foreach ( $fields as $index => $field ) {
-            $key = sanitize_key( isset( $field['key'] ) ? $field['key'] : '' );
+            $key = FieldSecurityPolicy::sanitize_field_key( isset( $field['key'] ) ? $field['key'] : '' );
 
-            // Pula campos sem chave válida ou duplicados.
-            if ( '' === $key || isset( $seen_keys[ $key ] ) ) {
+            // Pula campos sem chave válida, duplicados ou que colidam com chaves reservadas do pedido.
+            if ( '' === $key || isset( $seen_keys[ $key ] ) || FieldSecurityPolicy::is_reserved_key( $key ) ) {
                 continue;
             }
             $seen_keys[ $key ] = true;
 
-            $type  = isset( $field['type'] ) ? sanitize_text_field( $field['type'] ) : 'text';
+            $type = isset( $field['type'] ) ? sanitize_text_field( $field['type'] ) : 'text';
+            if ( ! FieldSecurityPolicy::is_valid_type( $type ) ) {
+                $type = 'text';
+            }
             $mask  = isset( $field['mask'] ) ? sanitize_text_field( $field['mask'] ) : '';
             $width = isset( $field['width'] ) ? $field['width'] : '100';
 
@@ -541,52 +553,56 @@ class GVN_Custom_Fields {
     }
 
     /**
-     * Salva campos custom no pedido.
+     * Validação server-side de campos durante o submit do checkout via woocommerce_after_checkout_validation.
+     *
+     * @param array    $data
+     * @param WP_Error $errors
+     */
+    public function validate_custom_fields_after( $data, $errors ) {
+        $fields = self::get_enabled_fields();
+        $posted = isset( $_POST ) ? wp_unslash( $_POST ) : array();
+        $merged = array_merge( (array) $data, (array) $posted );
+        FieldValidator::validate( $fields, $merged, $errors );
+    }
+
+    /**
+     * Validação auxiliar em woocommerce_checkout_process.
+     */
+    public function validate_custom_fields_process() {
+        $fields = self::get_enabled_fields();
+        $posted = isset( $_POST ) ? wp_unslash( $_POST ) : array();
+        FieldValidator::validate( $fields, $posted, null );
+    }
+
+    /**
+     * Persiste campos customizados no objeto WC_Order durante woocommerce_checkout_create_order (atômico e HPOS-safe).
+     *
+     * @param WC_Order $order
+     * @param array    $data
+     */
+    public function persist_custom_fields_on_order_create( $order, $data ) {
+        $fields = self::get_enabled_fields();
+        $posted = isset( $_POST ) ? wp_unslash( $_POST ) : array();
+        $merged = array_merge( (array) $data, (array) $posted );
+        FieldOrderPersister::persist( $order, $fields, $merged );
+    }
+
+    /**
+     * Salva campos custom no pedido via hook legado de fallback woocommerce_checkout_update_order_meta.
+     *
+     * @param int $order_id
      */
     public function save_custom_fields_to_order( $order_id ) {
-        $fields = self::get_enabled_fields();
-
-        // Lista de campos nativos do WooCommerce que ele já salva sozinho
-        $woo_native_keys = array(
-            'billing_first_name', 'billing_last_name', 'billing_email',
-            'billing_phone', 'billing_company', 'billing_address_1',
-            'billing_address_2', 'billing_city', 'billing_state',
-            'billing_postcode', 'billing_country',
-        );
-
         $order = wc_get_order( $order_id );
         if ( ! $order ) {
             return;
         }
 
-        $changed = false;
+        $fields = self::get_enabled_fields();
+        $posted = isset( $_POST ) ? wp_unslash( $_POST ) : array();
+        $persisted = FieldOrderPersister::persist( $order, $fields, $posted );
 
-        foreach ( $fields as $field ) {
-            $key = $field['key'];
-
-            // Pula campos nativos do WooCommerce (ele já salva)
-            if ( in_array( $key, $woo_native_keys, true ) ) {
-                continue;
-            }
-
-            // Pula order_comments (Woo já salva)
-            if ( 'order_comments' === $key ) {
-                continue;
-            }
-
-            if ( isset( $_POST[ $key ] ) ) {
-                $raw   = wp_unslash( $_POST[ $key ] );
-                $value = ( 'textarea' === $field['type'] )
-                    ? sanitize_textarea_field( $raw )
-                    : sanitize_text_field( $raw );
-
-                // Usa a API HPOS-compatible em vez de update_post_meta direto.
-                $order->update_meta_data( '_' . $key, $value );
-                $changed = true;
-            }
-        }
-
-        if ( $changed ) {
+        if ( ! empty( $persisted ) ) {
             $order->save();
         }
     }

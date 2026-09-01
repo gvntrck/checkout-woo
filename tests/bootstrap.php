@@ -103,3 +103,73 @@ if (!function_exists('delete_option')) {
         return false;
     }
 }
+
+if (!function_exists('sanitize_key')) {
+    function sanitize_key($key) {
+        $raw_key = (string) $key;
+        $sanitized_key = strtolower($raw_key);
+        return preg_replace('/[^a-z0-9_\-]/', '', $sanitized_key);
+    }
+}
+
+if (!function_exists('sanitize_email')) {
+    function sanitize_email($email) {
+        return filter_var((string) $email, FILTER_SANITIZE_EMAIL);
+    }
+}
+
+if (!function_exists('is_email')) {
+    function is_email($email) {
+        return (bool) filter_var((string) $email, FILTER_VALIDATE_EMAIL);
+    }
+}
+
+if (!function_exists('sanitize_textarea_field')) {
+    function sanitize_textarea_field($str) {
+        $text = preg_replace('@<(script|style)[^>]*?>.*?</\\1>@siu', '', (string) $str);
+        return trim(strip_tags($text));
+    }
+}
+
+if (!function_exists('wp_strip_all_tags')) {
+    function wp_strip_all_tags($text) {
+        $text = preg_replace('@<(script|style)[^>]*?>.*?</\\1>@siu', '', (string) $text);
+        return trim(strip_tags($text));
+    }
+}
+
+if (!function_exists('wc_add_notice')) {
+    function wc_add_notice($message, $type = 'error') {
+        global $wc_mock_notices;
+        if (!is_array($wc_mock_notices)) {
+            $wc_mock_notices = [];
+        }
+        $wc_mock_notices[] = ['message' => $message, 'type' => $type];
+    }
+}
+
+if (!class_exists('WP_Error')) {
+    class WP_Error {
+        private $errors = [];
+
+        public function add($code, $message, $data = '') {
+            $this->errors[$code][] = $message;
+        }
+
+        public function get_error_messages($code = '') {
+            if ($code) {
+                return $this->errors[$code] ?? [];
+            }
+            $all = [];
+            foreach ($this->errors as $messages) {
+                $all = array_merge($all, $messages);
+            }
+            return $all;
+        }
+
+        public function has_errors() {
+            return !empty($this->errors);
+        }
+    }
+}
+

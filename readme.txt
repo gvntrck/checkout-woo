@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.23
+Stable tag: 1.13.24
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,7 +44,7 @@ O **GVN Checkout** substitui o checkout padrão do WooCommerce por um layout mod
 
 == Referência da superfície pública (baseline F0.3) ==
 
-Este inventário registra o comportamento observado no código canônico antes da refatoração estrutural. Ele corresponde ao commit `688d85327dbacd92fce105c6eca6796a6ce5cd55` e à versão `1.13.5`; a versão `1.13.6` atualiza somente documentação e metadados, a versão `1.13.7` adiciona somente uma fixture sintética para migração, a versão `1.13.8` define a política de rollback, a versão `1.13.9` sincroniza os comentários de versão, a versão `1.13.10` remove os arquivos compactados do controle de versão, a versão `1.13.11` adiciona aviso administrativo de conflito, a versão `1.13.12` expande as fixtures de migração e clean install, a versão `1.13.13` adiciona seed reproduzível do catálogo, a versão `1.13.14` registra o threat model operacional, a versão `1.13.15` adiciona os ADRs, a versão `1.13.16` estabelece o protocolo de anonimização, a versão `1.13.17` formaliza a política de concorrência de deploy, a versão `1.13.18` define budgets de performance e matriz de compatibilidade, a versão `1.13.19` define governança de gates, a versão `1.13.20` implementa o ferramental de qualidade, a versão `1.13.21` implementa o bootstrap estrutural, a versão `1.13.22` introduz o schema e repositório de configurações, e a versão `1.13.23` implementa a migração aditiva e idempotente de opções com lock não bloqueante (Fase 3 concluída). A presença de um item nesta lista não é, sozinha, evidência de compatibilidade ou suporte.
+Este inventário registra o comportamento observado no código canônico antes da refatoração estrutural. Ele corresponde ao commit `688d85327dbacd92fce105c6eca6796a6ce5cd55` e à versão `1.13.5`; a versão `1.13.6` atualiza somente documentação e metadados, a versão `1.13.7` adiciona somente uma fixture sintética para migração, a versão `1.13.8` define a política de rollback, a versão `1.13.9` sincroniza os comentários de versão, a versão `1.13.10` remove os arquivos compactados do controle de versão, a versão `1.13.11` adiciona aviso administrativo de conflito, a versão `1.13.12` expande as fixtures de migração e clean install, a versão `1.13.13` adiciona seed reproduzível do catálogo, a versão `1.13.14` registra o threat model operacional, a versão `1.13.15` adiciona os ADRs, a versão `1.13.16` estabelece o protocolo de anonimização, a versão `1.13.17` formaliza a política de concorrência de deploy, a versão `1.13.18` define budgets de performance e matriz de compatibilidade, a versão `1.13.19` define governança de gates, a versão `1.13.20` implementa o ferramental de qualidade, a versão `1.13.21` implementa o bootstrap estrutural, a versão `1.13.22` introduz o schema e repositório de configurações, a versão `1.13.23` implementa a migração aditiva e idempotente de opções com lock não bloqueante (Fase 3 concluída), e a versão `1.13.24` implementa a validação server-side de condições e a persistência segura e HPOS-safe de campos de checkout via WC_Order (Fase 4 concluída). A presença de um item nesta lista não é, sozinha, evidência de compatibilidade ou suporte.
 
 = Shortcode =
 
@@ -111,6 +111,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.24 =
+* Implementa avaliação server-side de condições (FieldConditionEvaluator.php), validação de obrigatoriedade condicional (FieldValidator.php), allowlist e bloqueio de metadados reservados (FieldSecurityPolicy.php), sanitização tipada (FieldSanitizer.php) e persistência HPOS-safe em WC_Order (FieldOrderPersister.php) (Fase 4 concluída).
 
 = 1.13.23 =
 * Implementa o migrador seguro e aditivo de configurações (SettingsMigrator.php) com lock não bloqueante, read-back de validação e preservação de opções legadas para rollback seguro (Fase 3 concluída).

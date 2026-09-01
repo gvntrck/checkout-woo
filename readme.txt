@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.29
+Stable tag: 1.13.30
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.30 =
+* Endurece o ciclo de vida e desinstalação segura do plugin (src/Lifecycle/Uninstaller.php e uninstall.php): remoção de SQL direto para limpeza de transients, suporte a wp_cache_flush, limpeza modular de opções canônicas e legadas sem tocar em pedidos ou dados de clientes (Fase 12 concluída).
 
 = 1.13.29 =
 * Endurece a segurança do painel administrativo (class-gvn-admin.php e class-gvn-custom-fields.php): verificação estrita de capabilities (manage_woocommerce/manage_options), nonces de proteção em formulários e requisições AJAX, sanitização centralizada, invalidação de cache do SettingsRepository e internacionalização completa de mensagens (Fase 10 concluída).

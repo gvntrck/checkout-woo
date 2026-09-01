@@ -24,7 +24,7 @@ if (!defined('GVN_CHECKOUT_PLUGIN_URL')) {
 }
 
 if (!defined('GVN_CHECKOUT_VERSION')) {
-    define('GVN_CHECKOUT_VERSION', '1.13.31');
+    define('GVN_CHECKOUT_VERSION', '1.13.33');
 }
 
 // Mocks e stubs básicos de WordPress para testes unitários em isolamento (sem banco de dados).

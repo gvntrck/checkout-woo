@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.31
+Stable tag: 1.13.33
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,12 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.33 =
+* Refinamento estrutural de larguras e alinhamento do grid (gvn-checkout.css): fixação de 100% de largura nos containers de cards, dynamic fields e totals, com coluna lateral em 380px encostando na margem direita e alinhamento perfeito ao cabeçalho.
+
+= 1.13.32 =
+* Ajustes visuais e refinamento estético do checkout (checkout-template.php e gvn-checkout.css): reestruturação do grid em 2 colunas equilibradas com sticky sidebar no desktop, eliminação do ponto vermelho isolado quando o título não está preenchido, supressão de aviso/formulário duplicado de cupom no topo, padronização da tipografia de inputs e observações, e polimento do resumo do pedido, badges de segurança e botão de finalizar pedido.
 
 = 1.13.31 =
 * Endurece o gerenciamento de assets e internacionalização (class-gvn-checkout.php e templates): sanitização rigorosa de variáveis de cores injetadas em CSS inline via sanitize_hex_color, integração do template com SettingsRepository e padronização do text domain gvn-checkout (Fase 11 concluída).

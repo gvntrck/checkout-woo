@@ -7,7 +7,7 @@
  * validação de consistência no checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.31
+ * @version 1.13.33
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

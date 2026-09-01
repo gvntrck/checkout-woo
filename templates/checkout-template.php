@@ -3,16 +3,14 @@
  * Template do checkout personalizado GVN.
  *
  * @package GVN_Checkout
- * @version 1.13.31
+ * @version 1.13.33
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-if ( ! isset( $checkout ) && function_exists( 'WC' ) && WC()->checkout() ) {
-    $checkout = WC()->checkout();
-}
+$checkout = isset( $checkout ) ? $checkout : ( ( function_exists( 'WC' ) && WC()->checkout() ) ? WC()->checkout() : null );
 
 $header_text       = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_text', 'EFEAD - Conectando Saberes' ) : get_option( 'gvn_checkout_header_text', 'EFEAD - Conectando Saberes' );
 $header_badge_text = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_badge_text', 'COMPRA SEGURA' ) : get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGURA' );
@@ -57,12 +55,18 @@ if ( $bump_product && $cart ) {
     </header>
 
     <!-- Título -->
-    <div class="gvn-title">
-        <h1 class="gvn-title__heading">
-            <span class="gvn-title__dot">&bull;</span> <?php echo esc_html( $title_text ); ?>
-        </h1>
-        <p class="gvn-title__sub"><?php echo esc_html( $subtitle_text ); ?></p>
-    </div>
+    <?php if ( ! empty( trim( (string) $title_text ) ) || ! empty( trim( (string) $subtitle_text ) ) ) : ?>
+        <div class="gvn-title">
+            <?php if ( ! empty( trim( (string) $title_text ) ) ) : ?>
+                <h1 class="gvn-title__heading">
+                    <span class="gvn-title__dot">&bull;</span> <?php echo esc_html( $title_text ); ?>
+                </h1>
+            <?php endif; ?>
+            <?php if ( ! empty( trim( (string) $subtitle_text ) ) ) : ?>
+                <p class="gvn-title__sub"><?php echo esc_html( $subtitle_text ); ?></p>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
 
     <?php do_action( 'woocommerce_before_checkout_form', $checkout ); ?>
 
@@ -71,8 +75,8 @@ if ( $bump_product && $cart ) {
 
         <div class="gvn-grid">
 
-            <!-- Coluna Esquerda: Dados do Usuário -->
-            <section class="gvn-col-left">
+            <!-- Bloco 1: Dados do Usuário (Coluna Esquerda Topo) -->
+            <div class="gvn-col-main-details">
                 <?php do_action( 'woocommerce_checkout_before_customer_details' ); ?>
 
                 <div class="gvn-card" id="customer_details">
@@ -105,48 +109,48 @@ if ( $bump_product && $cart ) {
                                         <h3 class="gvn-fields-divider"><?php echo esc_html( $gvn_group['label'] ); ?></h3>
                                     <?php endif; ?>
                                     <?php foreach ( $gvn_group['fields'] as $gvn_field ) :
-                                    $f_key         = esc_attr( $gvn_field['key'] );
-                                    $f_label       = esc_html( $gvn_field['label'] );
-                                    $f_type        = $gvn_field['type'];
-                                    $f_required    = ! empty( $gvn_field['required'] );
-                                    $f_placeholder = esc_attr( $gvn_field['placeholder'] );
-                                    $f_width       = $gvn_field['width'];
-                                    $f_mask        = ! empty( $gvn_field['mask'] ) ? $gvn_field['mask'] : '';
-                                    $f_raw_value   = ( $checkout && method_exists( $checkout, 'get_value' ) ) ? $checkout->get_value( $gvn_field['key'] ) : '';
-                                    $f_value       = esc_attr( $f_raw_value );
-                                    $width_class   = 'gvn-field--w' . $f_width;
-                                    $f_conditions  = isset( $gvn_field['conditions'] ) ? $gvn_field['conditions'] : array( 'logic' => 'and', 'rules' => array() );
-                                    $has_conditions = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::has_conditions( $gvn_field ) : false;
-                                    $f_orig_required = $f_required;
-                                ?>
-                                <div class="gvn-field <?php echo esc_attr( $width_class ); ?><?php echo $has_conditions ? ' gvn-field--conditional' : ''; ?>" data-field-key="<?php echo $f_key; ?>" data-mask="<?php echo esc_attr( $f_mask ); ?>"<?php if ( $has_conditions ) : ?> data-conditions="<?php echo esc_attr( wp_json_encode( $f_conditions ) ); ?>" data-required="<?php echo $f_orig_required ? '1' : '0'; ?>"<?php endif; ?>>
-                                    <label class="gvn-field__label" for="<?php echo $f_key; ?>">
-                                        <?php echo $f_label; ?>
-                                        <?php if ( $f_required ) : ?><span class="gvn-field__required">*</span><?php endif; ?>
-                                        <?php if ( ! $f_required && 'order_comments' === $f_key ) : ?><span class="gvn-field__optional">(<?php esc_html_e( 'opcional', 'gvn-checkout' ); ?>)</span><?php endif; ?>
-                                    </label>
-                                    <?php if ( 'textarea' === $f_type ) : ?>
-                                        <textarea class="gvn-field__input gvn-field__textarea" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" rows="3" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?>><?php echo esc_textarea( $f_raw_value ); ?></textarea>
-                                    <?php elseif ( 'select' === $f_type ) :
-                                        $f_options_raw  = isset( $gvn_field['options'] ) ? $gvn_field['options'] : '';
-                                        $f_options      = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::parse_select_options( $f_options_raw ) : array();
-                                        $f_default_opt  = isset( $gvn_field['default_option'] ) ? $gvn_field['default_option'] : '';
-                                        $f_select_value = '' !== $f_raw_value ? $f_raw_value : $f_default_opt;
+                                        $f_key         = esc_attr( $gvn_field['key'] );
+                                        $f_label       = esc_html( $gvn_field['label'] );
+                                        $f_type        = $gvn_field['type'];
+                                        $f_required    = ! empty( $gvn_field['required'] );
+                                        $f_placeholder = esc_attr( $gvn_field['placeholder'] );
+                                        $f_width       = $gvn_field['width'];
+                                        $f_mask        = ! empty( $gvn_field['mask'] ) ? $gvn_field['mask'] : '';
+                                        $f_raw_value   = ( $checkout && method_exists( $checkout, 'get_value' ) ) ? $checkout->get_value( $gvn_field['key'] ) : '';
+                                        $f_value       = esc_attr( $f_raw_value );
+                                        $width_class   = 'gvn-field--w' . $f_width;
+                                        $f_conditions  = isset( $gvn_field['conditions'] ) ? $gvn_field['conditions'] : array( 'logic' => 'and', 'rules' => array() );
+                                        $has_conditions = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::has_conditions( $gvn_field ) : false;
+                                        $f_orig_required = $f_required;
                                     ?>
-                                        <select class="gvn-field__input gvn-field__select" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" <?php echo $f_required ? 'required' : ''; ?>>
-                                            <option value=""><?php echo $f_placeholder ? esc_html( $f_placeholder ) : '-- ' . esc_html__( 'Selecione', 'gvn-checkout' ) . ' --'; ?></option>
-                                            <?php if ( empty( $f_options ) ) : ?>
-                                                <option value="" disabled><?php echo esc_html__( 'Nenhuma opção configurada', 'gvn-checkout' ); ?></option>
-                                            <?php else : ?>
-                                                <?php foreach ( $f_options as $opt_value => $opt_label ) : ?>
-                                                    <option value="<?php echo esc_attr( $opt_value ); ?>" <?php selected( $f_select_value, $opt_value ); ?>><?php echo esc_html( $opt_label ); ?></option>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </select>
-                                    <?php else : ?>
-                                        <input type="<?php echo esc_attr( $f_type ); ?>" class="gvn-field__input" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" value="<?php echo $f_value; ?>" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?> />
-                                    <?php endif; ?>
-                                </div>
+                                    <div class="gvn-field <?php echo esc_attr( $width_class ); ?><?php echo $has_conditions ? ' gvn-field--conditional' : ''; ?>" data-field-key="<?php echo $f_key; ?>" data-mask="<?php echo esc_attr( $f_mask ); ?>"<?php if ( $has_conditions ) : ?> data-conditions="<?php echo esc_attr( wp_json_encode( $f_conditions ) ); ?>" data-required="<?php echo $f_orig_required ? '1' : '0'; ?>"<?php endif; ?>>
+                                        <label class="gvn-field__label" for="<?php echo $f_key; ?>">
+                                            <?php echo $f_label; ?>
+                                            <?php if ( $f_required ) : ?><span class="gvn-field__required">*</span><?php endif; ?>
+                                            <?php if ( ! $f_required && 'order_comments' === $f_key ) : ?><span class="gvn-field__optional">(<?php esc_html_e( 'opcional', 'gvn-checkout' ); ?>)</span><?php endif; ?>
+                                        </label>
+                                        <?php if ( 'textarea' === $f_type ) : ?>
+                                            <textarea class="gvn-field__input gvn-field__textarea" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" rows="3" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?>><?php echo esc_textarea( $f_raw_value ); ?></textarea>
+                                        <?php elseif ( 'select' === $f_type ) :
+                                            $f_options_raw  = isset( $gvn_field['options'] ) ? $gvn_field['options'] : '';
+                                            $f_options      = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::parse_select_options( $f_options_raw ) : array();
+                                            $f_default_opt  = isset( $gvn_field['default_option'] ) ? $gvn_field['default_option'] : '';
+                                            $f_select_value = '' !== $f_raw_value ? $f_raw_value : $f_default_opt;
+                                        ?>
+                                            <select class="gvn-field__input gvn-field__select" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" <?php echo $f_required ? 'required' : ''; ?>>
+                                                <option value=""><?php echo $f_placeholder ? esc_html( $f_placeholder ) : '-- ' . esc_html__( 'Selecione', 'gvn-checkout' ) . ' --'; ?></option>
+                                                <?php if ( empty( $f_options ) ) : ?>
+                                                    <option value="" disabled><?php echo esc_html__( 'Nenhuma opção configurada', 'gvn-checkout' ); ?></option>
+                                                <?php else : ?>
+                                                    <?php foreach ( $f_options as $opt_value => $opt_label ) : ?>
+                                                        <option value="<?php echo esc_attr( $opt_value ); ?>" <?php selected( $f_select_value, $opt_value ); ?>><?php echo esc_html( $opt_label ); ?></option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </select>
+                                        <?php else : ?>
+                                            <input type="<?php echo esc_attr( $f_type ); ?>" class="gvn-field__input" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" value="<?php echo $f_value; ?>" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?> />
+                                        <?php endif; ?>
+                                    </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             <?php endforeach; ?>
@@ -182,21 +186,21 @@ if ( $bump_product && $cart ) {
                 </div>
 
                 <?php do_action( 'woocommerce_checkout_after_customer_details' ); ?>
-            </section>
+            </div><!-- .gvn-col-main-details -->
 
-            <!-- Coluna Direita: Resumo do Pedido -->
-            <aside class="gvn-col-right">
+            <!-- Bloco 2: Resumo do Pedido (Coluna Direita/Sidebar) -->
+            <aside class="gvn-col-sidebar">
                 <?php do_action( 'woocommerce_checkout_before_order_review_heading' ); ?>
 
-                <div class="gvn-card">
+                <div class="gvn-card gvn-card--summary">
                     <div class="gvn-card__header"><?php esc_html_e( 'RESUMO DO PEDIDO', 'gvn-checkout' ); ?></div>
 
                     <?php do_action( 'woocommerce_checkout_before_order_review' ); ?>
 
                     <div class="gvn-card__body">
                         <div class="gvn-order-labels">
-                            <span><?php esc_html_e( 'Produto', 'gvn-checkout' ); ?></span>
-                            <span><?php esc_html_e( 'Subtotal', 'gvn-checkout' ); ?></span>
+                            <span class="gvn-order-labels__prod"><?php esc_html_e( 'Produto', 'gvn-checkout' ); ?></span>
+                            <span class="gvn-order-labels__sub"><?php esc_html_e( 'Subtotal', 'gvn-checkout' ); ?></span>
                         </div>
 
                         <div class="gvn-order-items" id="gvn-order-items">
@@ -235,19 +239,70 @@ if ( $bump_product && $cart ) {
                                 <span class="gvn-order-totals__total-value" id="gvn-total"><?php echo ( $cart ) ? $cart->get_total() : ''; ?></span>
                             </div>
                         </div>
+
+                        <!-- Selos de Confiança -->
+                        <div class="gvn-trust-badges">
+                            <div class="gvn-trust-badge">
+                                <svg class="gvn-trust-badge__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                                <span><?php esc_html_e( 'Pagamento 100% Seguro', 'gvn-checkout' ); ?></span>
+                            </div>
+                            <div class="gvn-trust-badge">
+                                <svg class="gvn-trust-badge__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                <span><?php esc_html_e( 'Ambiente Criptografado SSL', 'gvn-checkout' ); ?></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <?php do_action( 'woocommerce_checkout_after_order_review' ); ?>
-            </aside>
+                <!-- Order Bump na Barra Lateral (se ativo) -->
+                <?php if ( $bump_product ) :
+                    $bump_price_raw = $bump_price;
+                    if ( '' !== $bump_price_raw && floatval( $bump_price_raw ) > 0 && function_exists( 'wc_price' ) ) {
+                        $bump_display_price = wc_price( floatval( $bump_price_raw ) );
+                    } elseif ( function_exists( 'wc_price' ) ) {
+                        $bump_display_price = wc_price( $bump_product->get_price() );
+                    } else {
+                        $bump_display_price = '';
+                    }
+                ?>
+                    <div class="gvn-order-bump" id="gvn-order-bump">
+                        <div class="gvn-order-bump__inner">
+                            <div class="gvn-order-bump__checkbox">
+                                <input type="checkbox" class="gvn-order-bump__input" id="gvn-bump-checkbox" <?php checked( $bump_in_cart ); ?> />
+                            </div>
+                            <div class="gvn-order-bump__content">
+                                <div class="gvn-order-bump__badge">
+                                    ⚡ <?php echo esc_html( strtoupper( $bump_title ) ); ?>
+                                </div>
+                                <h3 class="gvn-order-bump__product">
+                                    <?php echo esc_html( $bump_product->get_name() ); ?><br />
+                                    <span class="gvn-order-bump__price"><?php esc_html_e( 'por apenas', 'gvn-checkout' ); ?> <?php echo $bump_display_price; ?></span>
+                                </h3>
+                                <?php if ( $bump_description ) : ?>
+                                    <p class="gvn-order-bump__desc"><?php echo esc_html( $bump_description ); ?></p>
+                                <?php endif; ?>
+                                <label class="gvn-order-bump__cta" for="gvn-bump-checkbox">
+                                    <?php echo esc_html( $bump_cta_text ); ?>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
-            <!-- Seção de Pagamento (full width) -->
-            <section class="gvn-col-full">
-                <div class="gvn-card">
+                <?php do_action( 'woocommerce_checkout_after_order_review' ); ?>
+            </aside><!-- .gvn-col-sidebar -->
+
+            <!-- Bloco 3: Forma de Pagamento (Coluna Esquerda Abaixo) -->
+            <div class="gvn-col-main-payment">
+                <div class="gvn-card gvn-card--payment">
                     <div class="gvn-card__header"><?php esc_html_e( 'FORMA DE PAGAMENTO', 'gvn-checkout' ); ?></div>
                     <div class="gvn-card__body">
 
-                        <!-- Cupom -->
+                        <!-- Cupom Integrado -->
                         <div class="gvn-coupon" id="gvn-coupon-toggle">
                             <div class="gvn-coupon__trigger">
                                 <div class="gvn-coupon__trigger-inner">
@@ -344,7 +399,12 @@ if ( $bump_product && $cart ) {
                                     <?php endforeach; ?>
                                 </div>
                             <?php else : ?>
-                                <p class="gvn-gateways__empty"><?php esc_html_e( 'Nenhum método de pagamento disponível. Configure os métodos de pagamento nas configurações do WooCommerce.', 'gvn-checkout' ); ?></p>
+                                <div class="gvn-gateways__empty-box">
+                                    <svg class="gvn-gateways__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <p class="gvn-gateways__empty"><?php esc_html_e( 'Nenhum método de pagamento disponível no momento. Por favor, entre em contato com o suporte.', 'gvn-checkout' ); ?></p>
+                                </div>
                             <?php endif; ?>
                         </div>
 
@@ -382,41 +442,6 @@ if ( $bump_product && $cart ) {
 
                         <?php do_action( 'woocommerce_after_checkout_terms_and_conditions' ); ?>
 
-                        <!-- Order Bump -->
-                        <?php if ( $bump_product ) :
-                            $bump_price_raw = $bump_price;
-                            if ( '' !== $bump_price_raw && floatval( $bump_price_raw ) > 0 && function_exists( 'wc_price' ) ) {
-                                $bump_display_price = wc_price( floatval( $bump_price_raw ) );
-                            } elseif ( function_exists( 'wc_price' ) ) {
-                                $bump_display_price = wc_price( $bump_product->get_price() );
-                            } else {
-                                $bump_display_price = '';
-                            }
-                        ?>
-                            <div class="gvn-order-bump" id="gvn-order-bump">
-                                <div class="gvn-order-bump__inner">
-                                    <div class="gvn-order-bump__checkbox">
-                                        <input type="checkbox" class="gvn-order-bump__input" id="gvn-bump-checkbox" <?php checked( $bump_in_cart ); ?> />
-                                    </div>
-                                    <div class="gvn-order-bump__content">
-                                        <div class="gvn-order-bump__badge">
-                                            ❗<?php echo esc_html( strtoupper( $bump_title ) ); ?>
-                                        </div>
-                                        <h3 class="gvn-order-bump__product">
-                                            <?php echo esc_html( $bump_product->get_name() ); ?><br />
-                                            <span class="gvn-order-bump__price"><?php esc_html_e( 'por apenas', 'gvn-checkout' ); ?> <?php echo $bump_display_price; ?></span>
-                                        </h3>
-                                        <?php if ( $bump_description ) : ?>
-                                            <p class="gvn-order-bump__desc"><?php echo esc_html( $bump_description ); ?></p>
-                                        <?php endif; ?>
-                                        <label class="gvn-order-bump__cta" for="gvn-bump-checkbox">
-                                            <?php echo esc_html( $bump_cta_text ); ?>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endif; ?>
-
                         <?php do_action( 'woocommerce_review_order_before_submit' ); ?>
 
                         <!-- Botão Finalizar -->
@@ -435,7 +460,7 @@ if ( $bump_product && $cart ) {
 
                     </div>
                 </div>
-            </section>
+            </div><!-- .gvn-col-main-payment -->
 
         </div><!-- .gvn-grid -->
 

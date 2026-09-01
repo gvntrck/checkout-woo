@@ -1,7 +1,56 @@
 /**
  * GVN Checkout - Estilos do Checkout Personalizado
- * @version 1.13.33
+ * @version 1.13.34
  */
+
+/* ========================================
+   Theme Container Breakout (Largura Total)
+   ======================================== */
+
+body.gvn-checkout-active .entry-content,
+body.gvn-checkout-active .site-main,
+body.gvn-checkout-active .wp-site-blocks,
+body.gvn-checkout-active .site-content,
+body.gvn-checkout-active #content,
+body.gvn-checkout-active .col-full,
+body.gvn-checkout-active .ast-container,
+body.gvn-checkout-active article,
+body.gvn-checkout-active .page,
+body.gvn-checkout-active .hentry,
+body.woocommerce-checkout .entry-content,
+body.woocommerce-checkout .site-main,
+body.woocommerce-checkout .wp-site-blocks,
+body.woocommerce-checkout .site-content,
+body.woocommerce-checkout #content,
+body.woocommerce-checkout .col-full,
+body.woocommerce-checkout .ast-container,
+body.woocommerce-checkout article,
+body.woocommerce-checkout .page,
+body.woocommerce-checkout .hentry,
+.entry-content:has(#gvn-checkout),
+.site-main:has(#gvn-checkout),
+.wp-site-blocks:has(#gvn-checkout),
+article:has(#gvn-checkout),
+.entry-content:has(.gvn-checkout),
+.site-main:has(.gvn-checkout),
+.wp-site-blocks:has(.gvn-checkout),
+article:has(.gvn-checkout) {
+    max-width: 1240px !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Força container nativo de blocos FSE (Full Site Editing) a expandir */
+body.gvn-checkout-active .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
+body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
+.is-layout-constrained:has(#gvn-checkout) > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
+.is-layout-constrained:has(.gvn-checkout) > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
+    max-width: 1240px !important;
+    width: 100% !important;
+}
 
 /* ========================================
    Reset & Base

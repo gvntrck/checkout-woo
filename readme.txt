@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.33
+Stable tag: 1.13.34
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.34 =
+* Desbloqueio e expansão universal de contêineres de temas (class-gvn-checkout.php e gvn-checkout.css): adição da classe gvn-checkout-active no body e regras de breakout automático para entry-content, site-main, wp-site-blocks e contêineres FSE, permitindo que o checkout se expanda para 1240px e aproveite a largura total sem ser estrangulado por restrições de layout do tema.
 
 = 1.13.33 =
 * Refinamento estrutural de larguras e alinhamento do grid (gvn-checkout.css): fixação de 100% de largura nos containers de cards, dynamic fields e totals, com coluna lateral em 380px encostando na margem direita e alinhamento perfeito ao cabeçalho.

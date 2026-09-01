@@ -4,7 +4,7 @@
  * Registra o shortcode [gvn-checkout] e gerencia hooks do WooCommerce.
  *
  * @package GVN_Checkout
- * @version 1.13.33
+ * @version 1.13.34
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -25,11 +25,28 @@ class GVN_Checkout {
     private function __construct() {
         add_shortcode( 'gvn-checkout', array( $this, 'render_checkout' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+        add_filter( 'body_class', array( $this, 'add_body_classes' ) );
         add_action( 'wp_ajax_gvn_apply_coupon', array( $this, 'ajax_apply_coupon' ) );
         add_action( 'wp_ajax_nopriv_gvn_apply_coupon', array( $this, 'ajax_apply_coupon' ) );
         add_action( 'wp_ajax_gvn_remove_coupon', array( $this, 'ajax_remove_coupon' ) );
         add_action( 'wp_ajax_nopriv_gvn_remove_coupon', array( $this, 'ajax_remove_coupon' ) );
         add_filter( 'wc_get_template', array( $this, 'override_thankyou_template' ), 10, 5 );
+    }
+
+    /**
+     * Adiciona classe ao body para desbloquear a largura total dos containers dos temas.
+     */
+    public function add_body_classes( $classes ) {
+        global $post;
+
+        $is_checkout_page = is_object( $post ) && isset( $post->post_content ) && has_shortcode( $post->post_content, 'gvn-checkout' );
+        $is_thankyou_page = function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'order-received' );
+
+        if ( $is_checkout_page || $is_thankyou_page ) {
+            $classes[] = 'gvn-checkout-active';
+        }
+
+        return $classes;
     }
 
     /**

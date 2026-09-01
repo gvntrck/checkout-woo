@@ -79,6 +79,9 @@ class ThankYouTest extends TestCase {
 
         $order = new Mock_WC_Order_Complete(104, 'key_104');
         $order->update_meta_data('_gvn_checkout_version', '1.13.26');
+        add_action('woocommerce_thankyou_pix', static function (): void {
+            echo '<p>Instruções Pix</p>';
+        });
 
         ob_start();
         include GVN_CHECKOUT_PLUGIN_DIR . 'templates/thankyou-template.php';
@@ -87,6 +90,11 @@ class ThankYouTest extends TestCase {
         $this->assertNotEmpty($html);
         $this->assertStringContainsString('Pedido recebido!', $html);
         $this->assertStringContainsString('#104', $html);
+        $this->assertStringContainsString('INSTRUÇÕES DE PAGAMENTO', $html);
+        $this->assertTrue(
+            strpos($html, 'INSTRUÇÕES DE PAGAMENTO') < strpos($html, 'ITENS DO PEDIDO'),
+            'As instruções de pagamento devem aparecer antes dos itens do pedido.'
+        );
 
         $fired_tags = array_column($wp_mock_actions, 'tag');
         $this->assertContains('woocommerce_before_thankyou', $fired_tags, 'woocommerce_before_thankyou deve ser disparado.');

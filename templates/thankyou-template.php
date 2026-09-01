@@ -3,7 +3,7 @@
  * Template de confirmação de pedido (Thank You) do GVN Checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.36
+ * @version 1.13.37
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -98,6 +98,34 @@ $header_badge_text = get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGUR
                     </div>
                 </div>
 
+                <!-- Instruções do gateway de pagamento -->
+                <?php
+                $payment_method = $order->get_payment_method();
+                if ( $payment_method ) :
+                    $gateways = ( function_exists( 'WC' ) && WC()->payment_gateways() ) ? WC()->payment_gateways()->get_available_payment_gateways() : array();
+                    if ( isset( $gateways[ $payment_method ] ) ) :
+                        ob_start();
+                        // Hook específico do método de pagamento.
+                        do_action( 'woocommerce_thankyou_' . $payment_method, $order->get_id() );
+                        // Hook global do WC (plugins de e-mail, tracking, etc. dependem dele).
+                        do_action( 'woocommerce_thankyou', $order->get_id() );
+                        $gateway_output = ob_get_clean();
+                        if ( ! empty( trim( $gateway_output ) ) ) :
+                ?>
+                    <div class="gvn-thankyou__payment-instructions">
+                        <div class="gvn-card">
+                            <div class="gvn-card__header"><?php esc_html_e( 'INSTRUÇÕES DE PAGAMENTO', 'gvn-checkout' ); ?></div>
+                            <div class="gvn-card__body">
+                                <?php echo $gateway_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php
+                        endif;
+                    endif;
+                endif;
+                ?>
+
                 <!-- Resumo dos Itens -->
                 <div class="gvn-card">
                     <div class="gvn-card__header"><?php esc_html_e( 'ITENS DO PEDIDO', 'gvn-checkout' ); ?></div>
@@ -157,34 +185,6 @@ $header_badge_text = get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGUR
                 </div>
 
             </div>
-
-            <!-- Instruções do gateway de pagamento -->
-            <?php
-            $payment_method = $order->get_payment_method();
-            if ( $payment_method ) :
-                $gateways = ( function_exists( 'WC' ) && WC()->payment_gateways() ) ? WC()->payment_gateways()->get_available_payment_gateways() : array();
-                if ( isset( $gateways[ $payment_method ] ) ) :
-                    ob_start();
-                    // Hook específico do método de pagamento.
-                    do_action( 'woocommerce_thankyou_' . $payment_method, $order->get_id() );
-                    // Hook global do WC (plugins de e-mail, tracking, etc. dependem dele).
-                    do_action( 'woocommerce_thankyou', $order->get_id() );
-                    $gateway_output = ob_get_clean();
-                    if ( ! empty( trim( $gateway_output ) ) ) :
-            ?>
-                <div class="gvn-thankyou__payment-instructions">
-                    <div class="gvn-card">
-                        <div class="gvn-card__header"><?php esc_html_e( 'INSTRUÇÕES DE PAGAMENTO', 'gvn-checkout' ); ?></div>
-                        <div class="gvn-card__body">
-                            <?php echo $gateway_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                        </div>
-                    </div>
-                </div>
-            <?php
-                    endif;
-                endif;
-            endif;
-            ?>
 
             <!-- Dados do cliente -->
             <div class="gvn-thankyou__customer">

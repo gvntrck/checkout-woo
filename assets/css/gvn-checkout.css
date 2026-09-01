@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - Estilos do Checkout Personalizado
- * @version 1.13.35
+ * @version 1.13.37
  */
 
 /* ========================================
@@ -1311,6 +1311,15 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
 .gvn-thankyou__payment-instructions img {
     max-width: 100%;
     height: auto;
+}
+
+.gvn-thankyou__payment-instructions textarea {
+    width: 100%;
+    min-height: 8rem;
+    padding: 0.875rem 1rem;
+    box-sizing: border-box;
+    line-height: 1.5;
+    resize: vertical;
 }
 
 .gvn-thankyou__customer {

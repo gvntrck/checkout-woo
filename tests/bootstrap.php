@@ -16,7 +16,7 @@ if (!defined('GVN_CHECKOUT_PLUGIN_DIR')) {
 }
 
 if (!defined('GVN_CHECKOUT_VERSION')) {
-    define('GVN_CHECKOUT_VERSION', '1.13.26');
+    define('GVN_CHECKOUT_VERSION', '1.13.27');
 }
 
 // Mocks e stubs básicos de WordPress para testes unitários em isolamento (sem banco de dados).
@@ -87,6 +87,38 @@ if (!function_exists('__')) {
 if (!function_exists('esc_html__')) {
     function esc_html__($text, $domain = 'default') {
         return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (!function_exists('check_ajax_referer')) {
+    function check_ajax_referer($action = -1, $query_arg = false, $die = true) {
+        return 1;
+    }
+}
+
+if (!function_exists('is_admin')) {
+    function is_admin() {
+        return false;
+    }
+}
+
+if (!function_exists('wp_send_json_success')) {
+    function wp_send_json_success($data = null, $status_code = null) {
+        $response = ['success' => true];
+        if (isset($data)) {
+            $response['data'] = $data;
+        }
+        echo json_encode($response);
+    }
+}
+
+if (!function_exists('wp_send_json_error')) {
+    function wp_send_json_error($data = null, $status_code = null) {
+        $response = ['success' => false];
+        if (isset($data)) {
+            $response['data'] = $data;
+        }
+        echo json_encode($response);
     }
 }
 
@@ -434,6 +466,8 @@ if (!class_exists('Mock_WC_Product')) {
         private $id;
         private $name;
         private $price;
+        private $purchasable = true;
+        private $in_stock = true;
 
         public function __construct($id = 1, $name = 'Produto Teste', $price = '99.00') {
             $this->id = $id;
@@ -444,6 +478,11 @@ if (!class_exists('Mock_WC_Product')) {
         public function get_id() { return $this->id; }
         public function get_name() { return $this->name; }
         public function get_price() { return $this->price; }
+        public function set_price($price) { $this->price = (string) $price; }
+        public function is_purchasable() { return $this->purchasable; }
+        public function set_purchasable($val) { $this->purchasable = (bool) $val; }
+        public function is_in_stock() { return $this->in_stock; }
+        public function set_in_stock($val) { $this->in_stock = (bool) $val; }
     }
 }
 
@@ -452,6 +491,10 @@ if (!function_exists('wc_get_product')) {
         if (!$product_id) return false;
         return new Mock_WC_Product($product_id);
     }
+}
+
+if (!class_exists('WC_Product')) {
+    class WC_Product extends Mock_WC_Product {}
 }
 
 if (!class_exists('Mock_WC_Payment_Gateway')) {
@@ -492,26 +535,52 @@ if (!class_exists('Mock_WC_Cart')) {
 
         public function is_empty() { return empty($this->items); }
         public function get_cart() {
-            if (empty($this->items)) {
-                return [
-                    'item_1' => [
-                        'key' => 'item_1',
-                        'product_id' => 10,
-                        'quantity' => 1,
-                        'data' => new Mock_WC_Product(10, 'Curso Principal', '150.00'),
-                    ],
-                ];
-            }
             return $this->items;
+        }
+        public function add_to_cart($product_id, $quantity = 1, $variation_id = 0, $variation = [], $cart_item_data = []) {
+            $key = 'item_' . $product_id . '_' . count($this->items);
+            $product = wc_get_product($product_id);
+            if (!$product) {
+                return false;
+            }
+            $this->items[$key] = array_merge([
+                'key' => $key,
+                'product_id' => $product_id,
+                'quantity' => $quantity,
+                'data' => $product,
+            ], $cart_item_data);
+            $this->calculate_totals();
+            return $key;
+        }
+        public function remove_cart_item($cart_item_key) {
+            unset($this->items[$cart_item_key]);
+            $this->calculate_totals();
+            return true;
+        }
+        public function calculate_totals() {
+            // Recalcula totais
+            return true;
         }
         public function get_product_subtotal($product, $quantity) {
             return 'R$ ' . number_format((float)$product->get_price() * $quantity, 2, ',', '.');
         }
-        public function get_subtotal() { return 150.00; }
+        public function get_subtotal() {
+            $sub = 0;
+            foreach ($this->items as $item) {
+                $sub += (float)$item['data']->get_price() * $item['quantity'];
+            }
+            return $sub;
+        }
         public function get_discount_total() { return 0.00; }
-        public function get_total() { return 'R$ 150,00'; }
+        public function get_total($context = 'view') {
+            return 'R$ ' . number_format($this->get_subtotal(), 2, ',', '.');
+        }
         public function get_applied_coupons() { return []; }
     }
+}
+
+if (!class_exists('WC_Cart')) {
+    class WC_Cart extends Mock_WC_Cart {}
 }
 
 if (!class_exists('Mock_WC_Checkout')) {

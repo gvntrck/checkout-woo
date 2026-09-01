@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - JavaScript
- * @version 1.13.26
+ * @version 1.13.27
  */
 
 (function ($) {
@@ -154,6 +154,8 @@
            Order Bump
            ============================ */
 
+        bumpRequestSeq: 0,
+
         bindOrderBump: function () {
             var self = this;
 
@@ -164,8 +166,10 @@
         },
 
         toggleOrderBump: function (action) {
+            var self = this;
             var $checkbox = $('#gvn-bump-checkbox');
             $checkbox.prop('disabled', true);
+            var currentSeq = ++self.bumpRequestSeq;
 
             $.ajax({
                 url: gvn_checkout_params.ajax_url,
@@ -176,16 +180,19 @@
                     bump_action: action
                 },
                 success: function (response) {
+                    if (currentSeq !== self.bumpRequestSeq) {
+                        return; // Ignora respostas fora de ordem
+                    }
                     if (response.success) {
                         $(document.body).trigger('update_checkout');
 
-                        if (response.data.items) {
+                        if (response.data && response.data.items) {
                             $('#gvn-order-items').html(response.data.items);
                         }
-                        if (response.data.subtotal) {
+                        if (response.data && response.data.subtotal) {
                             $('#gvn-subtotal').html(response.data.subtotal);
                         }
-                        if (response.data.total) {
+                        if (response.data && response.data.total) {
                             $('#gvn-total').html(response.data.total);
                         }
                     } else {
@@ -193,10 +200,14 @@
                     }
                 },
                 error: function () {
-                    $checkbox.prop('checked', action !== 'add');
+                    if (currentSeq === self.bumpRequestSeq) {
+                        $checkbox.prop('checked', action !== 'add');
+                    }
                 },
                 complete: function () {
-                    $checkbox.prop('disabled', false);
+                    if (currentSeq === self.bumpRequestSeq) {
+                        $checkbox.prop('disabled', false);
+                    }
                 }
             });
         },

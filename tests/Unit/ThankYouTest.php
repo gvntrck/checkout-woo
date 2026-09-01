@@ -114,7 +114,7 @@ class ThankYouTest extends TestCase {
 
         FieldOrderPersister::persist($order, [], []);
 
-        $this->assertEquals('1.13.26', $order->get_meta('_gvn_checkout_version'));
+        $this->assertEquals(GVN_CHECKOUT_VERSION, $order->get_meta('_gvn_checkout_version'));
         $this->assertEquals('yes', $order->get_meta('_gvn_checkout'));
     }
 }

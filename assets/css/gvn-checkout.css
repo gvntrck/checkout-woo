@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - Estilos do Checkout Personalizado
- * @version 1.13.34
+ * @version 1.13.35
  */
 
 /* ========================================
@@ -245,6 +245,12 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
 /* ========================================
    Cards
    ======================================== */
+
+.gvn-checkout #customer_details.gvn-card,
+.gvn-checkout .gvn-col-sidebar > .col2-set {
+    width: 100%;
+    float: none;
+}
 
 .gvn-card {
     background: #ffffff;

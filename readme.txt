@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.34
+Stable tag: 1.13.35
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.35 =
+* Corrige a largura dos cards no checkout clássico ao neutralizar, dentro do layout GVN, as larguras e floats aplicados pelo CSS de compatibilidade do WooCommerce a `#customer_details` e ao wrapper `.col2-set` do resumo do pedido.
 
 = 1.13.34 =
 * Desbloqueio e expansão universal de contêineres de temas (class-gvn-checkout.php e gvn-checkout.css): adição da classe gvn-checkout-active no body e regras de breakout automático para entry-content, site-main, wp-site-blocks e contêineres FSE, permitindo que o checkout se expanda para 1240px e aproveite a largura total sem ser estrangulado por restrições de layout do tema.

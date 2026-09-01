@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "fixture_id": "legacy-incomplete-corrupted",
+    "fixture_format_version": 1,
+    "source_plugin_version": "1.13.6",
+    "source": "synthetic-corrupted-values",
+    "classification": "synthetic",
+    "production_export": false,
+    "schema_version_option_present": false,
+    "description": "Fixture sintética de opções corrompidas, incompletas ou com formatos inválidos para testar fail-safe e sanitização.",
+    "anonymization": {
+      "performed": true,
+      "method": "Dados sintéticos gerados para teste de robustez.",
+      "personal_data_present": false,
+      "secrets_present": false
+    }
+  },
+  "options": {
+    "gvn_checkout_header_text": "<script>alert('xss')</script>Texto Inseguro",
+    "gvn_checkout_header_badge_text": "",
+    "gvn_checkout_header_bg_color": "invalid-color-value",
+    "gvn_checkout_badge_bg_color": "#GGGZZZ",
+    "gvn_checkout_title_text": "",
+    "gvn_checkout_subtitle_text": "",
+    "gvn_checkout_primary_color": "rgb(999, 999, 999)",
+    "gvn_checkout_button_color": "not_a_hex",
+    "gvn_checkout_button_text": "",
+    "gvn_checkout_order_bump_enabled": "maybe",
+    "gvn_checkout_order_bump_product_id": "-50",
+    "gvn_checkout_order_bump_title": "",
+    "gvn_checkout_order_bump_description": "",
+    "gvn_checkout_order_bump_cta_text": "",
+    "gvn_checkout_order_bump_price": "abc-invalido",
+    "gvn_checkout_fields": [
+      {
+        "key": "invalid key with spaces",
+        "label": "",
+        "type": "unsupported_type_xyz",
+        "required": "not_a_boolean",
+        "width": "999",
+        "position": "invalid_pos",
+        "placeholder": "",
+        "enabled": true,
+        "mask": "unsupported_mask",
+        "is_default": false,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": "malformed_conditions_string"
+      }
+    ]
+  }
+}

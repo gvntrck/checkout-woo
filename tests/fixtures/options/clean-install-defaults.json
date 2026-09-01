@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "fixture_id": "clean-install-defaults",
+    "fixture_format_version": 1,
+    "source_plugin_version": "1.13.11",
+    "source": "clean-install-baseline",
+    "classification": "synthetic",
+    "production_export": false,
+    "schema_version_option_present": false,
+    "description": "Fixture de instalação limpa (clean install), representando o estado inicial do plugin recém-ativado.",
+    "anonymization": {
+      "performed": true,
+      "method": "Valores sintéticos e padronizados da rotina gvn_checkout_activate(); sem dados reais de produção.",
+      "personal_data_present": false,
+      "secrets_present": false
+    }
+  },
+  "options": {
+    "gvn_checkout_header_text": "EFEAD - Conectando Saberes",
+    "gvn_checkout_header_badge_text": "COMPRA SEGURA",
+    "gvn_checkout_header_bg_color": "#3a4759",
+    "gvn_checkout_badge_bg_color": "#ff8a22",
+    "gvn_checkout_primary_color": "#0066d4",
+    "gvn_checkout_button_color": "#ff8a22",
+    "gvn_checkout_button_text": "Finalizar pedido",
+    "gvn_checkout_order_bump_enabled": "no",
+    "gvn_checkout_order_bump_product_id": "",
+    "gvn_checkout_order_bump_title": "Oferta Exclusiva",
+    "gvn_checkout_order_bump_description": "Adicione este item ao seu pedido com condições especiais.",
+    "gvn_checkout_order_bump_cta_text": "Sim! Quero adicionar ao meu pedido",
+    "gvn_checkout_order_bump_price": "",
+    "gvn_checkout_fields": []
+  }
+}

@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.6
+Stable tag: 1.13.7
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,7 +44,7 @@ O **GVN Checkout** substitui o checkout padrão do WooCommerce por um layout mod
 
 == Referência da superfície pública (baseline F0.3) ==
 
-Este inventário registra o comportamento observado no código canônico antes da refatoração estrutural. Ele corresponde ao commit `688d85327dbacd92fce105c6eca6796a6ce5cd55` e à versão `1.13.5`; a versão `1.13.6` atualiza somente documentação e metadados. A presença de um item nesta lista não é, sozinha, evidência de compatibilidade ou suporte.
+Este inventário registra o comportamento observado no código canônico antes da refatoração estrutural. Ele corresponde ao commit `688d85327dbacd92fce105c6eca6796a6ce5cd55` e à versão `1.13.5`; a versão `1.13.6` atualiza somente documentação e metadados, e a versão `1.13.7` adiciona somente uma fixture sintética para migração. A presença de um item nesta lista não é, sozinha, evidência de compatibilidade ou suporte.
 
 = Shortcode =
 
@@ -111,6 +111,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.7 =
+* Adiciona fixture sintética das opções legadas para testes de migração, sem dados de produção.
 
 = 1.13.6 =
 * Documenta os shortcodes, opções, hooks, ações AJAX e metadados existentes no plugin canônico.

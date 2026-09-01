@@ -1,0 +1,386 @@
+{
+  "metadata": {
+    "fixture_id": "legacy-1.13.6-defaults",
+    "fixture_format_version": 1,
+    "source_plugin_version": "1.13.6",
+    "source_commit": "baa5523dbf5d82e9d38e6ce8f0b57942d9fbe34b",
+    "source": "observed-code-defaults",
+    "classification": "synthetic",
+    "production_export": false,
+    "schema_version_option_present": false,
+    "description": "Amostra sintética do formato de opções legado observado antes da criação do schema versionado.",
+    "anonymization": {
+      "performed": true,
+      "method": "Valores livres foram substituídos por texto neutro; IDs de produto foram zerados; nenhum dado de produção foi usado.",
+      "personal_data_present": false,
+      "secrets_present": false
+    },
+    "shape": {
+      "root": "metadata + options",
+      "options": "map<string, scalar|list>",
+      "field_list": "options.gvn_checkout_fields",
+      "field_keys": [
+        "key",
+        "label",
+        "type",
+        "required",
+        "width",
+        "position",
+        "placeholder",
+        "enabled",
+        "mask",
+        "is_default",
+        "is_woo_default",
+        "options",
+        "default_option",
+        "conditions"
+      ],
+      "condition_shape": {
+        "logic": "and|or",
+        "rules": "list<{field,operator,value}>"
+      }
+    }
+  },
+  "options": {
+    "gvn_checkout_header_text": "Loja de Teste GVN",
+    "gvn_checkout_header_badge_text": "COMPRA SEGURA",
+    "gvn_checkout_header_bg_color": "#3a4759",
+    "gvn_checkout_badge_bg_color": "#ff8a22",
+    "gvn_checkout_title_text": "Finalize sua inscrição",
+    "gvn_checkout_subtitle_text": "Acesso imediato após confirmação do pagamento",
+    "gvn_checkout_primary_color": "#0066d4",
+    "gvn_checkout_button_color": "#ff8a22",
+    "gvn_checkout_button_text": "Finalizar pedido",
+    "gvn_checkout_order_bump_enabled": "no",
+    "gvn_checkout_order_bump_product_id": "",
+    "gvn_checkout_order_bump_title": "Oferta Exclusiva",
+    "gvn_checkout_order_bump_description": "Adicione este item ao seu pedido com condições especiais.",
+    "gvn_checkout_order_bump_cta_text": "Sim! Quero adicionar ao meu pedido",
+    "gvn_checkout_order_bump_price": "",
+    "gvn_checkout_fields": [
+      {
+        "key": "billing_first_name",
+        "label": "Nome",
+        "type": "text",
+        "required": true,
+        "width": "50",
+        "position": 1,
+        "placeholder": "",
+        "enabled": true,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_last_name",
+        "label": "Sobrenome",
+        "type": "text",
+        "required": true,
+        "width": "50",
+        "position": 2,
+        "placeholder": "",
+        "enabled": true,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_persontype",
+        "label": "Tipo de Pessoa",
+        "type": "select",
+        "required": false,
+        "width": "100",
+        "position": 3,
+        "placeholder": "",
+        "enabled": false,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "pf|Pessoa Física\npj|Pessoa Jurídica",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_cpf",
+        "label": "CPF",
+        "type": "text",
+        "required": true,
+        "width": "100",
+        "position": 4,
+        "placeholder": "000.000.000-00",
+        "enabled": true,
+        "mask": "cpf",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_rg",
+        "label": "RG",
+        "type": "text",
+        "required": false,
+        "width": "50",
+        "position": 5,
+        "placeholder": "",
+        "enabled": false,
+        "mask": "rg",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_cnpj",
+        "label": "CNPJ",
+        "type": "text",
+        "required": false,
+        "width": "100",
+        "position": 6,
+        "placeholder": "00.000.000/0000-00",
+        "enabled": false,
+        "mask": "cnpj",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_ie",
+        "label": "Inscrição Estadual",
+        "type": "text",
+        "required": false,
+        "width": "50",
+        "position": 7,
+        "placeholder": "",
+        "enabled": false,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_phone",
+        "label": "Celular",
+        "type": "tel",
+        "required": true,
+        "width": "50",
+        "position": 8,
+        "placeholder": "(00) 00000-0000",
+        "enabled": true,
+        "mask": "phone",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_cellphone",
+        "label": "Celular (Adicional)",
+        "type": "tel",
+        "required": false,
+        "width": "50",
+        "position": 9,
+        "placeholder": "(00) 00000-0000",
+        "enabled": false,
+        "mask": "phone",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_email",
+        "label": "Endereço de e-mail",
+        "type": "email",
+        "required": true,
+        "width": "50",
+        "position": 10,
+        "placeholder": "",
+        "enabled": true,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_birthdate",
+        "label": "Data de Nascimento",
+        "type": "text",
+        "required": false,
+        "width": "50",
+        "position": 11,
+        "placeholder": "DD/MM/AAAA",
+        "enabled": false,
+        "mask": "date",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_gender",
+        "label": "Gênero",
+        "type": "select",
+        "required": false,
+        "width": "50",
+        "position": 12,
+        "placeholder": "",
+        "enabled": false,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "prefiro_nao_dizer|Prefiro não dizer\nfeminino|Feminino\nmasculino|Masculino\noutro|Outro",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_number",
+        "label": "Número",
+        "type": "text",
+        "required": true,
+        "width": "25",
+        "position": 13,
+        "placeholder": "",
+        "enabled": false,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "billing_neighborhood",
+        "label": "Bairro",
+        "type": "text",
+        "required": false,
+        "width": "50",
+        "position": 14,
+        "placeholder": "",
+        "enabled": false,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "shipping_number",
+        "label": "Número (Entrega)",
+        "type": "text",
+        "required": true,
+        "width": "25",
+        "position": 15,
+        "placeholder": "",
+        "enabled": false,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "shipping_neighborhood",
+        "label": "Bairro (Entrega)",
+        "type": "text",
+        "required": false,
+        "width": "50",
+        "position": 16,
+        "placeholder": "",
+        "enabled": false,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      },
+      {
+        "key": "order_comments",
+        "label": "Observações do pedido",
+        "type": "textarea",
+        "required": false,
+        "width": "100",
+        "position": 17,
+        "placeholder": "Observações sobre seu pedido, ex.: observações especiais sobre entrega.",
+        "enabled": true,
+        "mask": "",
+        "is_default": true,
+        "is_woo_default": false,
+        "options": "",
+        "default_option": "",
+        "conditions": {
+          "logic": "and",
+          "rules": []
+        }
+      }
+    ]
+  }
+}

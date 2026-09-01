@@ -74,7 +74,7 @@ Todas as opções visuais e de comportamento do checkout podem ser customizadas 
 
 ## Referência da superfície pública atual (baseline F0.3)
 
-Este inventário registra o comportamento observado no código canônico antes da refatoração estrutural. Ele corresponde ao commit `688d85327dbacd92fce105c6eca6796a6ce5cd55` e à versão `1.13.5`; a versão `1.13.6` desta alteração atualiza somente documentação e metadados. A presença de um item nesta lista não é, sozinha, evidência de compatibilidade ou suporte.
+Este inventário registra o comportamento observado no código canônico antes da refatoração estrutural. Ele corresponde ao commit `688d85327dbacd92fce105c6eca6796a6ce5cd55` e à versão `1.13.5`; a versão `1.13.6` atualiza somente documentação e metadados, e a versão `1.13.7` adiciona somente uma fixture sintética para migração. A presença de um item nesta lista não é, sozinha, evidência de compatibilidade ou suporte.
 
 ### Shortcode
 

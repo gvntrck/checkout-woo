@@ -94,6 +94,23 @@ class ThankYouTest extends TestCase {
         $this->assertContains('woocommerce_thankyou', $fired_tags, 'woocommerce_thankyou deve ser disparado.');
     }
 
+    public function test_thankyou_template_preserves_gateway_inline_scripts(): void {
+        global $order;
+
+        $order = new Mock_WC_Order_Complete(107, 'key_107');
+        add_action('woocommerce_thankyou_pix', static function (): void {
+            echo '<div class="pix-payment"><textarea id="pix-code">000201010212</textarea></div>';
+            echo '<script type="text/javascript">const order_id = "107";</script>';
+        });
+
+        ob_start();
+        include GVN_CHECKOUT_PLUGIN_DIR . 'templates/thankyou-template.php';
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('<textarea id="pix-code">000201010212</textarea>', $html);
+        $this->assertMatchesRegularExpression('/<script[^>]*>\s*const order_id = "107";<\/script>/', $html);
+    }
+
     public function test_thankyou_template_renders_failed_status_when_order_failed(): void {
         global $order;
 

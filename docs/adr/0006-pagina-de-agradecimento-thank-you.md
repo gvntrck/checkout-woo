@@ -24,7 +24,7 @@ No entanto, implementações ingênuas de Thank You correm riscos de:
      - `do_action('woocommerce_thankyou_' . $order->get_payment_method(), $order->get_id());`
      - `do_action('woocommerce_thankyou', $order->get_id());`
    - Isso assegura que pixels de afiliados, tags de analytics e instruções de gateway continuem operando perfeitamente.
-3. **Escaping Rigoroso de Dados:** Todos os dados do pedido (nome, produtos, totais, endereços) são escapados tardiamente com `esc_html` e `esc_attr`. Instruções HTML retornadas por gateways passam por `wp_kses_post()`.
+3. **Escaping Rigoroso de Dados:** Todos os dados do pedido (nome, produtos, totais, endereços) são escapados tardiamente com `esc_html` e `esc_attr`. A saída dos hooks oficiais de gateway preserva o contrato nativo do WooCommerce, inclusive scripts necessários às instruções e à atualização de status; essa saída é uma fronteira confiável de plugins instalados no servidor e não deve passar por `wp_kses_post()`, que remove as tags de script e expõe seu conteúdo como texto.
 4. **Política para URL Customizada Externa:** Caso o lojista configure uma URL customizada de agradecimento, essa funcionalidade é tratada como um CTA pós-confirmação e não substitui o processamento nativo nem expõe parâmetros não assinados.
 
 ## Consequências

@@ -3,7 +3,7 @@
  * Template de confirmação de pedido (Thank You) do GVN Checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.35
+ * @version 1.13.36
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -176,7 +176,7 @@ $header_badge_text = get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGUR
                     <div class="gvn-card">
                         <div class="gvn-card__header"><?php esc_html_e( 'INSTRUÇÕES DE PAGAMENTO', 'gvn-checkout' ); ?></div>
                         <div class="gvn-card__body">
-                            <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $gateway_output ) : $gateway_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                            <?php echo $gateway_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                         </div>
                     </div>
                 </div>

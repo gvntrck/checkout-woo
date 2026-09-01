@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.9
+Stable tag: 1.13.10
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,7 +44,7 @@ O **GVN Checkout** substitui o checkout padrão do WooCommerce por um layout mod
 
 == Referência da superfície pública (baseline F0.3) ==
 
-Este inventário registra o comportamento observado no código canônico antes da refatoração estrutural. Ele corresponde ao commit `688d85327dbacd92fce105c6eca6796a6ce5cd55` e à versão `1.13.5`; a versão `1.13.6` atualiza somente documentação e metadados, a versão `1.13.7` adiciona somente uma fixture sintética para migração, a versão `1.13.8` define a política de rollback, e a versão `1.13.9` sincroniza os comentários de versão em todos os templates e assets. A presença de um item nesta lista não é, sozinha, evidência de compatibilidade ou suporte.
+Este inventário registra o comportamento observado no código canônico antes da refatoração estrutural. Ele corresponde ao commit `688d85327dbacd92fce105c6eca6796a6ce5cd55` e à versão `1.13.5`; a versão `1.13.6` atualiza somente documentação e metadados, a versão `1.13.7` adiciona somente uma fixture sintética para migração, a versão `1.13.8` define a política de rollback, a versão `1.13.9` sincroniza os comentários de versão, e a versão `1.13.10` remove os arquivos compactados do controle de versão. A presença de um item nesta lista não é, sozinha, evidência de compatibilidade ou suporte.
 
 = Shortcode =
 
@@ -111,6 +111,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.10 =
+* Remove pacotes compactados ZIP do controle de versão e adiciona configuração do .gitignore.
 
 = 1.13.9 =
 * Sincroniza versões @version em todos os templates, classes, estilos CSS e scripts JavaScript para 1.13.9.

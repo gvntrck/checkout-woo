@@ -3,7 +3,7 @@
  * Template do checkout personalizado GVN.
  *
  * @package GVN_Checkout
- * @version 1.13.30
+ * @version 1.13.31
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,17 +14,17 @@ if ( ! isset( $checkout ) && function_exists( 'WC' ) && WC()->checkout() ) {
     $checkout = WC()->checkout();
 }
 
-$header_text       = get_option( 'gvn_checkout_header_text', 'EFEAD - Conectando Saberes' );
-$header_badge_text = get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGURA' );
-$title_text        = get_option( 'gvn_checkout_title_text', 'Finalize sua inscrição' );
-$subtitle_text     = get_option( 'gvn_checkout_subtitle_text', 'Acesso imediato após confirmação do pagamento' );
-$button_text       = get_option( 'gvn_checkout_button_text', 'Finalizar pedido' );
-$bump_enabled      = 'yes' === get_option( 'gvn_checkout_order_bump_enabled', 'no' );
-$bump_product_id   = absint( get_option( 'gvn_checkout_order_bump_product_id', 0 ) );
-$bump_title        = get_option( 'gvn_checkout_order_bump_title', 'Oferta Exclusiva' );
-$bump_description  = get_option( 'gvn_checkout_order_bump_description', '' );
-$bump_cta_text     = get_option( 'gvn_checkout_order_bump_cta_text', 'Sim! Quero adicionar ao meu pedido' );
-$bump_price        = get_option( 'gvn_checkout_order_bump_price', '' );
+$header_text       = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_text', 'EFEAD - Conectando Saberes' ) : get_option( 'gvn_checkout_header_text', 'EFEAD - Conectando Saberes' );
+$header_badge_text = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_badge_text', 'COMPRA SEGURA' ) : get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGURA' );
+$title_text        = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'title_text', 'Finalize sua inscrição' ) : get_option( 'gvn_checkout_title_text', 'Finalize sua inscrição' );
+$subtitle_text     = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'subtitle_text', 'Acesso imediato após confirmação do pagamento' ) : get_option( 'gvn_checkout_subtitle_text', 'Acesso imediato após confirmação do pagamento' );
+$button_text       = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'button_text', 'Finalizar pedido' ) : get_option( 'gvn_checkout_button_text', 'Finalizar pedido' );
+$bump_enabled      = 'yes' === ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_enabled', 'no' ) : get_option( 'gvn_checkout_order_bump_enabled', 'no' ) );
+$bump_product_id   = absint( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_product_id', 0 ) : get_option( 'gvn_checkout_order_bump_product_id', 0 ) );
+$bump_title        = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_title', 'Oferta Exclusiva' ) : get_option( 'gvn_checkout_order_bump_title', 'Oferta Exclusiva' );
+$bump_description  = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_description', '' ) : get_option( 'gvn_checkout_order_bump_description', '' );
+$bump_cta_text     = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_cta_text', 'Sim! Quero adicionar ao meu pedido' ) : get_option( 'gvn_checkout_order_bump_cta_text', 'Sim! Quero adicionar ao meu pedido' );
+$bump_price        = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_price', '' ) : get_option( 'gvn_checkout_order_bump_price', '' );
 $bump_product      = $bump_enabled && $bump_product_id && function_exists( 'wc_get_product' ) ? wc_get_product( $bump_product_id ) : null;
 
 $available_gateways = ( function_exists( 'WC' ) && WC()->payment_gateways() ) ? WC()->payment_gateways()->get_available_payment_gateways() : array();

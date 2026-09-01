@@ -4,7 +4,7 @@
  * Registra o shortcode [gvn-checkout] e gerencia hooks do WooCommerce.
  *
  * @package GVN_Checkout
- * @version 1.13.30
+ * @version 1.13.31
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -38,7 +38,7 @@ class GVN_Checkout {
     public function enqueue_assets() {
         global $post;
 
-        $is_checkout_page = is_a( $post, 'WP_Post' ) && has_shortcode( $post->post_content, 'gvn-checkout' );
+        $is_checkout_page = is_object( $post ) && isset( $post->post_content ) && has_shortcode( $post->post_content, 'gvn-checkout' );
         $is_thankyou_page = function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'order-received' );
 
         if ( ! $is_checkout_page && ! $is_thankyou_page ) {
@@ -73,22 +73,34 @@ class GVN_Checkout {
     }
 
     /**
-     * Adiciona o CSS inline com as cores configuradas (uma única vez).
+     * Adiciona o CSS inline com as cores configuradas (sanitizadas estritamente).
      */
     private function enqueue_inline_colors() {
-        $primary_color = get_option( 'gvn_checkout_primary_color', '#0066d4' );
-        $button_color  = get_option( 'gvn_checkout_button_color', '#ff8a22' );
-        $header_bg     = get_option( 'gvn_checkout_header_bg_color', '#3a4759' );
-        $badge_bg      = get_option( 'gvn_checkout_badge_bg_color', '#ff8a22' );
+        $primary_color = class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
+            ? \GVN\Checkout\Settings\SettingsRepository::get( 'primary_color', '#0066d4' )
+            : get_option( 'gvn_checkout_primary_color', '#0066d4' );
+        $button_color  = class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
+            ? \GVN\Checkout\Settings\SettingsRepository::get( 'button_color', '#ff8a22' )
+            : get_option( 'gvn_checkout_button_color', '#ff8a22' );
+        $header_bg     = class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
+            ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_bg_color', '#3a4759' )
+            : get_option( 'gvn_checkout_header_bg_color', '#3a4759' );
+        $badge_bg      = class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
+            ? \GVN\Checkout\Settings\SettingsRepository::get( 'badge_bg_color', '#ff8a22' )
+            : get_option( 'gvn_checkout_badge_bg_color', '#ff8a22' );
 
-        $custom_css = "
-            :root {
-                --gvn-primary: {$primary_color};
-                --gvn-button: {$button_color};
-                --gvn-header-bg: {$header_bg};
-                --gvn-badge-bg: {$badge_bg};
-            }
-        ";
+        $primary_color = ( function_exists( 'sanitize_hex_color' ) && sanitize_hex_color( (string) $primary_color ) ) ? sanitize_hex_color( (string) $primary_color ) : '#0066d4';
+        $button_color  = ( function_exists( 'sanitize_hex_color' ) && sanitize_hex_color( (string) $button_color ) ) ? sanitize_hex_color( (string) $button_color ) : '#ff8a22';
+        $header_bg     = ( function_exists( 'sanitize_hex_color' ) && sanitize_hex_color( (string) $header_bg ) ) ? sanitize_hex_color( (string) $header_bg ) : '#3a4759';
+        $badge_bg      = ( function_exists( 'sanitize_hex_color' ) && sanitize_hex_color( (string) $badge_bg ) ) ? sanitize_hex_color( (string) $badge_bg ) : '#ff8a22';
+
+        $custom_css = sprintf(
+            ":root {\n    --gvn-primary: %s;\n    --gvn-button: %s;\n    --gvn-header-bg: %s;\n    --gvn-badge-bg: %s;\n}",
+            esc_attr( $primary_color ),
+            esc_attr( $button_color ),
+            esc_attr( $header_bg ),
+            esc_attr( $badge_bg )
+        );
         wp_add_inline_style( 'gvn-checkout-css', $custom_css );
     }
 

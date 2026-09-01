@@ -4,7 +4,7 @@
  * Gerencia a página de configurações no painel do WordPress com controle estrito de permissões e segurança.
  *
  * @package GVN_Checkout
- * @version 1.13.30
+ * @version 1.13.31
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

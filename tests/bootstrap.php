@@ -16,10 +16,16 @@ if (!defined('GVN_CHECKOUT_PLUGIN_DIR')) {
 }
 
 if (!defined('GVN_CHECKOUT_VERSION')) {
-    define('GVN_CHECKOUT_VERSION', '1.13.19');
+    define('GVN_CHECKOUT_VERSION', '1.13.25');
 }
 
 // Mocks e stubs básicos de WordPress para testes unitários em isolamento (sem banco de dados).
+global $wp_mock_actions, $wp_mock_filters, $wp_mock_options, $wc_mock_notices;
+$wp_mock_actions = [];
+$wp_mock_filters = [];
+$wp_mock_options = [];
+$wc_mock_notices = [];
+
 if (!function_exists('esc_html')) {
     function esc_html($text) {
         return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
@@ -35,6 +41,24 @@ if (!function_exists('esc_attr')) {
 if (!function_exists('esc_url')) {
     function esc_url($url) {
         return filter_var($url, FILTER_SANITIZE_URL);
+    }
+}
+
+if (!function_exists('esc_textarea')) {
+    function esc_textarea($text) {
+        return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (!function_exists('esc_attr_e')) {
+    function esc_attr_e($text, $domain = 'default') {
+        echo htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
+    }
+}
+
+if (!function_exists('esc_html_e')) {
+    function esc_html_e($text, $domain = 'default') {
+        echo htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');
     }
 }
 
@@ -66,8 +90,128 @@ if (!function_exists('esc_html__')) {
     }
 }
 
+if (!function_exists('absint')) {
+    function absint($maybeint) {
+        return abs(intval($maybeint));
+    }
+}
+
+if (!function_exists('add_action')) {
+    function add_action($tag, $callback, $priority = 10, $accepted_args = 1) {
+        return add_filter($tag, $callback, $priority, $accepted_args);
+    }
+}
+
+if (!function_exists('add_filter')) {
+    function add_filter($tag, $callback, $priority = 10, $accepted_args = 1) {
+        global $wp_mock_filters;
+        $wp_mock_filters[$tag][$priority][] = [
+            'function' => $callback,
+            'accepted_args' => $accepted_args,
+        ];
+        return true;
+    }
+}
+
+if (!function_exists('has_action')) {
+    function has_action($tag, $callback_to_check = false) {
+        return has_filter($tag, $callback_to_check);
+    }
+}
+
+if (!function_exists('has_filter')) {
+    function has_filter($tag, $callback_to_check = false) {
+        global $wp_mock_filters;
+        if (empty($wp_mock_filters[$tag])) {
+            return false;
+        }
+        if (false === $callback_to_check) {
+            return true;
+        }
+        foreach ($wp_mock_filters[$tag] as $priority => $callbacks) {
+            foreach ($callbacks as $cb) {
+                if ($cb['function'] === $callback_to_check) {
+                    return $priority;
+                }
+            }
+        }
+        return false;
+    }
+}
+
+if (!function_exists('remove_action')) {
+    function remove_action($tag, $callback_to_remove, $priority = 10) {
+        return remove_filter($tag, $callback_to_remove, $priority);
+    }
+}
+
+if (!function_exists('remove_filter')) {
+    function remove_filter($tag, $callback_to_remove, $priority = 10) {
+        global $wp_mock_filters;
+        if (!empty($wp_mock_filters[$tag][$priority])) {
+            foreach ($wp_mock_filters[$tag][$priority] as $idx => $cb) {
+                if ($cb['function'] === $callback_to_remove) {
+                    unset($wp_mock_filters[$tag][$priority][$idx]);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
+
+if (!function_exists('do_action')) {
+    function do_action($tag, ...$args) {
+        global $wp_mock_actions, $wp_mock_filters;
+        $wp_mock_actions[] = [
+            'tag' => $tag,
+            'args' => $args,
+        ];
+
+        if (!empty($wp_mock_filters[$tag])) {
+            ksort($wp_mock_filters[$tag]);
+            foreach ($wp_mock_filters[$tag] as $priority => $callbacks) {
+                foreach ($callbacks as $callback) {
+                    $fn = $callback['function'];
+                    $accepted_args = $callback['accepted_args'];
+                    $call_args = array_slice($args, 0, $accepted_args);
+                    call_user_func_array($fn, $call_args);
+                }
+            }
+        }
+    }
+}
+
+if (!function_exists('did_action')) {
+    function did_action($tag) {
+        global $wp_mock_actions;
+        $count = 0;
+        if (is_array($wp_mock_actions)) {
+            foreach ($wp_mock_actions as $act) {
+                if ($act['tag'] === $tag) {
+                    $count++;
+                }
+            }
+        }
+        return $count;
+    }
+}
+
 if (!function_exists('apply_filters')) {
-    function apply_filters($tag, $value) {
+    function apply_filters($tag, $value, ...$args) {
+        global $wp_mock_filters;
+        if (!empty($wp_mock_filters[$tag])) {
+            ksort($wp_mock_filters[$tag]);
+            foreach ($wp_mock_filters[$tag] as $priority => $callbacks) {
+                foreach ($callbacks as $callback) {
+                    $fn = $callback['function'];
+                    $all_args = array_merge([$value], $args);
+                    $accepted_args = $callback['accepted_args'];
+                    $call_args = array_slice($all_args, 0, $accepted_args);
+                    $value = call_user_func_array($fn, $call_args);
+                }
+            }
+        }
         return $value;
     }
 }
@@ -138,6 +282,94 @@ if (!function_exists('wp_strip_all_tags')) {
     }
 }
 
+if (!function_exists('wp_json_encode')) {
+    function wp_json_encode($data, $options = 0, $depth = 512) {
+        return json_encode($data, $options, $depth);
+    }
+}
+
+if (!function_exists('selected')) {
+    function selected($selected, $current = true, $echo = true) {
+        $result = ((string) $selected === (string) $current) ? 'selected="selected"' : '';
+        if ($echo) {
+            echo $result;
+        }
+        return $result;
+    }
+}
+
+if (!function_exists('checked')) {
+    function checked($checked, $current = true, $echo = true) {
+        $result = ((string) $checked === (string) $current || (true === $checked && true === $current)) ? 'checked="checked"' : '';
+        if ($echo) {
+            echo $result;
+        }
+        return $result;
+    }
+}
+
+if (!function_exists('wp_nonce_field')) {
+    function wp_nonce_field($action = -1, $name = '_wpnonce', $referer = true, $echo = true) {
+        $name_attr = esc_attr($name);
+        $value_attr = esc_attr('mock_nonce_' . $action);
+        $html = '<input type="hidden" id="' . $name_attr . '" name="' . $name_attr . '" value="' . $value_attr . '" />';
+        if ($echo) {
+            echo $html;
+        }
+        return $html;
+    }
+}
+
+if (!function_exists('get_privacy_policy_url')) {
+    function get_privacy_policy_url() {
+        return 'https://example.com/privacy-policy';
+    }
+}
+
+if (!function_exists('is_user_logged_in')) {
+    function is_user_logged_in() {
+        global $wp_mock_logged_in;
+        return !empty($wp_mock_logged_in);
+    }
+}
+
+if (!function_exists('wc_get_checkout_url')) {
+    function wc_get_checkout_url() {
+        return 'https://example.com/checkout';
+    }
+}
+
+if (!function_exists('wc_price')) {
+    function wc_price($price, $args = []) {
+        return 'R$ ' . number_format((float) $price, 2, ',', '.');
+    }
+}
+
+if (!function_exists('wc_terms_and_conditions_checkbox_enabled')) {
+    function wc_terms_and_conditions_checkbox_enabled() {
+        global $wp_mock_options;
+        return !empty($wp_mock_options['woocommerce_terms_page_id']);
+    }
+}
+
+if (!function_exists('wc_terms_and_conditions_checkbox_text')) {
+    function wc_terms_and_conditions_checkbox_text() {
+        echo 'Li e concordo com os termos e condições do site';
+    }
+}
+
+if (!function_exists('wc_terms_and_conditions_page_content')) {
+    function wc_terms_and_conditions_page_content() {
+        echo '<div class="woocommerce-terms-and-conditions" style="display: none; max-height: 200px; overflow: auto;"><p>Termos de serviço do site...</p></div>';
+    }
+}
+
+if (!function_exists('wc_checkout_privacy_policy_text')) {
+    function wc_checkout_privacy_policy_text() {
+        echo '<div class="woocommerce-privacy-policy-text"><p>Seus dados pessoais serão utilizados para processar sua compra conforme nossa <a href="https://example.com/privacy-policy" class="woocommerce-privacy-policy-link" target="_blank">política de privacidade</a>.</p></div>';
+    }
+}
+
 if (!function_exists('wc_add_notice')) {
     function wc_add_notice($message, $type = 'error') {
         global $wc_mock_notices;
@@ -173,3 +405,128 @@ if (!class_exists('WP_Error')) {
     }
 }
 
+// Mocks do WooCommerce para ambiente de testes
+if (!class_exists('Mock_WC_Product')) {
+    class Mock_WC_Product {
+        private $id;
+        private $name;
+        private $price;
+
+        public function __construct($id = 1, $name = 'Produto Teste', $price = '99.00') {
+            $this->id = $id;
+            $this->name = $name;
+            $this->price = $price;
+        }
+
+        public function get_id() { return $this->id; }
+        public function get_name() { return $this->name; }
+        public function get_price() { return $this->price; }
+    }
+}
+
+if (!function_exists('wc_get_product')) {
+    function wc_get_product($product_id) {
+        if (!$product_id) return false;
+        return new Mock_WC_Product($product_id);
+    }
+}
+
+if (!class_exists('Mock_WC_Payment_Gateway')) {
+    class Mock_WC_Payment_Gateway {
+        public $id;
+        public $title;
+        public $description;
+        public $order_button_text;
+
+        public function __construct($id = 'bacs', $title = 'Transferência Bancária', $desc = '') {
+            $this->id = $id;
+            $this->title = $title;
+            $this->description = $desc;
+            $this->order_button_text = 'Realizar Pagamento';
+        }
+
+        public function get_title() { return $this->title; }
+        public function get_description() { return $this->description; }
+        public function has_fields() { return false; }
+        public function payment_fields() { echo '<p>' . esc_html($this->description) . '</p>'; }
+    }
+}
+
+if (!class_exists('Mock_WC_Payment_Gateways')) {
+    class Mock_WC_Payment_Gateways {
+        public function get_available_payment_gateways() {
+            return [
+                'pix' => new Mock_WC_Payment_Gateway('pix', 'Pix', 'Pagamento instantâneo'),
+                'bacs' => new Mock_WC_Payment_Gateway('bacs', 'Transferência Bancária', 'Pague via TED'),
+            ];
+        }
+    }
+}
+
+if (!class_exists('Mock_WC_Cart')) {
+    class Mock_WC_Cart {
+        public $items = [];
+
+        public function is_empty() { return empty($this->items); }
+        public function get_cart() {
+            if (empty($this->items)) {
+                return [
+                    'item_1' => [
+                        'key' => 'item_1',
+                        'product_id' => 10,
+                        'quantity' => 1,
+                        'data' => new Mock_WC_Product(10, 'Curso Principal', '150.00'),
+                    ],
+                ];
+            }
+            return $this->items;
+        }
+        public function get_product_subtotal($product, $quantity) {
+            return 'R$ ' . number_format((float)$product->get_price() * $quantity, 2, ',', '.');
+        }
+        public function get_subtotal() { return 150.00; }
+        public function get_discount_total() { return 0.00; }
+        public function get_total() { return 'R$ 150,00'; }
+        public function get_applied_coupons() { return []; }
+    }
+}
+
+if (!class_exists('Mock_WC_Checkout')) {
+    class Mock_WC_Checkout {
+        public function get_value($key) {
+            return '';
+        }
+    }
+}
+
+if (!class_exists('Mock_WooCommerce')) {
+    class Mock_WooCommerce {
+        public $cart;
+        public $payment_gateways;
+        public $checkout;
+
+        public function __construct() {
+            $this->cart = new Mock_WC_Cart();
+            $this->payment_gateways = new Mock_WC_Payment_Gateways();
+            $this->checkout = new Mock_WC_Checkout();
+        }
+
+        public function payment_gateways() {
+            return $this->payment_gateways;
+        }
+
+        public function checkout() {
+            return $this->checkout;
+        }
+    }
+}
+
+if (!function_exists('WC')) {
+    function WC() {
+        global $mock_woocommerce_instance;
+        if (!isset($mock_woocommerce_instance)) {
+            $mock_woocommerce_instance = new Mock_WooCommerce();
+        }
+        return $mock_woocommerce_instance;
+    }
+}

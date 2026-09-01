@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - Estilos do Checkout Personalizado
- * @version 1.13.9
+ * @version 1.13.25
  */
 
 /* ========================================
@@ -589,8 +589,67 @@
 }
 
 /* ========================================
-   Privacy
+   Terms & Privacy
    ======================================== */
+
+.gvn-terms-wrapper {
+    margin: 1.25rem 0;
+    font-size: 0.813rem;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.gvn-terms-wrapper .woocommerce-privacy-policy-text {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-align: center;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+.gvn-terms-wrapper .woocommerce-privacy-policy-text a,
+.gvn-terms-wrapper .woocommerce-terms-and-conditions-link {
+    color: var(--gvn-primary, #0066d4);
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.gvn-terms-wrapper .woocommerce-terms-and-conditions {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    color: #4b5563;
+}
+
+.gvn-terms-row {
+    margin: 0.75rem 0 0;
+    display: flex;
+    align-items: flex-start;
+}
+
+.gvn-terms-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.813rem;
+    color: #374151;
+    font-weight: 500;
+    user-select: none;
+}
+
+.gvn-terms-checkbox {
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 0.25rem;
+    border: 1px solid #d1d5db;
+    accent-color: var(--gvn-primary, #0066d4);
+    cursor: pointer;
+    flex-shrink: 0;
+}
 
 .gvn-privacy {
     font-size: 0.688rem;

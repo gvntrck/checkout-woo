@@ -4,7 +4,7 @@
  * CRUD, ordenação e largura dos campos do formulário de checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.24
+ * @version 1.13.25
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

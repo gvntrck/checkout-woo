@@ -143,6 +143,17 @@ class SettingsSchema {
                 'is_default'  => true,
             ],
             [
+                'key'         => 'billing_city',
+                'label'       => 'Cidade',
+                'type'        => 'text',
+                'required'    => true,
+                'width'       => '50',
+                'position'    => 'billing',
+                'placeholder' => 'Cidade',
+                'enabled'     => true,
+                'is_default'  => true,
+            ],
+            [
                 'key'         => 'billing_number',
                 'label'       => 'Número',
                 'type'        => 'text',

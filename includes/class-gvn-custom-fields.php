@@ -4,7 +4,7 @@
  * CRUD, ordenação e largura dos campos do formulário de checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.35
+ * @version 1.13.40
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -257,12 +257,24 @@ class GVN_Custom_Fields {
                 'is_default'  => true,
             ),
             array(
+                'key'         => 'billing_city',
+                'label'       => 'Cidade',
+                'type'        => 'text',
+                'required'    => true,
+                'width'       => '50',
+                'position'    => 14,
+                'placeholder' => 'Cidade',
+                'enabled'     => true,
+                'mask'        => '',
+                'is_default'  => true,
+            ),
+            array(
                 'key'         => 'billing_number',
                 'label'       => 'Número',
                 'type'        => 'text',
                 'required'    => true,
                 'width'       => '25',
-                'position'    => 14,
+                'position'    => 15,
                 'placeholder' => '',
                 'enabled'     => false,
                 'mask'        => '',
@@ -274,7 +286,7 @@ class GVN_Custom_Fields {
                 'type'        => 'text',
                 'required'    => false,
                 'width'       => '50',
-                'position'    => 15,
+                'position'    => 16,
                 'placeholder' => '',
                 'enabled'     => false,
                 'mask'        => '',
@@ -286,7 +298,7 @@ class GVN_Custom_Fields {
                 'type'        => 'text',
                 'required'    => true,
                 'width'       => '25',
-                'position'    => 16,
+                'position'    => 17,
                 'placeholder' => '',
                 'enabled'     => false,
                 'mask'        => '',
@@ -298,7 +310,7 @@ class GVN_Custom_Fields {
                 'type'        => 'text',
                 'required'    => false,
                 'width'       => '50',
-                'position'    => 17,
+                'position'    => 18,
                 'placeholder' => '',
                 'enabled'     => false,
                 'mask'        => '',
@@ -310,7 +322,7 @@ class GVN_Custom_Fields {
                 'type'        => 'textarea',
                 'required'    => false,
                 'width'       => '100',
-                'position'    => 18,
+                'position'    => 19,
                 'placeholder' => 'Observações sobre seu pedido, ex.: observações especiais sobre entrega.',
                 'enabled'     => true,
                 'mask'        => '',
@@ -359,6 +371,18 @@ class GVN_Custom_Fields {
             foreach ( self::get_default_fields() as $default_field ) {
                 if ( 'billing_postcode' === $default_field['key'] ) {
                     $normalized[] = array_merge( $defaults, $default_field );
+                    break;
+                }
+            }
+        }
+
+        if ( ! in_array( 'billing_city', array_column( $normalized, 'key' ), true ) ) {
+            $max_position = empty( $normalized ) ? 0 : max( array_map( 'intval', array_column( $normalized, 'position' ) ) );
+
+            foreach ( self::get_default_fields() as $default_field ) {
+                if ( 'billing_city' === $default_field['key'] ) {
+                    $default_field['position'] = $max_position + 1;
+                    $normalized[]              = array_merge( $defaults, $default_field );
                     break;
                 }
             }

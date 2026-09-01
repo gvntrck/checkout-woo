@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.39
+Stable tag: 1.13.40
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.40 =
+* Inclui a cidade (`billing_city`) como campo padrão, habilitado, obrigatório e gerenciável no editor de campos, inclusive para configurações existentes.
 
 = 1.13.39 =
 * Inclui o CEP (`billing_postcode`) como campo brasileiro padrão, habilitado e obrigatório para preservar os dados exigidos por gateways de boleto e cartão.

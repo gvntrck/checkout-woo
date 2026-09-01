@@ -3,7 +3,7 @@
  * Plugin Name: GVN Checkout for WooCommerce
  * Plugin URI: https://github.com/gvntrck/checkout-woo
  * Description: Checkout personalizado e otimizado para WooCommerce com layout moderno, order bump e configurações avançadas.
- * Version: 1.13.10
+ * Version: 1.13.11
  * Author: GVN Track
  * Author URI: https://projetoalfa.org
  * License: GPL-2.0+
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('GVN_CHECKOUT_VERSION', '1.13.10');
+define('GVN_CHECKOUT_VERSION', '1.13.11');
 define('GVN_CHECKOUT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GVN_CHECKOUT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('GVN_CHECKOUT_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -48,6 +48,30 @@ function gvn_checkout_woocommerce_missing_notice()
 }
 
 /**
+ * Verifica se o plugin histórico checkout-woo-2 está ativo simultaneamente.
+ */
+function gvn_checkout_check_legacy_conflict()
+{
+    if (defined('CGV_VERSION') || class_exists('CGV_Plugin') || defined('CGV_FILE')) {
+        add_action('admin_notices', 'gvn_checkout_legacy_conflict_notice');
+        return true;
+    }
+    return false;
+}
+
+function gvn_checkout_legacy_conflict_notice()
+{
+    if (!current_user_can('activate_plugins')) {
+        return;
+    }
+    ?>
+    <div class="notice notice-warning is-dismissible">
+        <p><strong><?php esc_html_e('GVN Checkout — Conflito detectado:', 'gvn-checkout'); ?></strong> <?php esc_html_e('O plugin histórico Checkout GVNTRCK (checkout-woo-2) está ativo simultaneamente. Para evitar conflitos de fluxo e hooks no checkout, mantenha apenas o GVN Checkout for WooCommerce ativo.', 'gvn-checkout'); ?></p>
+    </div>
+    <?php
+}
+
+/**
  * Inicializa o plugin após todos os plugins serem carregados.
  */
 function gvn_checkout_init()
@@ -55,6 +79,8 @@ function gvn_checkout_init()
     if (!gvn_checkout_check_woocommerce()) {
         return;
     }
+
+    gvn_checkout_check_legacy_conflict();
 
     load_plugin_textdomain('gvn-checkout', false, dirname(GVN_CHECKOUT_PLUGIN_BASENAME) . '/languages');
 

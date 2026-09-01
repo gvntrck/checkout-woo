@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.25
+Stable tag: 1.13.26
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.26 =
+* Isola a página de confirmação de pedido (Thank You / thankyou-template.php) exclusivamente para pedidos originados pelo GVN Checkout através dos marcadores _gvn_checkout_version e _gvn_checkout, remove o override global indiscriminado em pedidos de outros checkouts, adiciona o hook canônico woocommerce_before_thankyou e implementa validação timing-safe da order_key via hash_equals (Fase 9 concluída).
 
 = 1.13.25 =
 * Restaura a ordem canônica de hooks do checkout clássico do WooCommerce (woocommerce_before_checkout_form, woocommerce_checkout_before_customer_details, woocommerce_checkout_after_customer_details, woocommerce_checkout_before_order_review, woocommerce_checkout_after_order_review, woocommerce_review_order_before_payment, woocommerce_checkout_terms_and_conditions, woocommerce_review_order_before_submit, woocommerce_order_button_html, woocommerce_review_order_after_submit, woocommerce_review_order_after_payment, woocommerce_after_checkout_form) e adiciona suporte nativo a termos de serviço e política de privacidade sem quebrar o layout visual do GVN Checkout (Fase 5 concluída).

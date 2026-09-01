@@ -4,7 +4,7 @@
  * Registra o shortcode [gvn-checkout] e gerencia hooks do WooCommerce.
  *
  * @package GVN_Checkout
- * @version 1.13.25
+ * @version 1.13.26
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -65,7 +65,7 @@ class GVN_Checkout {
             wp_localize_script( 'gvn-checkout-js', 'gvn_checkout_params', array(
                 'ajax_url'    => admin_url( 'admin-ajax.php' ),
                 'nonce'       => wp_create_nonce( 'gvn_checkout_nonce' ),
-                'wc_ajax_url' => WC_AJAX::get_endpoint( '%%endpoint%%' ),
+                'wc_ajax_url' => function_exists( 'WC_AJAX' ) ? WC_AJAX::get_endpoint( '%%endpoint%%' ) : '',
             ) );
         }
 
@@ -97,32 +97,32 @@ class GVN_Checkout {
      */
     public function render_checkout( $atts ) {
         if ( ! function_exists( 'WC' ) ) {
-            return '<p>WooCommerce não está disponível.</p>';
+            return '<p>' . esc_html__( 'WooCommerce não está disponível.', 'gvn-checkout' ) . '</p>';
         }
 
         global $wp;
 
         // Detecta endpoint order-received (página de confirmação do pedido).
-        // Renderiza o thankyou aqui para suportar páginas que usam apenas [gvn-checkout]
-        // (sem o shortcode nativo [woocommerce_checkout]).
         if ( function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'order-received' ) ) {
             return $this->render_thankyou_page();
         }
 
         if ( ! WC()->cart || WC()->cart->is_empty() ) {
+            $shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '';
             return '<div class="gvn-checkout-empty">
-                <p>Seu carrinho está vazio. <a href="' . esc_url( wc_get_page_permalink( 'shop' ) ) . '">Voltar à loja</a></p>
+                <p>' . esc_html__( 'Seu carrinho está vazio.', 'gvn-checkout' ) . ' <a href="' . esc_url( $shop_url ) . '">' . esc_html__( 'Voltar à loja', 'gvn-checkout' ) . '</a></p>
             </div>';
         }
 
         if ( ! is_user_logged_in() && 'no' === get_option( 'woocommerce_enable_guest_checkout' ) ) {
-            return '<p>Você precisa estar logado para finalizar a compra. <a href="' . esc_url( wc_get_page_permalink( 'myaccount' ) ) . '">Faça login</a></p>';
+            $account_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '';
+            return '<p>' . esc_html__( 'Você precisa estar logado para finalizar a compra.', 'gvn-checkout' ) . ' <a href="' . esc_url( $account_url ) . '">' . esc_html__( 'Faça login', 'gvn-checkout' ) . '</a></p>';
         }
 
         $checkout = WC()->checkout();
 
         if ( ! $checkout ) {
-            return '<p>Não foi possível inicializar o checkout. Tente novamente.</p>';
+            return '<p>' . esc_html__( 'Não foi possível inicializar o checkout. Tente novamente.', 'gvn-checkout' ) . '</p>';
         }
 
         ob_start();
@@ -134,19 +134,21 @@ class GVN_Checkout {
      * Renderiza a página de confirmação de pedido (thank you).
      */
     private function render_thankyou_page() {
-        global $wp;
+        global $wp, $order;
 
         $order_id = isset( $wp->query_vars['order-received'] ) ? absint( $wp->query_vars['order-received'] ) : 0;
         $order    = false;
 
-        if ( $order_id > 0 ) {
+        if ( $order_id > 0 && function_exists( 'wc_get_order' ) ) {
             $order = wc_get_order( $order_id );
         }
 
-        // Validação de segurança com a key do pedido.
-        $order_key = isset( $_GET['key'] ) ? wc_clean( wp_unslash( $_GET['key'] ) ) : '';
-        if ( $order && $order->get_order_key() !== $order_key ) {
-            $order = false;
+        // Validação de segurança com a key do pedido (timing-safe).
+        $order_key = isset( $_GET['key'] ) ? ( function_exists( 'wc_clean' ) ? wc_clean( wp_unslash( $_GET['key'] ) ) : sanitize_text_field( wp_unslash( $_GET['key'] ) ) ) : '';
+        if ( $order && method_exists( $order, 'get_order_key' ) ) {
+            if ( empty( $order_key ) || ( function_exists( 'hash_equals' ) && ! hash_equals( (string) $order->get_order_key(), (string) $order_key ) ) ) {
+                $order = false;
+            }
         }
 
         ob_start();
@@ -161,13 +163,13 @@ class GVN_Checkout {
         check_ajax_referer( 'gvn_checkout_nonce', 'nonce' );
 
         if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
-            wp_send_json_error( array( 'message' => 'Carrinho não disponível.' ) );
+            wp_send_json_error( array( 'message' => __( 'Carrinho não disponível.', 'gvn-checkout' ) ) );
         }
 
-        $coupon_code = isset( $_POST['coupon_code'] ) ? wc_clean( wp_unslash( $_POST['coupon_code'] ) ) : '';
+        $coupon_code = isset( $_POST['coupon_code'] ) ? ( function_exists( 'wc_clean' ) ? wc_clean( wp_unslash( $_POST['coupon_code'] ) ) : sanitize_text_field( wp_unslash( $_POST['coupon_code'] ) ) ) : '';
 
         if ( empty( $coupon_code ) ) {
-            wp_send_json_error( array( 'message' => 'Informe um código de cupom.' ) );
+            wp_send_json_error( array( 'message' => __( 'Informe um código de cupom.', 'gvn-checkout' ) ) );
         }
 
         $result = WC()->cart->apply_coupon( $coupon_code );
@@ -179,13 +181,13 @@ class GVN_Checkout {
 
         if ( true === $result || ( is_string( $result ) && '' !== $result ) ) {
             wp_send_json_success( array(
-                'message'  => 'Cupom aplicado com sucesso!',
+                'message'  => __( 'Cupom aplicado com sucesso!', 'gvn-checkout' ),
                 'total'    => WC()->cart->get_total(),
                 'subtotal' => WC()->cart->get_subtotal(),
                 'discount' => WC()->cart->get_discount_total(),
             ) );
         } else {
-            wp_send_json_error( array( 'message' => 'Cupom inválido ou já aplicado.' ) );
+            wp_send_json_error( array( 'message' => __( 'Cupom inválido ou já aplicado.', 'gvn-checkout' ) ) );
         }
     }
 
@@ -196,55 +198,66 @@ class GVN_Checkout {
         check_ajax_referer( 'gvn_checkout_nonce', 'nonce' );
 
         if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
-            wp_send_json_error( array( 'message' => 'Carrinho não disponível.' ) );
+            wp_send_json_error( array( 'message' => __( 'Carrinho não disponível.', 'gvn-checkout' ) ) );
         }
 
-        $coupon_code = isset( $_POST['coupon_code'] ) ? wc_clean( wp_unslash( $_POST['coupon_code'] ) ) : '';
+        $coupon_code = isset( $_POST['coupon_code'] ) ? ( function_exists( 'wc_clean' ) ? wc_clean( wp_unslash( $_POST['coupon_code'] ) ) : sanitize_text_field( wp_unslash( $_POST['coupon_code'] ) ) ) : '';
 
         if ( empty( $coupon_code ) ) {
-            wp_send_json_error( array( 'message' => 'Informe o código do cupom.' ) );
+            wp_send_json_error( array( 'message' => __( 'Informe o código do cupom.', 'gvn-checkout' ) ) );
         }
 
         WC()->cart->remove_coupon( $coupon_code );
         WC()->cart->calculate_totals();
 
         wp_send_json_success( array(
-            'message'  => 'Cupom removido.',
+            'message'  => __( 'Cupom removido.', 'gvn-checkout' ),
             'total'    => WC()->cart->get_total(),
             'subtotal' => WC()->cart->get_subtotal(),
         ) );
     }
 
     /**
-     * Substitui o template padrão de thankyou do WooCommerce pelo template customizado.
-     * Só é chamado quando a página usa o shortcode nativo [woocommerce_checkout].
-     * Quando a página usa [gvn-checkout], o thankyou é renderizado por render_thankyou_page().
+     * Substitui o template padrão de thankyou do WooCommerce pelo template customizado
+     * exclusivamente para pedidos originados pelo GVN Checkout.
      */
     public function override_thankyou_template( $template, $template_name, $args, $template_path, $default_path ) {
         if ( 'checkout/thankyou.php' === $template_name ) {
-            $custom_template = GVN_CHECKOUT_PLUGIN_DIR . 'templates/thankyou-template.php';
-            if ( file_exists( $custom_template ) ) {
-                // Prepara $order validando a order_key se ainda não foi setado.
-                if ( ! isset( $GLOBALS['order'] ) || ! $GLOBALS['order'] ) {
-                    global $wp, $order;
-                    $order = false;
-                    $order_id = isset( $wp->query_vars['order-received'] ) ? absint( $wp->query_vars['order-received'] ) : 0;
-                    if ( $order_id > 0 ) {
-                        $order = wc_get_order( $order_id );
+            global $wp, $order;
+
+            $order_id = isset( $wp->query_vars['order-received'] ) ? absint( $wp->query_vars['order-received'] ) : 0;
+            if ( $order_id <= 0 && isset( $args['order'] ) && is_object( $args['order'] ) && method_exists( $args['order'], 'get_id' ) ) {
+                $order_id = $args['order']->get_id();
+            }
+
+            if ( $order_id > 0 && function_exists( 'wc_get_order' ) ) {
+                $order_obj = wc_get_order( $order_id );
+                if ( $order_obj ) {
+                    $order_key = isset( $_GET['key'] ) ? ( function_exists( 'wc_clean' ) ? wc_clean( wp_unslash( $_GET['key'] ) ) : sanitize_text_field( wp_unslash( $_GET['key'] ) ) ) : '';
+                    if ( ! empty( $order_key ) && function_exists( 'hash_equals' ) && method_exists( $order_obj, 'get_order_key' ) ) {
+                        if ( ! hash_equals( (string) $order_obj->get_order_key(), (string) $order_key ) ) {
+                            return $template;
+                        }
                     }
-                    $order_key = isset( $_GET['key'] ) ? wc_clean( wp_unslash( $_GET['key'] ) ) : '';
-                    if ( $order && $order->get_order_key() !== $order_key ) {
-                        $order = false;
+
+                    // Verifica se o pedido foi originado pelo GVN Checkout
+                    $gvn_version = method_exists( $order_obj, 'get_meta' ) ? $order_obj->get_meta( '_gvn_checkout_version' ) : '';
+                    $is_gvn      = ! empty( $gvn_version ) || ( method_exists( $order_obj, 'get_meta' ) && 'yes' === $order_obj->get_meta( '_gvn_checkout' ) );
+
+                    // Preserva o template padrão do WooCommerce para pedidos externos ao GVN
+                    if ( ! $is_gvn ) {
+                        return $template;
+                    }
+
+                    $order = $order_obj;
+                    $custom_template = GVN_CHECKOUT_PLUGIN_DIR . 'templates/thankyou-template.php';
+                    if ( file_exists( $custom_template ) ) {
+                        return $custom_template;
                     }
                 }
-                return $custom_template;
             }
         }
         return $template;
     }
-
-    /**
-     * Enqueue de CSS na página de thank you (order-received).
-     * Removido: lógica unificada em enqueue_assets() + enqueue_inline_colors().
-     */
 }
+

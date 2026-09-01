@@ -16,7 +16,7 @@ if (!defined('GVN_CHECKOUT_PLUGIN_DIR')) {
 }
 
 if (!defined('GVN_CHECKOUT_VERSION')) {
-    define('GVN_CHECKOUT_VERSION', '1.13.25');
+    define('GVN_CHECKOUT_VERSION', '1.13.26');
 }
 
 // Mocks e stubs básicos de WordPress para testes unitários em isolamento (sem banco de dados).
@@ -213,6 +213,29 @@ if (!function_exists('apply_filters')) {
             }
         }
         return $value;
+    }
+}
+
+if (!function_exists('add_shortcode')) {
+    function add_shortcode($tag, $callback) {
+        global $wp_mock_shortcodes;
+        if (!is_array($wp_mock_shortcodes)) {
+            $wp_mock_shortcodes = [];
+        }
+        $wp_mock_shortcodes[$tag] = $callback;
+        return true;
+    }
+}
+
+if (!function_exists('has_shortcode')) {
+    function has_shortcode($content, $tag) {
+        return strpos((string) $content, '[' . $tag) !== false;
+    }
+}
+
+if (!function_exists('do_shortcode')) {
+    function do_shortcode($content) {
+        return $content;
     }
 }
 
@@ -518,6 +541,146 @@ if (!class_exists('Mock_WooCommerce')) {
         public function checkout() {
             return $this->checkout;
         }
+    }
+}
+
+if (!function_exists('wp_unslash')) {
+    function wp_unslash($val) {
+        return is_string($val) ? stripslashes($val) : $val;
+    }
+}
+
+if (!function_exists('wc_clean')) {
+    function wc_clean($var) {
+        if (is_array($var)) {
+            return array_map('wc_clean', $var);
+        }
+        return sanitize_text_field($var);
+    }
+}
+
+if (!function_exists('wc_format_datetime')) {
+    function wc_format_datetime($date) {
+        return '01/09/2026 12:00';
+    }
+}
+
+if (!function_exists('wc_get_order_status_name')) {
+    function wc_get_order_status_name($status) {
+        $names = [
+            'pending' => 'Pagamento pendente',
+            'processing' => 'Processando',
+            'on-hold' => 'Aguardando',
+            'completed' => 'Concluído',
+            'cancelled' => 'Cancelado',
+            'refunded' => 'Reembolsado',
+            'failed' => 'Falhou',
+        ];
+        return $names[$status] ?? ucfirst((string)$status);
+    }
+}
+
+if (!function_exists('wc_get_account_endpoint_url')) {
+    function wc_get_account_endpoint_url($endpoint) {
+        return 'https://example.com/my-account/' . $endpoint;
+    }
+}
+
+if (!function_exists('wc_get_page_permalink')) {
+    function wc_get_page_permalink($page) {
+        return 'https://example.com/' . $page;
+    }
+}
+
+if (!function_exists('is_wc_endpoint_url')) {
+    function is_wc_endpoint_url($endpoint = false) {
+        global $wp;
+        if ($endpoint && isset($wp->query_vars[$endpoint])) {
+            return true;
+        }
+        return false;
+    }
+}
+
+if (!class_exists('Mock_WC_Order_Item')) {
+    class Mock_WC_Order_Item {
+        private $name;
+        private $quantity;
+        private $price;
+
+        public function __construct($name = 'Item Teste', $qty = 1, $price = '100.00') {
+            $this->name = $name;
+            $this->quantity = $qty;
+            $this->price = $price;
+        }
+
+        public function get_name() { return $this->name; }
+        public function get_quantity() { return $this->quantity; }
+        public function get_product() { return new Mock_WC_Product(1, $this->name, $this->price); }
+    }
+}
+
+if (!class_exists('Mock_WC_Order_Complete')) {
+    class Mock_WC_Order_Complete {
+        public $id = 123;
+        public $order_key = 'wc_order_test_key_123';
+        public $status = 'processing';
+        public $meta = [];
+        public $billing = [
+            'first_name' => 'João',
+            'last_name' => 'Silva',
+            'email' => 'joao@example.com',
+            'phone' => '(11) 99999-9999',
+        ];
+
+        public function __construct($id = 123, $key = 'wc_order_test_key_123') {
+            $this->id = $id;
+            $this->order_key = $key;
+        }
+
+        public function get_id() { return $this->id; }
+        public function get_order_key() { return $this->order_key; }
+        public function get_order_number() { return (string) $this->id; }
+        public function get_status() { return $this->status; }
+        public function has_status($status) { return $this->status === $status; }
+        public function set_status($status) { $this->status = $status; }
+        public function get_date_created() { return '2026-09-01 12:00:00'; }
+        public function get_billing_first_name() { return $this->billing['first_name']; }
+        public function get_billing_last_name() { return $this->billing['last_name']; }
+        public function get_billing_email() { return $this->billing['email']; }
+        public function get_billing_phone() { return $this->billing['phone']; }
+        public function get_formatted_order_total() { return 'R$ 150,00'; }
+        public function get_payment_method() { return 'pix'; }
+        public function get_payment_method_title() { return 'Pix'; }
+        public function get_items() { return [new Mock_WC_Order_Item('Curso Principal', 1, '150.00')]; }
+        public function get_formatted_line_subtotal($item) { return 'R$ 150,00'; }
+        public function get_subtotal() { return 150.00; }
+        public function get_total_discount() { return 0.00; }
+        public function get_total_tax() { return 0.00; }
+        public function get_shipping_total() { return 0.00; }
+        public function get_customer_note() { return ''; }
+        public function get_checkout_payment_url() { return 'https://example.com/checkout/pay/' . $this->id; }
+        public function get_meta($key, $single = true) { return $this->meta[$key] ?? ''; }
+        public function update_meta_data($key, $value) { $this->meta[$key] = $value; }
+        public function delete_meta_data($key) { unset($this->meta[$key]); }
+        public function save() { return true; }
+    }
+}
+
+global $wp_mock_orders;
+$wp_mock_orders = [];
+
+if (!function_exists('wc_get_order')) {
+    function wc_get_order($order_id) {
+        global $wp_mock_orders;
+        if (isset($wp_mock_orders[$order_id])) {
+            return $wp_mock_orders[$order_id];
+        }
+        if ($order_id > 0) {
+            $order = new Mock_WC_Order_Complete($order_id);
+            return $order;
+        }
+        return false;
     }
 }
 

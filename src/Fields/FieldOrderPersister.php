@@ -18,6 +18,13 @@ class FieldOrderPersister {
     public static function persist(object $order, array $fields, array $posted_data): array {
         $persisted = [];
 
+        // Identifica o pedido como originado no GVN Checkout para isolamento da Thank You
+        if (method_exists($order, 'update_meta_data')) {
+            $version = defined('GVN_CHECKOUT_VERSION') ? GVN_CHECKOUT_VERSION : '1.0.0';
+            $order->update_meta_data('_gvn_checkout_version', $version);
+            $order->update_meta_data('_gvn_checkout', 'yes');
+        }
+
         foreach ($fields as $field) {
             if (!FieldSecurityPolicy::is_persistable_custom_field($field)) {
                 continue;

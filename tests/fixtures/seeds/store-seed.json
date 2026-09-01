@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "fixture_id": "store-seed-v1",
+    "fixture_format_version": 1,
+    "description": "Seed reproduzível para catálogo de testes e cenários de checkout do WooCommerce.",
+    "classification": "synthetic",
+    "anonymization": {
+      "performed": true,
+      "personal_data_present": false,
+      "secrets_present": false
+    }
+  },
+  "products": [
+    {
+      "id": 101,
+      "sku": "SEED-SIMPLE-PHYS",
+      "name": "Produto Físico Padrão com Frete",
+      "type": "simple",
+      "status": "publish",
+      "regular_price": "149.90",
+      "sale_price": "",
+      "virtual": false,
+      "downloadable": false,
+      "manage_stock": true,
+      "stock_quantity": 50,
+      "stock_status": "instock",
+      "tax_status": "taxable",
+      "weight": "0.500",
+      "dimensions": { "length": "20", "width": "15", "height": "5" }
+    },
+    {
+      "id": 102,
+      "sku": "SEED-SIMPLE-VIRT",
+      "name": "Curso Online / Produto Virtual",
+      "type": "simple",
+      "status": "publish",
+      "regular_price": "97.00",
+      "sale_price": "",
+      "virtual": true,
+      "downloadable": true,
+      "manage_stock": false,
+      "stock_status": "instock",
+      "tax_status": "none"
+    },
+    {
+      "id": 103,
+      "sku": "SEED-VARIABLE-ROOT",
+      "name": "Camiseta Oficial com Variações",
+      "type": "variable",
+      "status": "publish",
+      "virtual": false,
+      "attributes": [
+        {
+          "name": "Tamanho",
+          "slug": "pa_tamanho",
+          "options": ["P", "M", "G"],
+          "variation": true
+        }
+      ],
+      "variations": [
+        {
+          "id": 1031,
+          "sku": "SEED-VAR-P",
+          "attributes": { "pa_tamanho": "P" },
+          "regular_price": "59.90",
+          "stock_status": "instock"
+        },
+        {
+          "id": 1032,
+          "sku": "SEED-VAR-M",
+          "attributes": { "pa_tamanho": "M" },
+          "regular_price": "59.90",
+          "stock_status": "instock"
+        },
+        {
+          "id": 1033,
+          "sku": "SEED-VAR-G",
+          "attributes": { "pa_tamanho": "G" },
+          "regular_price": "69.90",
+          "stock_status": "instock"
+        }
+      ]
+    },
+    {
+      "id": 104,
+      "sku": "SEED-OUT-OF-STOCK",
+      "name": "Produto Fora de Estoque (Esgotado)",
+      "type": "simple",
+      "status": "publish",
+      "regular_price": "89.00",
+      "virtual": false,
+      "manage_stock": true,
+      "stock_quantity": 0,
+      "stock_status": "outofstock"
+    },
+    {
+      "id": 999,
+      "sku": "SEED-ORDER-BUMP",
+      "name": "E-book Exclusivo de Bônus (Order Bump)",
+      "type": "simple",
+      "status": "publish",
+      "regular_price": "29.90",
+      "virtual": true,
+      "downloadable": true,
+      "manage_stock": false,
+      "stock_status": "instock",
+      "tax_status": "none"
+    }
+  ],
+  "coupons": [
+    {
+      "code": "PROMO10",
+      "discount_type": "percent",
+      "amount": "10",
+      "description": "Cupom de 10% de desconto em todo o carrinho"
+    },
+    {
+      "code": "DESC20",
+      "discount_type": "fixed_cart",
+      "amount": "20",
+      "description": "Cupom de R$ 20 de desconto fixo"
+    },
+    {
+      "code": "EXPIRADO",
+      "discount_type": "percent",
+      "amount": "15",
+      "expiry_date": "2020-01-01",
+      "description": "Cupom vencido para testes de erro de validação"
+    },
+    {
+      "code": "ESGOTADO",
+      "discount_type": "fixed_cart",
+      "amount": "50",
+      "usage_limit": 1,
+      "usage_count": 1,
+      "description": "Cupom com limite de uso atingido"
+    }
+  ],
+  "shipping_methods": [
+    {
+      "id": "flat_rate",
+      "title": "Entrega Padrão",
+      "cost": "15.00",
+      "tax_status": "none"
+    },
+    {
+      "id": "free_shipping",
+      "title": "Frete Grátis",
+      "min_amount": "200.00"
+    }
+  ],
+  "sample_customers": [
+    {
+      "type": "guest",
+      "first_name": "Maria",
+      "last_name": "Silva",
+      "email": "maria.silva@exemplo.teste",
+      "phone": "(11) 98765-4321",
+      "cpf": "11144477735",
+      "address_1": "Avenida Paulista",
+      "number": "1000",
+      "neighborhood": "Bela Vista",
+      "city": "São Paulo",
+      "state": "SP",
+      "postcode": "01310-100",
+      "country": "BR"
+    },
+    {
+      "type": "registered",
+      "first_name": "João",
+      "last_name": "Ferreira",
+      "email": "joao.ferreira@exemplo.teste",
+      "phone": "(21) 99876-5432",
+      "persontype": "J",
+      "cnpj": "11222333000181",
+      "ie": "123456789",
+      "address_1": "Rua do Ouvidor",
+      "number": "50",
+      "neighborhood": "Centro",
+      "city": "Rio de Janeiro",
+      "state": "RJ",
+      "postcode": "20040-030",
+      "country": "BR"
+    }
+  ]
+}

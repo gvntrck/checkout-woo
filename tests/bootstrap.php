@@ -16,7 +16,7 @@ if (!defined('GVN_CHECKOUT_PLUGIN_DIR')) {
 }
 
 if (!defined('GVN_CHECKOUT_VERSION')) {
-    define('GVN_CHECKOUT_VERSION', '1.13.27');
+    define('GVN_CHECKOUT_VERSION', '1.13.28');
 }
 
 // Mocks e stubs básicos de WordPress para testes unitários em isolamento (sem banco de dados).
@@ -119,6 +119,96 @@ if (!function_exists('wp_send_json_error')) {
             $response['data'] = $data;
         }
         echo json_encode($response);
+    }
+}
+
+global $wp_mock_transients;
+$wp_mock_transients = [];
+
+if (!function_exists('get_transient')) {
+    function get_transient($transient) {
+        global $wp_mock_transients;
+        return $wp_mock_transients[$transient] ?? false;
+    }
+}
+
+if (!function_exists('set_transient')) {
+    function set_transient($transient, $value, $expiration = 0) {
+        global $wp_mock_transients;
+        $wp_mock_transients[$transient] = $value;
+        return true;
+    }
+}
+
+if (!function_exists('delete_transient')) {
+    function delete_transient($transient) {
+        global $wp_mock_transients;
+        unset($wp_mock_transients[$transient]);
+        return true;
+    }
+}
+
+global $wp_mock_http_responses;
+$wp_mock_http_responses = [];
+
+if (!function_exists('wp_safe_remote_get')) {
+    function wp_safe_remote_get($url, $args = []) {
+        global $wp_mock_http_responses;
+        if (isset($wp_mock_http_responses[$url])) {
+            return $wp_mock_http_responses[$url];
+        }
+        if (preg_match('/viacep\.com\.br\/ws\/(\d{8})\/json\//', $url, $m)) {
+            $cep = $m[1];
+            if ($cep === '01001000') {
+                return [
+                    'response' => ['code' => 200],
+                    'body' => json_encode([
+                        'cep' => '01001-000',
+                        'logradouro' => 'Praça da Sé',
+                        'complemento' => 'lado ímpar',
+                        'bairro' => 'Sé',
+                        'localidade' => 'São Paulo',
+                        'uf' => 'SP',
+                        'ibge' => '3550308',
+                    ]),
+                ];
+            }
+            return [
+                'response' => ['code' => 200],
+                'body' => json_encode(['erro' => true]),
+            ];
+        }
+        return new WP_Error('http_request_failed', 'Simulated HTTP failure');
+    }
+}
+
+if (!function_exists('wp_remote_get')) {
+    function wp_remote_get($url, $args = []) {
+        return wp_safe_remote_get($url, $args);
+    }
+}
+
+if (!function_exists('wp_remote_retrieve_response_code')) {
+    function wp_remote_retrieve_response_code($response) {
+        if (is_wp_error($response) || !isset($response['response']['code'])) {
+            return '';
+        }
+        return (int) $response['response']['code'];
+    }
+}
+
+if (!function_exists('wp_remote_retrieve_body')) {
+    function wp_remote_retrieve_body($response) {
+        if (is_wp_error($response) || !isset($response['body'])) {
+            return '';
+        }
+        return $response['body'];
+    }
+}
+
+if (!function_exists('get_bloginfo')) {
+    function get_bloginfo($show = '') {
+        return '6.7';
     }
 }
 
@@ -457,6 +547,32 @@ if (!class_exists('WP_Error')) {
         public function has_errors() {
             return !empty($this->errors);
         }
+    }
+}
+
+if (!function_exists('is_wp_error')) {
+    function is_wp_error($thing) {
+        return ($thing instanceof WP_Error);
+    }
+}
+
+if (!function_exists('wp_list_pluck')) {
+    function wp_list_pluck($list, $field, $index_key = null) {
+        $result = [];
+        foreach ((array) $list as $key => $value) {
+            if (is_object($value)) {
+                $val = $value->$field ?? null;
+            } else {
+                $val = $value[$field] ?? null;
+            }
+            if ($index_key) {
+                $idx = is_object($value) ? ($value->$index_key ?? null) : ($value[$index_key] ?? null);
+                $result[$idx] = $val;
+            } else {
+                $result[] = $val;
+            }
+        }
+        return $result;
     }
 }
 

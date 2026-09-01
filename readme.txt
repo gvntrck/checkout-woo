@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.27
+Stable tag: 1.13.28
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.28 =
+* Endurece a validação de CEP e endereço (class-gvn-address-validation.php): validação estrita de formato numérico de 8 dígitos, utilização de wp_safe_remote_get com timeout seguro, validação de integridade ao ler o cache transitório, mensagens claras e garantia de fallback manual caso a API externa esteja indisponível (Fase 8 concluída).
 
 = 1.13.27 =
 * Endurece a gestão de Order Bump e carrinho (class-gvn-order-bump.php e gvn-checkout.js): validação estrita server-side de produto, disponibilidade e preço via SettingsRepository e APIs do WooCommerce, mutações idempotentes de adição e remoção no carrinho, proteção no frontend contra concorrência e respostas assíncronas fora de ordem via sequence counter (Fase 7 concluída).

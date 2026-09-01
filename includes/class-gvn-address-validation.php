@@ -1,13 +1,13 @@
 <?php
 /**
- * Validação e autocomplete de endereço robusto.
+ * Validação e autocomplete de endereço robusto com fallback manual e cache seguro.
  *
  * Proxy server-side para ViaCEP com cache (transients),
  * normalização de UF/cidade, mapeamento CEP→UF e
  * validação de consistência no checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.9
+ * @version 1.13.28
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -118,55 +118,81 @@ class GVN_Address_Validation {
     }
 
     /* =========================================================================
-       AJAX: Proxy CEP com cache
+       AJAX: Proxy CEP com cache e fallback
        ========================================================================= */
 
     /**
      * Endpoint AJAX para consulta de CEP via servidor.
-     * Retorna dados normalizados e cacheia com transients.
+     * Retorna dados normalizados e cacheia com transients de forma segura.
      */
     public function ajax_cep_lookup() {
         check_ajax_referer( 'gvn_checkout_nonce', 'nonce' );
 
-        $cep = isset( $_POST['cep'] ) ? sanitize_text_field( wp_unslash( $_POST['cep'] ) ) : '';
-        $cep = preg_replace( '/\D/', '', $cep );
+        $cep_raw = isset( $_POST['cep'] ) ? sanitize_text_field( wp_unslash( $_POST['cep'] ) ) : '';
+        $cep     = preg_replace( '/\D/', '', $cep_raw );
 
-        if ( strlen( $cep ) !== 8 ) {
-            wp_send_json_error( array( 'message' => 'CEP deve conter 8 dígitos.' ) );
+        if ( ! preg_match( '/^[0-9]{8}$/', $cep ) ) {
+            wp_send_json_error( array( 'message' => __( 'CEP deve conter exatamente 8 dígitos numéricos.', 'gvn-checkout' ) ) );
+            return;
         }
 
-        // Verificar cache
+        // Verificar cache existente e validar seu schema
         $cache_key = 'gvn_cep_' . $cep;
-        $cached    = get_transient( $cache_key );
+        $cached    = function_exists( 'get_transient' ) ? get_transient( $cache_key ) : false;
 
-        if ( false !== $cached ) {
+        if ( is_array( $cached ) && ! empty( $cached['cep'] ) && isset( $cached['cidade'], $cached['uf'] ) ) {
             wp_send_json_success( $cached );
+            return;
         }
 
-        // Consultar ViaCEP
-        $response = wp_remote_get( 'https://viacep.com.br/ws/' . $cep . '/json/', array(
-            'timeout' => 10,
-            'headers' => array(
-                'Accept'     => 'application/json',
-                'User-Agent' => 'GVN-Checkout/' . GVN_CHECKOUT_VERSION . '; WordPress/' . get_bloginfo( 'version' ),
+        // Consultar ViaCEP utilizando endpoint fixo e seguro
+        $request_args = array(
+            'timeout'     => 8,
+            'redirection' => 2,
+            'httpversion' => '1.1',
+            'user-agent'  => 'GVN-Checkout/' . ( defined( 'GVN_CHECKOUT_VERSION' ) ? GVN_CHECKOUT_VERSION : '1.0.0' ) . '; WordPress/' . ( function_exists( 'get_bloginfo' ) ? get_bloginfo( 'version' ) : '6.0' ),
+            'headers'     => array(
+                'Accept' => 'application/json',
             ),
-        ) );
+        );
+
+        $url      = 'https://viacep.com.br/ws/' . $cep . '/json/';
+        $response = function_exists( 'wp_safe_remote_get' ) ? wp_safe_remote_get( $url, $request_args ) : wp_remote_get( $url, $request_args );
 
         if ( is_wp_error( $response ) ) {
-            wp_send_json_error( array( 'message' => 'Erro ao consultar o CEP. Tente novamente.' ) );
+            wp_send_json_error( array(
+                'message'      => __( 'Não foi possível consultar o CEP automaticamente. Por favor, preencha o endereço manualmente.', 'gvn-checkout' ),
+                'manual_entry' => true,
+            ) );
+            return;
         }
 
-        $body = json_decode( wp_remote_retrieve_body( $response ), true );
+        $status_code = function_exists( 'wp_remote_retrieve_response_code' ) ? (int) wp_remote_retrieve_response_code( $response ) : 200;
+        if ( 200 !== $status_code ) {
+            wp_send_json_error( array(
+                'message'      => __( 'Serviço de CEP temporariamente indisponível. Por favor, preencha o endereço manualmente.', 'gvn-checkout' ),
+                'manual_entry' => true,
+            ) );
+            return;
+        }
 
-        if ( empty( $body ) || ! empty( $body['erro'] ) ) {
-            wp_send_json_error( array( 'message' => 'CEP não encontrado.' ) );
+        $body = function_exists( 'wp_remote_retrieve_body' ) ? json_decode( wp_remote_retrieve_body( $response ), true ) : array();
+
+        if ( empty( $body ) || ! is_array( $body ) || ! empty( $body['erro'] ) ) {
+            wp_send_json_error( array(
+                'message'      => __( 'CEP não encontrado. Por favor, confira o número ou preencha o endereço manualmente.', 'gvn-checkout' ),
+                'manual_entry' => true,
+            ) );
+            return;
         }
 
         // Normalizar dados
         $data = self::normalize_viacep_data( $body, $cep );
 
-        // Cachear resultado
-        set_transient( $cache_key, $data, self::CACHE_TTL );
+        // Cachear resultado válido
+        if ( function_exists( 'set_transient' ) ) {
+            set_transient( $cache_key, $data, self::CACHE_TTL );
+        }
 
         wp_send_json_success( $data );
     }
@@ -183,28 +209,28 @@ class GVN_Address_Validation {
      * @return array Dados normalizados.
      */
     public static function normalize_viacep_data( $raw, $cep ) {
-        $uf          = isset( $raw['uf'] ) ? mb_strtoupper( trim( $raw['uf'] ) ) : '';
+        $uf          = isset( $raw['uf'] ) ? mb_strtoupper( trim( (string) $raw['uf'] ) ) : '';
         $uf_esperada = self::get_uf_from_cep( $cep );
 
         return array(
-            'cep'          => $cep,
-            'logradouro'   => self::normalize_text( isset( $raw['logradouro'] ) ? $raw['logradouro'] : '' ),
-            'complemento'  => self::normalize_text( isset( $raw['complemento'] ) ? $raw['complemento'] : '' ),
-            'bairro'       => self::normalize_text( isset( $raw['bairro'] ) ? $raw['bairro'] : '' ),
-            'cidade'       => self::normalize_city( isset( $raw['localidade'] ) ? $raw['localidade'] : '' ),
-            'uf'           => $uf,
-            'uf_nome'      => isset( self::UF_NAMES[ $uf ] ) ? self::UF_NAMES[ $uf ] : $uf,
-            'ibge'         => isset( $raw['ibge'] ) ? sanitize_text_field( $raw['ibge'] ) : '',
-            'uf_esperada'  => $uf_esperada,
-            'consistente'  => ( $uf === $uf_esperada ),
+            'cep'         => $cep,
+            'logradouro'  => self::normalize_text( isset( $raw['logradouro'] ) ? (string) $raw['logradouro'] : '' ),
+            'complemento' => self::normalize_text( isset( $raw['complemento'] ) ? (string) $raw['complemento'] : '' ),
+            'bairro'      => self::normalize_text( isset( $raw['bairro'] ) ? (string) $raw['bairro'] : '' ),
+            'cidade'      => self::normalize_city( isset( $raw['localidade'] ) ? (string) $raw['localidade'] : '' ),
+            'uf'          => $uf,
+            'uf_nome'     => isset( self::UF_NAMES[ $uf ] ) ? self::UF_NAMES[ $uf ] : $uf,
+            'ibge'        => isset( $raw['ibge'] ) ? sanitize_text_field( (string) $raw['ibge'] ) : '',
+            'uf_esperada' => $uf_esperada,
+            'consistente' => ( $uf === $uf_esperada ),
         );
     }
 
     /**
-     * Normaliza texto genérico (trim + title case para nomes próprios).
+     * Normaliza texto genérico (trim).
      */
     public static function normalize_text( $text ) {
-        $text = trim( $text );
+        $text = trim( (string) $text );
         if ( empty( $text ) ) {
             return '';
         }
@@ -216,7 +242,7 @@ class GVN_Address_Validation {
      * Preserva preposições minúsculas (de, da, do, das, dos, e).
      */
     public static function normalize_city( $city ) {
-        $city = trim( $city );
+        $city = trim( (string) $city );
         if ( empty( $city ) ) {
             return '';
         }
@@ -243,7 +269,7 @@ class GVN_Address_Validation {
      * @return string UF normalizada ou vazio se inválida.
      */
     public static function normalize_uf( $uf ) {
-        $uf = mb_strtoupper( trim( $uf ) );
+        $uf = mb_strtoupper( trim( (string) $uf ) );
         return in_array( $uf, self::VALID_UFS, true ) ? $uf : '';
     }
 
@@ -251,7 +277,7 @@ class GVN_Address_Validation {
      * Formata CEP com máscara (XXXXX-XXX).
      */
     public static function format_cep( $cep ) {
-        $cep = preg_replace( '/\D/', '', $cep );
+        $cep = preg_replace( '/\D/', '', (string) $cep );
         if ( strlen( $cep ) === 8 ) {
             return substr( $cep, 0, 5 ) . '-' . substr( $cep, 5 );
         }
@@ -293,24 +319,24 @@ class GVN_Address_Validation {
     public static function is_cep_consistent_with_uf( $cep, $uf ) {
         $expected = self::get_uf_from_cep( $cep );
         if ( empty( $expected ) ) {
-            return true; // não conseguimos mapear, não bloqueia
+            return true; // Não mapeado, não bloqueia
         }
-        return ( mb_strtoupper( trim( $uf ) ) === $expected );
+        return ( mb_strtoupper( trim( (string) $uf ) ) === $expected );
     }
 
     /**
      * Valida formato de CEP (8 dígitos numéricos).
      */
     public static function is_valid_cep_format( $cep ) {
-        $cep = preg_replace( '/\D/', '', $cep );
-        return ( strlen( $cep ) === 8 );
+        $cep = preg_replace( '/\D/', '', (string) $cep );
+        return (bool) preg_match( '/^[0-9]{8}$/', $cep );
     }
 
     /**
      * Valida se UF é brasileira válida.
      */
     public static function is_valid_uf( $uf ) {
-        return in_array( mb_strtoupper( trim( $uf ) ), self::VALID_UFS, true );
+        return in_array( mb_strtoupper( trim( (string) $uf ) ), self::VALID_UFS, true );
     }
 
     /**
@@ -333,31 +359,34 @@ class GVN_Address_Validation {
      * @param WP_Error $errors Objeto de erros.
      */
     public function validate_address_fields( $data, $errors ) {
-        // Verificar se campos de endereço estão habilitados no plugin
-        $enabled_fields = GVN_Custom_Fields::get_enabled_fields();
-        $enabled_keys   = wp_list_pluck( $enabled_fields, 'key' );
+        $country = isset( $data['billing_country'] ) ? (string) $data['billing_country'] : 'BR';
+
+        // Regras específicas de CEP/UF aplicam-se apenas para endereços no Brasil
+        if ( ! empty( $country ) && 'BR' !== $country ) {
+            return;
+        }
 
         // --- Validação de CEP ---
-        if ( in_array( 'billing_postcode', $enabled_keys, true ) ) {
-            $cep       = isset( $data['billing_postcode'] ) ? $data['billing_postcode'] : '';
+        if ( isset( $data['billing_postcode'] ) ) {
+            $cep       = (string) $data['billing_postcode'];
             $cep_clean = preg_replace( '/\D/', '', $cep );
 
             if ( ! empty( $cep_clean ) && ! self::is_valid_cep_format( $cep_clean ) ) {
-                $errors->add( 'gvn_invalid_cep', '<strong>CEP</strong> deve conter exatamente 8 dígitos.' );
+                $errors->add( 'gvn_invalid_cep', sprintf( '<strong>%s</strong> %s', esc_html__( 'CEP', 'gvn-checkout' ), esc_html__( 'deve conter exatamente 8 dígitos.', 'gvn-checkout' ) ) );
             }
         }
 
-        // --- Validação de UF (independente do CEP) ---
-        if ( in_array( 'billing_state', $enabled_keys, true ) ) {
-            $uf = isset( $data['billing_state'] ) ? $data['billing_state'] : '';
+        // --- Validação de UF ---
+        if ( isset( $data['billing_state'] ) ) {
+            $uf = (string) $data['billing_state'];
 
             if ( ! empty( $uf ) && ! self::is_valid_uf( $uf ) ) {
-                $errors->add( 'gvn_invalid_uf', '<strong>Estado (UF)</strong> inválido. Selecione um estado brasileiro válido.' );
+                $errors->add( 'gvn_invalid_uf', sprintf( '<strong>%s</strong> %s', esc_html__( 'Estado (UF)', 'gvn-checkout' ), esc_html__( 'inválido. Selecione um estado brasileiro válido.', 'gvn-checkout' ) ) );
             }
 
             // --- Consistência CEP ↔ UF ---
-            if ( in_array( 'billing_postcode', $enabled_keys, true ) ) {
-                $cep       = isset( $data['billing_postcode'] ) ? $data['billing_postcode'] : '';
+            if ( isset( $data['billing_postcode'] ) ) {
+                $cep       = (string) $data['billing_postcode'];
                 $cep_clean = preg_replace( '/\D/', '', $cep );
 
                 if ( ! empty( $cep_clean ) && strlen( $cep_clean ) === 8 && ! empty( $uf ) && self::is_valid_uf( $uf ) ) {
@@ -367,9 +396,12 @@ class GVN_Address_Validation {
                         $errors->add(
                             'gvn_cep_uf_mismatch',
                             sprintf(
-                                '<strong>CEP</strong> %s pertence ao estado <strong>%s</strong>, mas o estado informado é diferente. Verifique o endereço.',
-                                self::format_cep( $cep_clean ),
-                                $expected_name
+                                '<strong>%s</strong> %s %s <strong>%s</strong>, %s',
+                                esc_html__( 'CEP', 'gvn-checkout' ),
+                                esc_html( self::format_cep( $cep_clean ) ),
+                                esc_html__( 'pertence ao estado', 'gvn-checkout' ),
+                                esc_html( $expected_name ),
+                                esc_html__( 'mas o estado informado é diferente. Verifique o endereço.', 'gvn-checkout' )
                             )
                         );
                     }
@@ -377,11 +409,11 @@ class GVN_Address_Validation {
             }
         }
 
-        // --- Validação de cidade (não vazia se campo habilitado) ---
-        if ( in_array( 'billing_city', $enabled_keys, true ) ) {
-            $city = isset( $data['billing_city'] ) ? trim( $data['billing_city'] ) : '';
-            if ( ! empty( $city ) && strlen( $city ) < 2 ) {
-                $errors->add( 'gvn_invalid_city', '<strong>Cidade</strong> deve ter ao menos 2 caracteres.' );
+        // --- Validação de cidade ---
+        if ( isset( $data['billing_city'] ) ) {
+            $city = trim( (string) $data['billing_city'] );
+            if ( ! empty( $city ) && mb_strlen( $city ) < 2 ) {
+                $errors->add( 'gvn_invalid_city', sprintf( '<strong>%s</strong> %s', esc_html__( 'Cidade', 'gvn-checkout' ), esc_html__( 'deve ter ao menos 2 caracteres.', 'gvn-checkout' ) ) );
             }
         }
     }
@@ -397,56 +429,80 @@ class GVN_Address_Validation {
      * @param array    $data  Dados do checkout.
      */
     public function normalize_order_address( $order, $data ) {
+        if ( ! is_object( $order ) ) {
+            return;
+        }
+
         // Normalizar UF (billing e shipping)
-        $billing_uf = $order->get_billing_state();
-        if ( ! empty( $billing_uf ) ) {
-            $normalized_uf = self::normalize_uf( $billing_uf );
-            if ( ! empty( $normalized_uf ) ) {
-                $order->set_billing_state( $normalized_uf );
+        if ( method_exists( $order, 'get_billing_state' ) && method_exists( $order, 'set_billing_state' ) ) {
+            $billing_uf = $order->get_billing_state();
+            if ( ! empty( $billing_uf ) ) {
+                $normalized_uf = self::normalize_uf( $billing_uf );
+                if ( ! empty( $normalized_uf ) ) {
+                    $order->set_billing_state( $normalized_uf );
+                }
             }
         }
-        $shipping_uf = $order->get_shipping_state();
-        if ( ! empty( $shipping_uf ) ) {
-            $normalized_uf = self::normalize_uf( $shipping_uf );
-            if ( ! empty( $normalized_uf ) ) {
-                $order->set_shipping_state( $normalized_uf );
+
+        if ( method_exists( $order, 'get_shipping_state' ) && method_exists( $order, 'set_shipping_state' ) ) {
+            $shipping_uf = $order->get_shipping_state();
+            if ( ! empty( $shipping_uf ) ) {
+                $normalized_uf = self::normalize_uf( $shipping_uf );
+                if ( ! empty( $normalized_uf ) ) {
+                    $order->set_shipping_state( $normalized_uf );
+                }
             }
         }
 
         // Normalizar cidade (billing e shipping)
-        $billing_city = $order->get_billing_city();
-        if ( ! empty( $billing_city ) ) {
-            $order->set_billing_city( self::normalize_city( $billing_city ) );
+        if ( method_exists( $order, 'get_billing_city' ) && method_exists( $order, 'set_billing_city' ) ) {
+            $billing_city = $order->get_billing_city();
+            if ( ! empty( $billing_city ) ) {
+                $order->set_billing_city( self::normalize_city( $billing_city ) );
+            }
         }
-        $shipping_city = $order->get_shipping_city();
-        if ( ! empty( $shipping_city ) ) {
-            $order->set_shipping_city( self::normalize_city( $shipping_city ) );
+
+        if ( method_exists( $order, 'get_shipping_city' ) && method_exists( $order, 'set_shipping_city' ) ) {
+            $shipping_city = $order->get_shipping_city();
+            if ( ! empty( $shipping_city ) ) {
+                $order->set_shipping_city( self::normalize_city( $shipping_city ) );
+            }
         }
 
         // Normalizar CEP (formato com máscara) — billing e shipping
-        $billing_postcode = $order->get_billing_postcode();
-        if ( ! empty( $billing_postcode ) ) {
-            $cep_clean = preg_replace( '/\D/', '', $billing_postcode );
-            if ( strlen( $cep_clean ) === 8 ) {
-                $order->set_billing_postcode( self::format_cep( $cep_clean ) );
+        if ( method_exists( $order, 'get_billing_postcode' ) && method_exists( $order, 'set_billing_postcode' ) ) {
+            $billing_postcode = $order->get_billing_postcode();
+            if ( ! empty( $billing_postcode ) ) {
+                $cep_clean = preg_replace( '/\D/', '', $billing_postcode );
+                if ( strlen( $cep_clean ) === 8 ) {
+                    $order->set_billing_postcode( self::format_cep( $cep_clean ) );
+                }
             }
         }
-        $shipping_postcode = $order->get_shipping_postcode();
-        if ( ! empty( $shipping_postcode ) ) {
-            $cep_clean = preg_replace( '/\D/', '', $shipping_postcode );
-            if ( strlen( $cep_clean ) === 8 ) {
-                $order->set_shipping_postcode( self::format_cep( $cep_clean ) );
+
+        if ( method_exists( $order, 'get_shipping_postcode' ) && method_exists( $order, 'set_shipping_postcode' ) ) {
+            $shipping_postcode = $order->get_shipping_postcode();
+            if ( ! empty( $shipping_postcode ) ) {
+                $cep_clean = preg_replace( '/\D/', '', $shipping_postcode );
+                if ( strlen( $cep_clean ) === 8 ) {
+                    $order->set_shipping_postcode( self::format_cep( $cep_clean ) );
+                }
             }
         }
 
         // Normalizar endereço (trim) — billing e shipping
-        $billing_address = $order->get_billing_address_1();
-        if ( ! empty( $billing_address ) ) {
-            $order->set_billing_address_1( trim( $billing_address ) );
+        if ( method_exists( $order, 'get_billing_address_1' ) && method_exists( $order, 'set_billing_address_1' ) ) {
+            $billing_address = $order->get_billing_address_1();
+            if ( ! empty( $billing_address ) ) {
+                $order->set_billing_address_1( trim( $billing_address ) );
+            }
         }
-        $shipping_address = $order->get_shipping_address_1();
-        if ( ! empty( $shipping_address ) ) {
-            $order->set_shipping_address_1( trim( $shipping_address ) );
+
+        if ( method_exists( $order, 'get_shipping_address_1' ) && method_exists( $order, 'set_shipping_address_1' ) ) {
+            $shipping_address = $order->get_shipping_address_1();
+            if ( ! empty( $shipping_address ) ) {
+                $order->set_shipping_address_1( trim( $shipping_address ) );
+            }
         }
     }
 }

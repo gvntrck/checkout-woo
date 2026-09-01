@@ -3,7 +3,7 @@
  * Template do checkout personalizado GVN.
  *
  * @package GVN_Checkout
- * @version 1.13.27
+ * @version 1.13.28
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

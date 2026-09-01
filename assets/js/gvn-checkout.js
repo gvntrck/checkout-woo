@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - JavaScript
- * @version 1.13.27
+ * @version 1.13.28
  */
 
 (function ($) {

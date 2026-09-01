@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "last_updated": "2026-09-01",
+  "description": "Budgets de performance e tamanho de assets versionados para o GVN Checkout for WooCommerce.",
+  "budgets": {
+    "frontend_assets": {
+      "js_bundle_raw_kb_max": 50.0,
+      "js_bundle_gzip_kb_max": 15.0,
+      "css_bundle_raw_kb_max": 40.0,
+      "css_bundle_gzip_kb_max": 10.0,
+      "external_fonts_blocking": 0
+    },
+    "admin_assets": {
+      "js_admin_raw_kb_max": 45.0,
+      "css_admin_raw_kb_max": 25.0
+    },
+    "runtime_server_side": {
+      "max_plugin_added_queries": 3,
+      "max_ttfb_degradation_ms": 20,
+      "transient_cache_ttl_seconds": 604800,
+      "cep_lookup_timeout_seconds": 3
+    }
+  },
+  "enforcement": {
+    "ci_bundle_size_check": true,
+    "ci_fail_on_exceed": true
+  }
+}

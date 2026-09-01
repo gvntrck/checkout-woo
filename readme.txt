@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.0
+Stable tag: 1.13.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -43,6 +43,9 @@ O **GVN Checkout** substitui o checkout padrão do WooCommerce por um layout mod
 3. Vá em **WooCommerce > Configurações > GVN Checkout** para personalizar
 
 == Changelog ==
+
+= 1.13.4 =
+* Documenta `checkout-woo` como a base canônica do projeto.
 
 = 1.13.0 =
 * Novo: Proxy server-side para consulta de CEP (ViaCEP) com cache via transients (7 dias)

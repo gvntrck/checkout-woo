@@ -7,6 +7,10 @@
 
 O **GVN Checkout for WooCommerce** substitui o fluxo de checkout padrão e monótono do WooCommerce por uma experiência de compra moderna, de alta conversão, responsiva e com um design premium totalmente otimizado para o mercado brasileiro.
 
+## Base canônica
+
+O diretório `checkout-woo` é a implementação canônica do **GVN Checkout for WooCommerce**. Novos recursos, correções, documentação e releases devem ser desenvolvidos e validados nesta base. O diretório `checkout-woo-2`, quando presente, é apenas referência histórica e não deve ser tratado como fonte canônica.
+
 ---
 
 ## 📸 Demonstração do Checkout

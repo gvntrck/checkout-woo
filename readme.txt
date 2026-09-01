@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.28
+Stable tag: 1.13.29
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,6 +111,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.29 =
+* Endurece a segurança do painel administrativo (class-gvn-admin.php e class-gvn-custom-fields.php): verificação estrita de capabilities (manage_woocommerce/manage_options), nonces de proteção em formulários e requisições AJAX, sanitização centralizada, invalidação de cache do SettingsRepository e internacionalização completa de mensagens (Fase 10 concluída).
 
 = 1.13.28 =
 * Endurece a validação de CEP e endereço (class-gvn-address-validation.php): validação estrita de formato numérico de 8 dígitos, utilização de wp_safe_remote_get com timeout seguro, validação de integridade ao ler o cache transitório, mensagens claras e garantia de fallback manual caso a API externa esteja indisponível (Fase 8 concluída).

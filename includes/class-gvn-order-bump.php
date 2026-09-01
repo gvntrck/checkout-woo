@@ -4,7 +4,7 @@
  * Gerencia a adição/remoção do produto de order bump no carrinho via AJAX com validação server-side e idempotência.
  *
  * @package GVN_Checkout
- * @version 1.13.28
+ * @version 1.13.29
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

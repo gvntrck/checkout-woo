@@ -4,7 +4,7 @@
  * CRUD, ordenação e largura dos campos do formulário de checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.28
+ * @version 1.13.29
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -365,15 +365,17 @@ class GVN_Custom_Fields {
     public function ajax_save_fields() {
         check_ajax_referer( 'gvn_admin_fields_nonce', 'nonce' );
 
-        if ( ! current_user_can( 'manage_woocommerce' ) ) {
-            wp_send_json_error( array( 'message' => 'Permissão negada.' ) );
+        if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => __( 'Permissão negada.', 'gvn-checkout' ) ) );
+            return;
         }
 
         $raw_fields = isset( $_POST['fields'] ) ? wp_unslash( $_POST['fields'] ) : '';
         $fields     = json_decode( $raw_fields, true );
 
         if ( ! is_array( $fields ) ) {
-            wp_send_json_error( array( 'message' => 'Dados inválidos.' ) );
+            wp_send_json_error( array( 'message' => __( 'Dados inválidos.', 'gvn-checkout' ) ) );
+            return;
         }
 
         $valid_types = array_keys( self::get_field_types() );
@@ -427,7 +429,12 @@ class GVN_Custom_Fields {
 
         update_option( self::OPTION_KEY, $sanitized );
 
-        wp_send_json_success( array( 'message' => 'Campos salvos com sucesso!', 'fields' => $sanitized ) );
+        if ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ) {
+            \GVN\Checkout\Settings\SettingsRepository::flush_cache();
+        }
+
+        wp_send_json_success( array( 'message' => __( 'Campos salvos com sucesso!', 'gvn-checkout' ), 'fields' => $sanitized ) );
+        return;
     }
 
     /**

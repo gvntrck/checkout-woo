@@ -15,8 +15,16 @@ if (!defined('GVN_CHECKOUT_PLUGIN_DIR')) {
     define('GVN_CHECKOUT_PLUGIN_DIR', dirname(__DIR__) . '/');
 }
 
+if (!defined('GVN_CHECKOUT_PLUGIN_BASENAME')) {
+    define('GVN_CHECKOUT_PLUGIN_BASENAME', 'gvn-checkout/gvn-checkout.php');
+}
+
+if (!defined('GVN_CHECKOUT_PLUGIN_URL')) {
+    define('GVN_CHECKOUT_PLUGIN_URL', 'https://example.com/wp-content/plugins/gvn-checkout/');
+}
+
 if (!defined('GVN_CHECKOUT_VERSION')) {
-    define('GVN_CHECKOUT_VERSION', '1.13.28');
+    define('GVN_CHECKOUT_VERSION', '1.13.29');
 }
 
 // Mocks e stubs básicos de WordPress para testes unitários em isolamento (sem banco de dados).
@@ -119,6 +127,48 @@ if (!function_exists('wp_send_json_error')) {
             $response['data'] = $data;
         }
         echo json_encode($response);
+    }
+}
+
+if (!function_exists('admin_url')) {
+    function admin_url($path = '', $scheme = 'admin') {
+        return 'https://example.com/wp-admin/' . ltrim($path, '/');
+    }
+}
+
+if (!function_exists('add_query_arg')) {
+    function add_query_arg(...$args) {
+        if (count($args) === 2 && is_array($args[0])) {
+            $uri = $args[1];
+            $query = http_build_query($args[0]);
+            return $uri . (strpos($uri, '?') !== false ? '&' : '?') . $query;
+        } elseif (count($args) === 3) {
+            $key = $args[0];
+            $value = $args[1];
+            $uri = $args[2];
+            return $uri . (strpos($uri, '?') !== false ? '&' : '?') . urlencode((string)$key) . '=' . urlencode((string)$value);
+        }
+        return $args[count($args) - 1] ?? '';
+    }
+}
+
+if (!function_exists('checked')) {
+    function checked($checked, $current = true, $echo = true) {
+        $result = ((string) $checked === (string) $current) ? ' checked="checked"' : '';
+        if ($echo) {
+            echo $result;
+        }
+        return $result;
+    }
+}
+
+if (!function_exists('selected')) {
+    function selected($selected, $current = true, $echo = true) {
+        $result = ((string) $selected === (string) $current) ? ' selected="selected"' : '';
+        if ($echo) {
+            echo $result;
+        }
+        return $result;
     }
 }
 
@@ -547,6 +597,51 @@ if (!class_exists('WP_Error')) {
         public function has_errors() {
             return !empty($this->errors);
         }
+    }
+}
+
+global $wp_mock_user_caps;
+$wp_mock_user_caps = [
+    'manage_woocommerce' => true,
+    'manage_options' => true,
+];
+
+if (!function_exists('current_user_can')) {
+    function current_user_can($capability) {
+        global $wp_mock_user_caps;
+        return !empty($wp_mock_user_caps[$capability]);
+    }
+}
+
+if (!function_exists('wc_get_products')) {
+    function wc_get_products($args = []) {
+        return [
+            new Mock_WC_Product(10, 'Curso Principal', '150.00'),
+            new Mock_WC_Product(55, 'E-book Exclusivo', '29.90'),
+        ];
+    }
+}
+
+if (!function_exists('woocommerce_admin_fields')) {
+    function woocommerce_admin_fields($options) {
+        return true;
+    }
+}
+
+if (!function_exists('woocommerce_update_options')) {
+    function woocommerce_update_options($options) {
+        foreach ($options as $opt) {
+            if (isset($opt['id'], $_POST[$opt['id']])) {
+                update_option($opt['id'], sanitize_text_field(wp_unslash($_POST[$opt['id']])));
+            }
+        }
+        return true;
+    }
+}
+
+if (!function_exists('wp_die')) {
+    function wp_die($message = '', $title = '', $args = []) {
+        throw new \Exception((string)$message);
     }
 }
 

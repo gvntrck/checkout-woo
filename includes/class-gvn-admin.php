@@ -1,15 +1,17 @@
 <?php
 /**
  * Classe de administração do GVN Checkout.
- * Gerencia a página de configurações no painel do WordPress.
+ * Gerencia a página de configurações no painel do WordPress com controle estrito de permissões e segurança.
  *
  * @package GVN_Checkout
- * @version 1.13.9
+ * @version 1.13.29
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+use GVN\Checkout\Settings\SettingsRepository;
 
 class GVN_Admin {
 
@@ -42,7 +44,7 @@ class GVN_Admin {
      * Retorna a sub-aba ativa.
      */
     private function get_current_subtab() {
-        $valid = array( 'settings', 'fields', 'help' );
+        $valid  = array( 'settings', 'fields', 'help' );
         $subtab = isset( $_GET['subtab'] ) ? sanitize_key( wp_unslash( $_GET['subtab'] ) ) : 'settings';
         return in_array( $subtab, $valid, true ) ? $subtab : 'settings';
     }
@@ -51,13 +53,17 @@ class GVN_Admin {
      * Renderiza a página de configurações com sub-abas.
      */
     public function render_settings_page() {
+        if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Você não tem permissão suficiente para acessar esta página.', 'gvn-checkout' ) );
+        }
+
         $current_subtab = $this->get_current_subtab();
-        $base_url = admin_url( 'admin.php?page=wc-settings&tab=gvn_checkout' );
+        $base_url       = admin_url( 'admin.php?page=wc-settings&tab=gvn_checkout' );
 
         $subtabs = array(
-            'settings' => 'Configurações',
-            'fields'   => 'Campos do Formulário',
-            'help'     => 'Como Usar',
+            'settings' => __( 'Configurações', 'gvn-checkout' ),
+            'fields'   => __( 'Campos do Formulário', 'gvn-checkout' ),
+            'help'     => __( 'Como Usar', 'gvn-checkout' ),
         );
         ?>
         <nav class="gvn-subtabs nav-tab-wrapper">
@@ -84,12 +90,20 @@ class GVN_Admin {
     }
 
     /**
-     * Salva as configurações.
+     * Salva as configurações administrativas de forma segura.
      */
     public function save_settings() {
+        if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
         $subtab = $this->get_current_subtab();
         if ( 'settings' === $subtab ) {
             woocommerce_update_options( $this->get_settings() );
+
+            if ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ) {
+                SettingsRepository::flush_cache();
+            }
         }
     }
 
@@ -103,35 +117,35 @@ class GVN_Admin {
 
             // Seção: Header
             array(
-                'title' => 'Configurações do Header',
+                'title' => __( 'Configurações do Header', 'gvn-checkout' ),
                 'type'  => 'title',
-                'desc'  => 'Personalize o cabeçalho exibido no checkout.',
+                'desc'  => __( 'Personalize o cabeçalho exibido no checkout.', 'gvn-checkout' ),
                 'id'    => 'gvn_checkout_header_section',
             ),
             array(
-                'title'    => 'Texto do Header',
-                'desc'     => 'Texto principal exibido no cabeçalho.',
+                'title'    => __( 'Texto do Header', 'gvn-checkout' ),
+                'desc'     => __( 'Texto principal exibido no cabeçalho.', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_header_text',
                 'type'     => 'text',
                 'default'  => 'EFEAD - Conectando Saberes',
                 'desc_tip' => true,
             ),
             array(
-                'title'    => 'Texto do Badge',
-                'desc'     => 'Texto exibido no badge do cabeçalho.',
+                'title'    => __( 'Texto do Badge', 'gvn-checkout' ),
+                'desc'     => __( 'Texto exibido no badge do cabeçalho.', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_header_badge_text',
                 'type'     => 'text',
                 'default'  => 'COMPRA SEGURA',
                 'desc_tip' => true,
             ),
             array(
-                'title'   => 'Cor de Fundo do Header',
+                'title'   => __( 'Cor de Fundo do Header', 'gvn-checkout' ),
                 'id'      => 'gvn_checkout_header_bg_color',
                 'type'    => 'color',
                 'default' => '#3a4759',
             ),
             array(
-                'title'   => 'Cor do Badge',
+                'title'   => __( 'Cor do Badge', 'gvn-checkout' ),
                 'id'      => 'gvn_checkout_badge_bg_color',
                 'type'    => 'color',
                 'default' => '#ff8a22',
@@ -143,22 +157,22 @@ class GVN_Admin {
 
             // Seção: Textos do Checkout
             array(
-                'title' => 'Textos do Checkout',
+                'title' => __( 'Textos do Checkout', 'gvn-checkout' ),
                 'type'  => 'title',
-                'desc'  => 'Personalize o título e o subtítulo exibidos acima do formulário de inscrição.',
+                'desc'  => __( 'Personalize o título e o subtítulo exibidos acima do formulário de inscrição.', 'gvn-checkout' ),
                 'id'    => 'gvn_checkout_text_section',
             ),
             array(
-                'title'    => 'Título principal',
-                'desc'     => 'Texto principal exibido acima do formulário de inscrição.',
+                'title'    => __( 'Título principal', 'gvn-checkout' ),
+                'desc'     => __( 'Texto principal exibido acima do formulário de inscrição.', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_title_text',
                 'type'     => 'text',
                 'default'  => 'Finalize sua inscrição',
                 'desc_tip' => true,
             ),
             array(
-                'title'    => 'Subtítulo',
-                'desc'     => 'Texto complementar exibido abaixo do título principal.',
+                'title'    => __( 'Subtítulo', 'gvn-checkout' ),
+                'desc'     => __( 'Texto complementar exibido abaixo do título principal.', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_subtitle_text',
                 'type'     => 'text',
                 'default'  => 'Acesso imediato após confirmação do pagamento',
@@ -171,27 +185,27 @@ class GVN_Admin {
 
             // Seção: Visual
             array(
-                'title' => 'Configurações Visuais',
+                'title' => __( 'Configurações Visuais', 'gvn-checkout' ),
                 'type'  => 'title',
-                'desc'  => 'Cores e aparência geral do checkout.',
+                'desc'  => __( 'Cores e aparência geral do checkout.', 'gvn-checkout' ),
                 'id'    => 'gvn_checkout_visual_section',
             ),
             array(
-                'title'   => 'Cor Primária',
-                'desc'    => 'Cor dos cabeçalhos de seção e destaques.',
-                'id'      => 'gvn_checkout_primary_color',
-                'type'    => 'color',
-                'default' => '#0066d4',
+                'title'    => __( 'Cor Primária', 'gvn-checkout' ),
+                'desc'     => __( 'Cor dos cabeçalhos de seção e destaques.', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_primary_color',
+                'type'     => 'color',
+                'default'  => '#0066d4',
                 'desc_tip' => true,
             ),
             array(
-                'title'   => 'Cor do Botão Finalizar',
+                'title'   => __( 'Cor do Botão Finalizar', 'gvn-checkout' ),
                 'id'      => 'gvn_checkout_button_color',
                 'type'    => 'color',
                 'default' => '#ff8a22',
             ),
             array(
-                'title'    => 'Texto do Botão',
+                'title'    => __( 'Texto do Botão', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_button_text',
                 'type'     => 'text',
                 'default'  => 'Finalizar pedido',
@@ -204,51 +218,51 @@ class GVN_Admin {
 
             // Seção: Order Bump
             array(
-                'title' => 'Order Bump (Oferta Exclusiva)',
+                'title' => __( 'Order Bump (Oferta Exclusiva)', 'gvn-checkout' ),
                 'type'  => 'title',
-                'desc'  => 'Configure uma oferta adicional exibida antes do botão de finalizar.',
+                'desc'  => __( 'Configure uma oferta adicional exibida antes do botão de finalizar.', 'gvn-checkout' ),
                 'id'    => 'gvn_checkout_order_bump_section',
             ),
             array(
-                'title'   => 'Ativar Order Bump',
+                'title'   => __( 'Ativar Order Bump', 'gvn-checkout' ),
                 'id'      => 'gvn_checkout_order_bump_enabled',
                 'type'    => 'checkbox',
                 'default' => 'no',
-                'desc'    => 'Exibir oferta exclusiva no checkout.',
+                'desc'    => __( 'Exibir oferta exclusiva no checkout.', 'gvn-checkout' ),
             ),
             array(
-                'title'   => 'Produto',
-                'desc'    => 'Selecione o produto da oferta.',
-                'id'      => 'gvn_checkout_order_bump_product_id',
-                'type'    => 'select',
-                'options' => $products,
-                'default' => '',
+                'title'    => __( 'Produto', 'gvn-checkout' ),
+                'desc'     => __( 'Selecione o produto da oferta.', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_order_bump_product_id',
+                'type'     => 'select',
+                'options'  => $products,
+                'default'  => '',
                 'desc_tip' => true,
             ),
             array(
-                'title'    => 'Título da Oferta',
+                'title'    => __( 'Título da Oferta', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_order_bump_title',
                 'type'     => 'text',
                 'default'  => 'Oferta Exclusiva',
                 'desc_tip' => true,
             ),
             array(
-                'title'    => 'Descrição',
+                'title'    => __( 'Descrição', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_order_bump_description',
                 'type'     => 'textarea',
                 'default'  => 'Adicione este item ao seu pedido com condições especiais.',
                 'desc_tip' => true,
             ),
             array(
-                'title'    => 'Texto do CTA',
+                'title'    => __( 'Texto do CTA', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_order_bump_cta_text',
                 'type'     => 'text',
                 'default'  => 'Sim! Quero adicionar ao meu pedido',
                 'desc_tip' => true,
             ),
             array(
-                'title'    => 'Preço Promocional (R$)',
-                'desc'     => 'Deixe vazio para usar o preço padrão do produto.',
+                'title'    => __( 'Preço Promocional (R$)', 'gvn-checkout' ),
+                'desc'     => __( 'Deixe vazio para usar o preço padrão do produto.', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_order_bump_price',
                 'type'     => 'text',
                 'default'  => '',
@@ -267,22 +281,21 @@ class GVN_Admin {
      * Lista de produtos para o select do Order Bump.
      */
     private function get_products_list() {
-        $products = array( '' => '-- Selecione um produto --' );
+        $products = array( '' => __( '-- Selecione um produto --', 'gvn-checkout' ) );
 
         $args = array(
             'status'  => 'publish',
-            'limit'   => 100,
+            'limit'   => 50,
             'orderby' => 'title',
             'order'   => 'ASC',
         );
 
-        $wc_products = wc_get_products( $args );
+        $wc_products = function_exists( 'wc_get_products' ) ? wc_get_products( $args ) : array();
 
         if ( $wc_products ) {
             foreach ( $wc_products as $product ) {
-                // Usa strip_tags para remover HTML de wc_price dentro de <option>.
-                $price_html = wc_price( $product->get_price() );
-                $price_text = wp_strip_all_tags( $price_html );
+                $price_html = function_exists( 'wc_price' ) ? wc_price( $product->get_price() ) : $product->get_price();
+                $price_text = function_exists( 'wp_strip_all_tags' ) ? wp_strip_all_tags( $price_html ) : strip_tags( (string) $price_html );
                 $products[ $product->get_id() ] = $product->get_name() . ' (' . $price_text . ')';
             }
         }
@@ -294,7 +307,7 @@ class GVN_Admin {
      * Link de configurações na lista de plugins.
      */
     public function add_plugin_links( $links ) {
-        $settings_link = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=gvn_checkout' ) . '">Configurações</a>';
+        $settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=wc-settings&tab=gvn_checkout' ) ) . '">' . esc_html__( 'Configurações', 'gvn-checkout' ) . '</a>';
         array_unshift( $links, $settings_link );
         return $links;
     }
@@ -303,6 +316,10 @@ class GVN_Admin {
      * Enqueue de assets do admin (apenas na aba GVN Checkout).
      */
     public function enqueue_admin_assets( $hook ) {
+        if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
         if ( 'woocommerce_page_wc-settings' !== $hook ) {
             return;
         }
@@ -338,16 +355,16 @@ class GVN_Admin {
      * Renderiza o gerenciador de campos personalizados.
      */
     private function render_fields_manager() {
-        $fields = GVN_Custom_Fields::get_fields();
+        $fields = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_fields() : array();
         ?>
         <div id="gvn-fields-manager">
-            <h2>Campos do Formulário</h2>
-            <p class="description">Adicione, remova, reordene e configure a largura dos campos do checkout. Arraste para reordenar.</p>
+            <h2><?php esc_html_e( 'Campos do Formulário', 'gvn-checkout' ); ?></h2>
+            <p class="description"><?php esc_html_e( 'Adicione, remova, reordene e configure a largura dos campos do checkout. Arraste para reordenar.', 'gvn-checkout' ); ?></p>
 
             <div class="gvn-fields-toolbar">
-                <button type="button" class="button button-secondary" id="gvn-add-field">+ Adicionar Campo</button>
-                <button type="button" class="button button-secondary" id="gvn-import-woo-fields" title="Adiciona campos nativos de endereço do WooCommerce à lista">📥 Importar Campos Padrões do WooCommerce</button>
-                <button type="button" class="button button-secondary" id="gvn-import-br-fields" title="Adiciona campos brasileiros (CPF, CNPJ, RG, etc.) à lista">🇧🇷 Importar Campos Brasileiros</button>
+                <button type="button" class="button button-secondary" id="gvn-add-field"><?php esc_html_e( '+ Adicionar Campo', 'gvn-checkout' ); ?></button>
+                <button type="button" class="button button-secondary" id="gvn-import-woo-fields" title="<?php esc_attr_e( 'Adiciona campos nativos de endereço do WooCommerce à lista', 'gvn-checkout' ); ?>"><?php esc_html_e( '📥 Importar Campos Padrões do WooCommerce', 'gvn-checkout' ); ?></button>
+                <button type="button" class="button button-secondary" id="gvn-import-br-fields" title="<?php esc_attr_e( 'Adiciona campos brasileiros (CPF, CNPJ, RG, etc.) à lista', 'gvn-checkout' ); ?>"><?php esc_html_e( '🇧🇷 Importar Campos Brasileiros', 'gvn-checkout' ); ?></button>
                 <span id="gvn-fields-status" style="display:none;"></span>
             </div>
 
@@ -355,19 +372,19 @@ class GVN_Admin {
                 <?php foreach ( $fields as $field ) : ?>
                     <div class="gvn-field-row<?php echo empty( $field['enabled'] ) ? ' gvn-field-row--disabled' : ''; ?>" data-key="<?php echo esc_attr( $field['key'] ); ?>" data-default="<?php echo $field['is_default'] ? 'true' : 'false'; ?>" data-woo-default="<?php echo ! empty( $field['is_woo_default'] ) ? 'true' : 'false'; ?>">
                         <div class="gvn-field-row__header">
-                            <span class="gvn-field-drag" title="Arrastar para reordenar">☰</span>
+                            <span class="gvn-field-drag" title="<?php esc_attr_e( 'Arrastar para reordenar', 'gvn-checkout' ); ?>">☰</span>
                             <span class="gvn-field-pos-label">#<?php echo esc_html( $field['position'] ); ?></span>
                             <span class="gvn-field-label-display"><?php echo esc_html( $field['label'] ?: '(sem label)' ); ?></span>
                             <?php if ( ! empty( $field['is_woo_default'] ) ) : ?>
-                                <span class="gvn-field-badge gvn-field-badge--woo">Padrão Woo</span>
+                                <span class="gvn-field-badge gvn-field-badge--woo"><?php esc_html_e( 'Padrão Woo', 'gvn-checkout' ); ?></span>
                             <?php endif; ?>
                             <span class="gvn-field-width-badge"><?php echo esc_html( $field['width'] ); ?>%</span>
                             <span class="gvn-field-row__actions">
                                 <label class="gvn-field-enabled-label">
-                                    <input type="checkbox" class="gvn-field-enabled" <?php checked( ! empty( $field['enabled'] ) ); ?> /> Ativo
+                                    <input type="checkbox" class="gvn-field-enabled" <?php checked( ! empty( $field['enabled'] ) ); ?> /> <?php esc_html_e( 'Ativo', 'gvn-checkout' ); ?>
                                 </label>
-                                <button type="button" class="gvn-field-toggle button-link"><span class="gvn-toggle-icon">▼</span></button>
-                                <button type="button" class="gvn-field-remove button-link" title="Remover">✕</button>
+                                <button type="button" class="gvn-field-toggle button-link" aria-label="<?php esc_attr_e( 'Alternar detalhes do campo', 'gvn-checkout' ); ?>"><span class="gvn-toggle-icon">▼</span></button>
+                                <button type="button" class="gvn-field-remove button-link" title="<?php esc_attr_e( 'Remover', 'gvn-checkout' ); ?>">✕</button>
                             </span>
                         </div>
                         <div class="gvn-field-row__body" style="display:none;">
@@ -375,15 +392,15 @@ class GVN_Admin {
                             <input type="hidden" class="gvn-field-is-default" value="<?php echo $field['is_default'] ? 'true' : 'false'; ?>" />
                             <div class="gvn-field-grid">
                                 <div class="gvn-field-col">
-                                    <label>Chave (key)</label>
+                                    <label><?php esc_html_e( 'Chave (key)', 'gvn-checkout' ); ?></label>
                                     <input type="text" class="gvn-field-key-input" value="<?php echo esc_attr( $field['key'] ); ?>" <?php echo $field['is_default'] ? 'readonly' : ''; ?> />
                                 </div>
                                 <div class="gvn-field-col">
-                                    <label>Label</label>
+                                    <label><?php esc_html_e( 'Label', 'gvn-checkout' ); ?></label>
                                     <input type="text" class="gvn-field-label-input" value="<?php echo esc_attr( $field['label'] ); ?>" />
                                 </div>
                                 <div class="gvn-field-col">
-                                    <label>Tipo</label>
+                                    <label><?php esc_html_e( 'Tipo', 'gvn-checkout' ); ?></label>
                                     <select class="gvn-field-type-select">
                                         <?php foreach ( GVN_Custom_Fields::get_field_types() as $type_key => $type_label ) : ?>
                                             <option value="<?php echo esc_attr( $type_key ); ?>" <?php selected( $field['type'], $type_key ); ?>><?php echo esc_html( $type_label ); ?></option>
@@ -391,7 +408,7 @@ class GVN_Admin {
                                     </select>
                                 </div>
                                 <div class="gvn-field-col">
-                                    <label>Largura</label>
+                                    <label><?php esc_html_e( 'Largura', 'gvn-checkout' ); ?></label>
                                     <select class="gvn-field-width-select">
                                         <?php foreach ( array( '25' => '25%', '33' => '33%', '50' => '50%', '75' => '75%', '100' => '100%' ) as $w_key => $w_label ) : ?>
                                             <option value="<?php echo esc_attr( $w_key ); ?>" <?php selected( $field['width'], $w_key ); ?>><?php echo esc_html( $w_label ); ?></option>
@@ -399,7 +416,7 @@ class GVN_Admin {
                                     </select>
                                 </div>
                                 <div class="gvn-field-col">
-                                    <label>Máscara</label>
+                                    <label><?php esc_html_e( 'Máscara', 'gvn-checkout' ); ?></label>
                                     <select class="gvn-field-mask-select">
                                         <?php foreach ( GVN_Custom_Fields::get_available_masks() as $m_key => $m_label ) : ?>
                                             <option value="<?php echo esc_attr( $m_key ); ?>" <?php selected( $field['mask'], $m_key ); ?>><?php echo esc_html( $m_label ); ?></option>
@@ -407,15 +424,15 @@ class GVN_Admin {
                                     </select>
                                 </div>
                                 <div class="gvn-field-col">
-                                    <label>Placeholder</label>
+                                    <label><?php esc_html_e( 'Placeholder', 'gvn-checkout' ); ?></label>
                                     <input type="text" class="gvn-field-placeholder-input" value="<?php echo esc_attr( $field['placeholder'] ); ?>" />
                                 </div>
                                 <div class="gvn-field-col gvn-field-col--options" style="<?php echo ( 'select' !== $field['type'] ) ? 'display:none;' : ''; ?>grid-column: 1 / -1;">
-                                    <label>Opções (uma por linha, formato: <code>valor|Rótulo</code> ou apenas <code>Rótulo</code>)</label>
+                                    <label><?php esc_html_e( 'Opções (uma por linha, formato: valor|Rótulo ou apenas Rótulo)', 'gvn-checkout' ); ?></label>
                                     <textarea class="gvn-field-options-input" rows="4" placeholder="opcao1|Opção 1&#10;opcao2|Opção 2&#10;opcao3|Opção 3"><?php echo esc_textarea( isset( $field['options'] ) ? $field['options'] : '' ); ?></textarea>
-                                    <label style="margin-top:8px;display:block;">Valor padrão pré-selecionado</label>
+                                    <label style="margin-top:8px;display:block;"><?php esc_html_e( 'Valor padrão pré-selecionado', 'gvn-checkout' ); ?></label>
                                     <select class="gvn-field-default-option-select">
-                                        <option value="">-- Nenhuma opção pré-selecionada --</option>
+                                        <option value=""><?php esc_html_e( '-- Nenhuma opção pré-selecionada --', 'gvn-checkout' ); ?></option>
                                         <?php
                                         $saved_default = isset( $field['default_option'] ) ? $field['default_option'] : '';
                                         $parsed_opts   = GVN_Custom_Fields::parse_select_options( isset( $field['options'] ) ? $field['options'] : '' );
@@ -426,7 +443,7 @@ class GVN_Admin {
                                     </select>
                                 </div>
                                 <div class="gvn-field-col">
-                                    <label><input type="checkbox" class="gvn-field-required" <?php checked( ! empty( $field['required'] ) ); ?> /> Obrigatório</label>
+                                    <label><input type="checkbox" class="gvn-field-required" <?php checked( ! empty( $field['required'] ) ); ?> /> <?php esc_html_e( 'Obrigatório', 'gvn-checkout' ); ?></label>
                                 </div>
                             </div>
 
@@ -438,14 +455,14 @@ class GVN_Admin {
                             ?>
                             <div class="gvn-conditions-section">
                                 <div class="gvn-conditions-header">
-                                    <strong>Condições de exibição</strong>
-                                    <span class="gvn-conditions-hint">Deixe vazio para sempre exibir</span>
+                                    <strong><?php esc_html_e( 'Condições de exibição', 'gvn-checkout' ); ?></strong>
+                                    <span class="gvn-conditions-hint"><?php esc_html_e( 'Deixe vazio para sempre exibir', 'gvn-checkout' ); ?></span>
                                 </div>
                                 <div class="gvn-conditions-logic" <?php echo empty( $rules ) ? 'style="display:none;"' : ''; ?>>
-                                    <label>Quando</label>
+                                    <label><?php esc_html_e( 'Quando', 'gvn-checkout' ); ?></label>
                                     <select class="gvn-conditions-logic-select">
-                                        <option value="and" <?php selected( $logic, 'and' ); ?>>TODAS as condições forem verdadeiras (E)</option>
-                                        <option value="or" <?php selected( $logic, 'or' ); ?>>QUALQUER condição for verdadeira (OU)</option>
+                                        <option value="and" <?php selected( $logic, 'and' ); ?>><?php esc_html_e( 'TODAS as condições forem verdadeiras (E)', 'gvn-checkout' ); ?></option>
+                                        <option value="or" <?php selected( $logic, 'or' ); ?>><?php esc_html_e( 'QUALQUER condição for verdadeira (OU)', 'gvn-checkout' ); ?></option>
                                     </select>
                                 </div>
                                 <div class="gvn-conditions-rules">
@@ -456,7 +473,7 @@ class GVN_Admin {
                                     ?>
                                         <div class="gvn-condition-rule">
                                             <select class="gvn-rule-field">
-                                                <option value="">-- Campo --</option>
+                                                <option value=""><?php esc_html_e( '-- Campo --', 'gvn-checkout' ); ?></option>
                                                 <?php foreach ( $all_fields as $af ) : ?>
                                                     <?php if ( $af['key'] !== $field['key'] ) : ?>
                                                         <option value="<?php echo esc_attr( $af['key'] ); ?>" <?php selected( $rule_field, $af['key'] ); ?>><?php echo esc_html( $af['label'] ?: $af['key'] ); ?></option>
@@ -464,20 +481,20 @@ class GVN_Admin {
                                                 <?php endforeach; ?>
                                             </select>
                                             <select class="gvn-rule-operator">
-                                                <option value="equals" <?php selected( $rule_operator, 'equals' ); ?>>Igual a</option>
-                                                <option value="not_equals" <?php selected( $rule_operator, 'not_equals' ); ?>>Diferente de</option>
-                                                <option value="filled" <?php selected( $rule_operator, 'filled' ); ?>>Preenchido</option>
-                                                <option value="empty" <?php selected( $rule_operator, 'empty' ); ?>>Vazio</option>
-                                                <option value="contains" <?php selected( $rule_operator, 'contains' ); ?>>Contém</option>
-                                                <option value="greater" <?php selected( $rule_operator, 'greater' ); ?>>Maior que</option>
-                                                <option value="less" <?php selected( $rule_operator, 'less' ); ?>>Menor que</option>
+                                                <option value="equals" <?php selected( $rule_operator, 'equals' ); ?>><?php esc_html_e( 'Igual a', 'gvn-checkout' ); ?></option>
+                                                <option value="not_equals" <?php selected( $rule_operator, 'not_equals' ); ?>><?php esc_html_e( 'Diferente de', 'gvn-checkout' ); ?></option>
+                                                <option value="filled" <?php selected( $rule_operator, 'filled' ); ?>><?php esc_html_e( 'Preenchido', 'gvn-checkout' ); ?></option>
+                                                <option value="empty" <?php selected( $rule_operator, 'empty' ); ?>><?php esc_html_e( 'Vazio', 'gvn-checkout' ); ?></option>
+                                                <option value="contains" <?php selected( $rule_operator, 'contains' ); ?>><?php esc_html_e( 'Contém', 'gvn-checkout' ); ?></option>
+                                                <option value="greater" <?php selected( $rule_operator, 'greater' ); ?>><?php esc_html_e( 'Maior que', 'gvn-checkout' ); ?></option>
+                                                <option value="less" <?php selected( $rule_operator, 'less' ); ?>><?php esc_html_e( 'Menor que', 'gvn-checkout' ); ?></option>
                                             </select>
-                                            <input type="text" class="gvn-rule-value" value="<?php echo esc_attr( $rule_value ); ?>" placeholder="Valor" <?php echo in_array( $rule_operator, array( 'filled', 'empty' ), true ) ? 'style="display:none;"' : ''; ?> />
-                                            <button type="button" class="gvn-rule-remove button-link" title="Remover condição">✕</button>
+                                            <input type="text" class="gvn-rule-value" value="<?php echo esc_attr( $rule_value ); ?>" placeholder="<?php esc_attr_e( 'Valor', 'gvn-checkout' ); ?>" <?php echo in_array( $rule_operator, array( 'filled', 'empty' ), true ) ? 'style="display:none;"' : ''; ?> />
+                                            <button type="button" class="gvn-rule-remove button-link" title="<?php esc_attr_e( 'Remover condição', 'gvn-checkout' ); ?>">✕</button>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
-                                <button type="button" class="gvn-add-condition button-link">+ Adicionar condição</button>
+                                <button type="button" class="gvn-add-condition button-link"><?php esc_html_e( '+ Adicionar condição', 'gvn-checkout' ); ?></button>
                             </div>
                         </div>
                     </div>
@@ -491,7 +508,7 @@ class GVN_Admin {
      * Renderiza a página de ajuda "Como Usar".
      */
     private function render_help_page() {
-        $checkout_page_id = wc_get_page_id( 'checkout' );
+        $checkout_page_id = function_exists( 'wc_get_page_id' ) ? wc_get_page_id( 'checkout' ) : 0;
         $checkout_url     = $checkout_page_id ? get_permalink( $checkout_page_id ) : '';
         $settings_url     = admin_url( 'admin.php?page=wc-settings&tab=gvn_checkout' );
         $fields_url       = admin_url( 'admin.php?page=wc-settings&tab=gvn_checkout&subtab=fields' );
@@ -501,8 +518,8 @@ class GVN_Admin {
         <div class="gvn-help-wrap">
 
             <div class="gvn-help-hero">
-                <h2>Como usar o GVN Checkout</h2>
-                <p>Guia rápido para configurar o seu checkout personalizado em poucos minutos.</p>
+                <h2><?php esc_html_e( 'Como usar o GVN Checkout', 'gvn-checkout' ); ?></h2>
+                <p><?php esc_html_e( 'Guia rápido para configurar o seu checkout personalizado em poucos minutos.', 'gvn-checkout' ); ?></p>
             </div>
 
             <div class="gvn-help-grid">
@@ -510,59 +527,59 @@ class GVN_Admin {
                 <div class="gvn-help-card">
                     <div class="gvn-help-card__icon">1</div>
                     <div class="gvn-help-card__body">
-                        <h3>Criar a página de checkout</h3>
-                        <p>O plugin funciona através de um shortcode nativo. Crie uma página e insira o shortcode abaixo no conteúdo:</p>
+                        <h3><?php esc_html_e( 'Criar a página de checkout', 'gvn-checkout' ); ?></h3>
+                        <p><?php esc_html_e( 'O plugin funciona através de um shortcode nativo. Crie uma página e insira o shortcode abaixo no conteúdo:', 'gvn-checkout' ); ?></p>
                         <code class="gvn-help-shortcode">[gvn-checkout]</code>
-                        <p>Depois publique a página.</p>
-                        <a href="<?php echo esc_url( $pages_url ); ?>" class="button button-secondary">Ir para Páginas</a>
+                        <p><?php esc_html_e( 'Depois publique a página.', 'gvn-checkout' ); ?></p>
+                        <a href="<?php echo esc_url( $pages_url ); ?>" class="button button-secondary"><?php esc_html_e( 'Ir para Páginas', 'gvn-checkout' ); ?></a>
                     </div>
                 </div>
 
                 <div class="gvn-help-card">
                     <div class="gvn-help-card__icon">2</div>
                     <div class="gvn-help-card__body">
-                        <h3>Definir a página oficial de checkout</h3>
-                        <p>Para que os clientes sejam redirecionados corretamente, configure a página criada como a página oficial de checkout do WooCommerce.</p>
-                        <p class="gvn-help-tip"><strong>Dica:</strong> WooCommerce &rsaquo; Configurações &rsaquo; Avançado &rsaquo; Página de checkout.</p>
-                        <a href="<?php echo esc_url( $wc_advanced_url ); ?>" class="button button-secondary">Abrir Configurações Avançadas</a>
+                        <h3><?php esc_html_e( 'Definir a página oficial de checkout', 'gvn-checkout' ); ?></h3>
+                        <p><?php esc_html_e( 'Para que os clientes sejam redirecionados corretamente, configure a página criada como a página oficial de checkout do WooCommerce.', 'gvn-checkout' ); ?></p>
+                        <p class="gvn-help-tip"><strong><?php esc_html_e( 'Dica:', 'gvn-checkout' ); ?></strong> <?php esc_html_e( 'WooCommerce › Configurações › Avançado › Página de checkout.', 'gvn-checkout' ); ?></p>
+                        <a href="<?php echo esc_url( $wc_advanced_url ); ?>" class="button button-secondary"><?php esc_html_e( 'Abrir Configurações Avançadas', 'gvn-checkout' ); ?></a>
                     </div>
                 </div>
 
                 <div class="gvn-help-card">
                     <div class="gvn-help-card__icon">3</div>
                     <div class="gvn-help-card__body">
-                        <h3>Personalizar a identidade visual</h3>
-                        <p>Na aba <strong>Configurações</strong> você define cores (primária, botões, cabeçalho e badges), textos do header e do botão de finalização, alinhando tudo à identidade da sua marca.</p>
-                        <a href="<?php echo esc_url( $settings_url ); ?>" class="button button-secondary">Abrir Configurações</a>
+                        <h3><?php esc_html_e( 'Personalizar a identidade visual', 'gvn-checkout' ); ?></h3>
+                        <p><?php esc_html_e( 'Na aba Configurações você define cores (primária, botões, cabeçalho e badges), textos do header e do botão de finalização, alinhando tudo à identidade da sua marca.', 'gvn-checkout' ); ?></p>
+                        <a href="<?php echo esc_url( $settings_url ); ?>" class="button button-secondary"><?php esc_html_e( 'Abrir Configurações', 'gvn-checkout' ); ?></a>
                     </div>
                 </div>
 
                 <div class="gvn-help-card">
                     <div class="gvn-help-card__icon">4</div>
                     <div class="gvn-help-card__body">
-                        <h3>Configurar o Order Bump</h3>
-                        <p>Ofereça um produto adicional com desconto diretamente no checkout para aumentar o ticket médio. Ative o Order Bump na aba <strong>Configurações</strong>, selecione o produto, defina título, descrição, preço promocional e o texto do CTA.</p>
+                        <h3><?php esc_html_e( 'Configurar o Order Bump', 'gvn-checkout' ); ?></h3>
+                        <p><?php esc_html_e( 'Ofereça um produto adicional com desconto diretamente no checkout para aumentar o ticket médio. Ative o Order Bump na aba Configurações, selecione o produto, defina título, descrição, preço promocional e o texto do CTA.', 'gvn-checkout' ); ?></p>
                     </div>
                 </div>
 
                 <div class="gvn-help-card">
                     <div class="gvn-help-card__icon">5</div>
                     <div class="gvn-help-card__body">
-                        <h3>Gerenciar campos do formulário</h3>
-                        <p>Na aba <strong>Campos do Formulário</strong> você adiciona, remove, reordena (arrastando) e configura a largura dos campos do checkout. Também é possível importar campos padrões do WooCommerce ou campos brasileiros (CPF, CNPJ, RG, etc.) com 1 clique.</p>
-                        <a href="<?php echo esc_url( $fields_url ); ?>" class="button button-secondary">Gerenciar Campos</a>
+                        <h3><?php esc_html_e( 'Gerenciar campos do formulário', 'gvn-checkout' ); ?></h3>
+                        <p><?php esc_html_e( 'Na aba Campos do Formulário você adiciona, remove, reordena (arrastando) e configura a largura dos campos do checkout. Também é possível importar campos padrões do WooCommerce ou campos brasileiros (CPF, CNPJ, RG, etc.) com 1 clique.', 'gvn-checkout' ); ?></p>
+                        <a href="<?php echo esc_url( $fields_url ); ?>" class="button button-secondary"><?php esc_html_e( 'Gerenciar Campos', 'gvn-checkout' ); ?></a>
                     </div>
                 </div>
 
                 <div class="gvn-help-card">
                     <div class="gvn-help-card__icon">6</div>
                     <div class="gvn-help-card__body">
-                        <h3>Testar o checkout</h3>
-                        <p>Adicione um produto ao carrinho e acesse a página de checkout para validar o layout, máscaras (CPF/Celular), autocompletar de CEP e o Order Bump.</p>
+                        <h3><?php esc_html_e( 'Testar o checkout', 'gvn-checkout' ); ?></h3>
+                        <p><?php esc_html_e( 'Adicione um produto ao carrinho e acesse a página de checkout para validar o layout, máscaras (CPF/Celular), autocompletar de CEP e o Order Bump.', 'gvn-checkout' ); ?></p>
                         <?php if ( $checkout_url ) : ?>
-                            <a href="<?php echo esc_url( $checkout_url ); ?>" class="button button-secondary" target="_blank">Abrir página de checkout</a>
+                            <a href="<?php echo esc_url( $checkout_url ); ?>" class="button button-secondary" target="_blank"><?php esc_html_e( 'Abrir página de checkout', 'gvn-checkout' ); ?></a>
                         <?php else : ?>
-                            <span class="gvn-help-warning">Página de checkout ainda não definida. Conclua o passo 2.</span>
+                            <span class="gvn-help-warning"><?php esc_html_e( 'Página de checkout ainda não definida. Conclua o passo 2.', 'gvn-checkout' ); ?></span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -570,14 +587,14 @@ class GVN_Admin {
             </div>
 
             <div class="gvn-help-footer">
-                <h3>Recursos disponíveis</h3>
+                <h3><?php esc_html_e( 'Recursos disponíveis', 'gvn-checkout' ); ?></h3>
                 <ul>
-                    <li><strong>Layout one-page checkout:</strong> focado em conversão, limpo e responsivo.</li>
-                    <li><strong>Autocompletar de CEP:</strong> via ViaCEP com cache de 7 dias (Transients).</li>
-                    <li><strong>Máscaras automáticas:</strong> CPF e Celular formatados em tempo real.</li>
-                    <li><strong>Order Bump:</strong> oferta adicional com 1 clique para aumentar o ticket médio.</li>
-                    <li><strong>Cupom dinâmico:</strong> seção de cupom com toggle moderno.</li>
-                    <li><strong>Campos personalizáveis:</strong> com condições de exibição e largura por campo.</li>
+                    <li><strong><?php esc_html_e( 'Layout one-page checkout:', 'gvn-checkout' ); ?></strong> <?php esc_html_e( 'focado em conversão, limpo e responsivo.', 'gvn-checkout' ); ?></li>
+                    <li><strong><?php esc_html_e( 'Autocompletar de CEP:', 'gvn-checkout' ); ?></strong> <?php esc_html_e( 'via ViaCEP com cache de 7 dias (Transients).', 'gvn-checkout' ); ?></li>
+                    <li><strong><?php esc_html_e( 'Máscaras automáticas:', 'gvn-checkout' ); ?></strong> <?php esc_html_e( 'CPF e Celular formatados em tempo real.', 'gvn-checkout' ); ?></li>
+                    <li><strong><?php esc_html_e( 'Order Bump:', 'gvn-checkout' ); ?></strong> <?php esc_html_e( 'oferta adicional com 1 clique para aumentar o ticket médio.', 'gvn-checkout' ); ?></li>
+                    <li><strong><?php esc_html_e( 'Cupom dinâmico:', 'gvn-checkout' ); ?></strong> <?php esc_html_e( 'seção de cupom com toggle moderno.', 'gvn-checkout' ); ?></li>
+                    <li><strong><?php esc_html_e( 'Campos personalizáveis:', 'gvn-checkout' ); ?></strong> <?php esc_html_e( 'com condições de exibição e largura por campo.', 'gvn-checkout' ); ?></li>
                 </ul>
             </div>
 

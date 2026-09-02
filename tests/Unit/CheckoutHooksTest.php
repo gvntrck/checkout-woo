@@ -108,6 +108,26 @@ class CheckoutHooksTest extends TestCase {
         $this->assertStringContainsString('custom-filter-btn', $html);
     }
 
+    public function test_configured_text_placeholders_are_resolved_and_escaped(): void {
+        global $wp_mock_options;
+        $wp_mock_options['gvn_checkout_header_text'] = 'Você escolheu {qtd-produto}x {produto}';
+        $wp_mock_options['gvn_checkout_title_text'] = 'Seu pedido na {nome-loja}';
+        \GVN\Checkout\Settings\SettingsRepository::flush_cache();
+
+        WC()->cart->items = [
+            'course' => [
+                'data'     => new \Mock_WC_Product(10, '<b>Curso Seguro</b>', '120.00'),
+                'quantity' => 2,
+            ],
+        ];
+
+        $html = $this->renderCheckoutTemplate();
+
+        $this->assertStringContainsString('Você escolheu 2x Curso Seguro', $html);
+        $this->assertStringContainsString('Seu pedido na 6.7', $html);
+        $this->assertStringNotContainsString('<b>Curso Seguro</b>', $html);
+    }
+
     public function test_form_has_native_action_and_nonce() {
         $html = $this->renderCheckoutTemplate();
 

@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - Admin Fields Manager Styles
- * @version 1.13.9
+ * @version 1.13.41
  */
 
 /* ===== Sub-tabs Navigation ===== */
@@ -34,6 +34,59 @@
     background: #fff;
     color: #1d2327;
     border-bottom: 1px solid #fff;
+}
+
+/* ===== Checkout Text Shortcuts ===== */
+
+.gvn-text-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    width: min(100%, 640px);
+    margin-top: 8px;
+}
+
+.gvn-text-shortcuts__label {
+    margin-right: 2px;
+    color: #50575e;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.gvn-text-shortcuts__chip {
+    min-height: 28px;
+    padding: 3px 9px;
+    border: 1px solid #c3c4c7;
+    border-radius: 999px;
+    color: #135e96;
+    background: #fff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: border-color 120ms ease, background-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.gvn-text-shortcuts__chip:hover {
+    border-color: #2271b1;
+    color: #0a4b78;
+    background: #f0f6fc;
+    transform: translateY(-1px);
+}
+
+.gvn-text-shortcuts__chip:focus-visible {
+    border-color: #2271b1;
+    outline: 2px solid #2271b1;
+    outline-offset: 1px;
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gvn-text-shortcuts__chip {
+        transition: none;
+    }
 }
 
 /* ===== Fields Manager ===== */

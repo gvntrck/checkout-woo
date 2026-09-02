@@ -1,7 +1,7 @@
 /**
  * GVN Checkout - Admin Fields Manager
  * Drag-and-drop, CRUD, largura e ordenação de campos.
- * @version 1.13.9
+ * @version 1.13.41
  */
 
 (function ($) {
@@ -685,10 +685,65 @@
     };
 
     /* ===================================================
+     *  Atalhos dos textos do checkout (Settings Tab)
+     * =================================================== */
+    var GVNTextPlaceholders = {
+
+        init: function () {
+            if (typeof gvn_admin_params === 'undefined' || !gvn_admin_params.text_placeholders) return;
+
+            var self = this;
+            var fieldIds = gvn_admin_params.placeholder_fields || [];
+
+            $.each(fieldIds, function (_, fieldId) {
+                var $field = $('#' + fieldId);
+                if (!$field.length || $field.next('.gvn-text-shortcuts').length) return;
+
+                var $toolbar = $('<div class="gvn-text-shortcuts" role="group"></div>');
+                var $label = $('<span class="gvn-text-shortcuts__label"></span>');
+                $label.text(gvn_admin_params.insert_shortcut_text || 'Inserir atalho:');
+                $toolbar.attr('aria-label', $label.text()).append($label);
+
+                $.each(gvn_admin_params.text_placeholders, function (placeholder, description) {
+                    var $button = $('<button type="button" class="gvn-text-shortcuts__chip"></button>');
+                    $button.text(placeholder);
+                    $button.attr({
+                        'data-placeholder': placeholder,
+                        'title': description,
+                        'aria-label': placeholder + ': ' + description
+                    });
+                    $toolbar.append($button);
+                });
+
+                $toolbar.on('click', '.gvn-text-shortcuts__chip', function () {
+                    self.insertAtCursor($field, $(this).attr('data-placeholder'));
+                });
+
+                $field.after($toolbar);
+            });
+        },
+
+        insertAtCursor: function ($field, placeholder) {
+            var field = $field.get(0);
+            var value = $field.val() || '';
+            var start = typeof field.selectionStart === 'number' ? field.selectionStart : value.length;
+            var end = typeof field.selectionEnd === 'number' ? field.selectionEnd : start;
+            var nextValue = value.slice(0, start) + placeholder + value.slice(end);
+            var nextPosition = start + placeholder.length;
+
+            $field.val(nextValue).trigger('input').trigger('change').focus();
+            if (typeof field.setSelectionRange === 'function') {
+                field.setSelectionRange(nextPosition, nextPosition);
+            }
+        }
+    };
+
+    /* ===================================================
      *  Inicialização
      * =================================================== */
     $(document).ready(function () {
         GVNAdminFields.init();
+        GVNTextPlaceholders.init();
     });
 
 })(jQuery);

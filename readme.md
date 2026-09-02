@@ -70,6 +70,12 @@ Todas as opções visuais e de comportamento do checkout podem ser customizadas 
     *   **Cabeçalho (Header):** Ative ou desative o cabeçalho personalizado, defina o título (ex: nome da sua loja), o texto da badge de segurança e as cores do topo.
     *   **Order Bump:** Escolha o produto que deseja oferecer como oferta exclusiva, configure o título atrativo, a descrição da oferta, o preço especial e o texto de chamada para ação (CTA).
 
+### 3. Usar textos dinâmicos
+
+Os editores de texto da página de configurações exibem atalhos clicáveis abaixo de cada campo. Use `{produto}`, `{qtd-produto}`, `{subtotal}`, `{total}` e `{nome-loja}` para criar chamadas que se adaptam ao carrinho, por exemplo: `Garanta agora {qtd-produto}x {produto} por {total}`.
+
+Os valores vêm das APIs nativas do WooCommerce, são exibidos como texto seguro e também são resolvidos no header da página de confirmação do pedido.
+
 ---
 
 ## Referência da superfície pública atual (baseline F0.3)

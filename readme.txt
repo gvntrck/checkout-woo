@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.40
+Stable tag: 1.13.41
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,7 @@ O **GVN Checkout** substitui o checkout padrão do WooCommerce por um layout mod
 
 * Layout responsivo e moderno com design premium
 * Header configurável (textos e cores)
+* Atalhos dinâmicos para personalizar textos com dados do carrinho
 * Formulário simplificado (Nome, Sobrenome, CPF, Celular, E-mail)
 * Resumo do pedido dinâmico
 * Cupom de desconto com toggle
@@ -35,6 +36,10 @@ O **GVN Checkout** substitui o checkout padrão do WooCommerce por um layout mod
 2. Crie uma página e adicione o shortcode `[gvn-checkout]`
 3. Configure as opções em **WooCommerce > Configurações > GVN Checkout**
 4. Opcional: configure o Order Bump com um produto
+
+**Atalhos nos textos:**
+
+Nos campos de texto das configurações, clique nos atalhos exibidos abaixo do editor para inserir dados dinâmicos. Estão disponíveis `{produto}`, `{qtd-produto}`, `{subtotal}`, `{total}` e `{nome-loja}`. Os valores são obtidos do carrinho atual e também funcionam no header da confirmação do pedido.
 
 == Installation ==
 
@@ -111,6 +116,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.41 =
+* Adiciona atalhos clicáveis nos editores de texto das configurações e substituição segura por produto, quantidade, subtotal, total e nome da loja no checkout.
 
 = 1.13.40 =
 * Inclui a cidade (`billing_city`) como campo padrão, habilitado, obrigatório e gerenciável no editor de campos, inclusive para configurações existentes.

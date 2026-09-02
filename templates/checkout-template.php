@@ -3,7 +3,7 @@
  * Template do checkout personalizado GVN.
  *
  * @package GVN_Checkout
- * @version 1.13.35
+ * @version 1.13.41
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -27,6 +27,17 @@ $bump_product      = $bump_enabled && $bump_product_id && function_exists( 'wc_g
 
 $available_gateways = ( function_exists( 'WC' ) && WC()->payment_gateways() ) ? WC()->payment_gateways()->get_available_payment_gateways() : array();
 $cart               = ( function_exists( 'WC' ) ) ? WC()->cart : null;
+
+if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
+    $header_text       = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $header_text, $cart );
+    $header_badge_text = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $header_badge_text, $cart );
+    $title_text        = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $title_text, $cart );
+    $subtitle_text     = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $subtitle_text, $cart );
+    $button_text       = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $button_text, $cart );
+    $bump_title        = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $bump_title, $cart );
+    $bump_description  = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $bump_description, $cart );
+    $bump_cta_text     = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $bump_cta_text, $cart );
+}
 
 $bump_in_cart = false;
 if ( $bump_product && $cart ) {

@@ -3,15 +3,21 @@
  * Template de confirmação de pedido (Thank You) do GVN Checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.37
+ * @version 1.13.41
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$header_text       = get_option( 'gvn_checkout_header_text', 'EFEAD - Conectando Saberes' );
-$header_badge_text = get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGURA' );
+$header_text       = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_text', 'EFEAD - Conectando Saberes' ) : get_option( 'gvn_checkout_header_text', 'EFEAD - Conectando Saberes' );
+$header_badge_text = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_badge_text', 'COMPRA SEGURA' ) : get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGURA' );
+$order_context     = isset( $order ) && is_object( $order ) ? $order : null;
+
+if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
+    $header_text       = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $header_text, $order_context );
+    $header_badge_text = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $header_badge_text, $order_context );
+}
 ?>
 
 <div class="gvn-checkout gvn-thankyou" id="gvn-thankyou">

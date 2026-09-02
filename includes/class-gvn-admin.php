@@ -4,7 +4,7 @@
  * Gerencia a página de configurações no painel do WordPress com controle estrito de permissões e segurança.
  *
  * @package GVN_Checkout
- * @version 1.13.35
+ * @version 1.13.41
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use GVN\Checkout\Settings\SettingsRepository;
+use GVN\Checkout\Checkout\TextPlaceholderResolver;
 
 class GVN_Admin {
 
@@ -346,8 +347,20 @@ class GVN_Admin {
         );
 
         wp_localize_script( 'gvn-admin-fields-js', 'gvn_admin_params', array(
-            'ajax_url' => admin_url( 'admin-ajax.php' ),
-            'nonce'    => wp_create_nonce( 'gvn_admin_fields_nonce' ),
+            'ajax_url'            => admin_url( 'admin-ajax.php' ),
+            'nonce'               => wp_create_nonce( 'gvn_admin_fields_nonce' ),
+            'text_placeholders'   => class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ? TextPlaceholderResolver::get_available_placeholders() : array(),
+            'placeholder_fields'  => array(
+                'gvn_checkout_header_text',
+                'gvn_checkout_header_badge_text',
+                'gvn_checkout_title_text',
+                'gvn_checkout_subtitle_text',
+                'gvn_checkout_button_text',
+                'gvn_checkout_order_bump_title',
+                'gvn_checkout_order_bump_description',
+                'gvn_checkout_order_bump_cta_text',
+            ),
+            'insert_shortcut_text' => __( 'Inserir atalho:', 'gvn-checkout' ),
         ) );
     }
 

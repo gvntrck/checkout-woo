@@ -20,6 +20,7 @@ class ThankYouTest extends TestCase {
         $wp_mock_orders = [];
         $wp = (object) ['query_vars' => []];
         $_GET = [];
+        \GVN\Checkout\Settings\SettingsRepository::flush_cache();
     }
 
     public function test_override_returns_default_template_for_non_gvn_orders(): void {
@@ -75,9 +76,10 @@ class ThankYouTest extends TestCase {
     }
 
     public function test_thankyou_template_fires_canonical_hooks(): void {
-        global $wp_mock_actions, $order;
+        global $wp_mock_actions, $wp_mock_options, $order;
 
         $order = new Mock_WC_Order_Complete(104, 'key_104');
+        $wp_mock_options['gvn_checkout_header_text'] = 'Você garantiu {qtd-produto}x {produto}';
         $order->update_meta_data('_gvn_checkout_version', '1.13.26');
         add_action('woocommerce_thankyou_pix', static function (): void {
             echo '<p>Instruções Pix</p>';
@@ -89,6 +91,7 @@ class ThankYouTest extends TestCase {
 
         $this->assertNotEmpty($html);
         $this->assertStringContainsString('Pedido recebido!', $html);
+        $this->assertStringContainsString('Você garantiu 1x Curso Principal', $html);
         $this->assertStringContainsString('#104', $html);
         $this->assertStringContainsString('INSTRUÇÕES DE PAGAMENTO', $html);
         $this->assertTrue(

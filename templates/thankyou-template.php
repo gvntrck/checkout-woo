@@ -3,7 +3,7 @@
  * Template de confirmação de pedido (Thank You) do GVN Checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.41
+ * @version 1.13.42
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,9 +14,35 @@ $header_text       = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) 
 $header_badge_text = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_badge_text', 'COMPRA SEGURA' ) : get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGURA' );
 $order_context     = isset( $order ) && is_object( $order ) ? $order : null;
 
+$thankyou_defaults = array(
+    'thankyou_success_title'          => 'Pedido recebido!',
+    'thankyou_success_message'        => 'Obrigado pela sua compra. Seu pedido foi registrado com sucesso.',
+    'thankyou_failed_title'           => 'Pagamento não processado',
+    'thankyou_failed_message'         => 'Infelizmente seu pagamento não pôde ser processado. Tente novamente ou entre em contato conosco.',
+    'thankyou_retry_text'             => 'Tentar novamente',
+    'thankyou_not_found_title'        => 'Pedido não encontrado',
+    'thankyou_not_found_message'      => 'Não foi possível localizar seu pedido. Verifique se o link está correto ou entre em contato conosco.',
+    'thankyou_not_found_button_text'  => 'Voltar à loja',
+    'thankyou_payment_title'          => 'INSTRUÇÕES DE PAGAMENTO',
+    'thankyou_items_title'            => 'ITENS DO PEDIDO',
+    'thankyou_customer_title'         => 'SEUS DADOS',
+    'thankyou_orders_button_text'     => 'Ver meus pedidos',
+    'thankyou_shop_button_text'       => 'Continuar comprando',
+);
+$thankyou_texts = array();
+
+foreach ( $thankyou_defaults as $thankyou_key => $thankyou_default ) {
+    $thankyou_texts[ $thankyou_key ] = class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
+        ? \GVN\Checkout\Settings\SettingsRepository::get( $thankyou_key, $thankyou_default )
+        : $thankyou_default;
+}
+
 if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
     $header_text       = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $header_text, $order_context );
     $header_badge_text = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $header_badge_text, $order_context );
+    foreach ( $thankyou_texts as $thankyou_key => $thankyou_text ) {
+        $thankyou_texts[ $thankyou_key ] = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $thankyou_text, $order_context );
+    }
 }
 ?>
 
@@ -43,12 +69,12 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
             <!-- Pedido Falhou -->
             <div class="gvn-thankyou__status gvn-thankyou__status--failed">
                 <div class="gvn-thankyou__status-icon">✕</div>
-                <h1 class="gvn-thankyou__status-title"><?php esc_html_e( 'Pagamento não processado', 'gvn-checkout' ); ?></h1>
+                <h1 class="gvn-thankyou__status-title"><?php echo esc_html( $thankyou_texts['thankyou_failed_title'] ); ?></h1>
                 <p class="gvn-thankyou__status-text">
-                    <?php esc_html_e( 'Infelizmente seu pagamento não pôde ser processado. Tente novamente ou entre em contato conosco.', 'gvn-checkout' ); ?>
+                    <?php echo esc_html( $thankyou_texts['thankyou_failed_message'] ); ?>
                 </p>
                 <a href="<?php echo esc_url( $order->get_checkout_payment_url() ); ?>" class="gvn-thankyou__retry-btn">
-                    <?php esc_html_e( 'Tentar novamente', 'gvn-checkout' ); ?>
+                    <?php echo esc_html( $thankyou_texts['thankyou_retry_text'] ); ?>
                 </a>
             </div>
 
@@ -63,9 +89,9 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
                         <path d="M20 33l8 8 16-16" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" class="gvn-thankyou__check"/>
                     </svg>
                 </div>
-                <h1 class="gvn-thankyou__status-title"><?php esc_html_e( 'Pedido recebido!', 'gvn-checkout' ); ?></h1>
+                <h1 class="gvn-thankyou__status-title"><?php echo esc_html( $thankyou_texts['thankyou_success_title'] ); ?></h1>
                 <p class="gvn-thankyou__status-text">
-                    <?php esc_html_e( 'Obrigado pela sua compra. Seu pedido foi registrado com sucesso.', 'gvn-checkout' ); ?>
+                    <?php echo esc_html( $thankyou_texts['thankyou_success_message'] ); ?>
                 </p>
             </div>
 
@@ -120,7 +146,7 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
                 ?>
                     <div class="gvn-thankyou__payment-instructions">
                         <div class="gvn-card">
-                            <div class="gvn-card__header"><?php esc_html_e( 'INSTRUÇÕES DE PAGAMENTO', 'gvn-checkout' ); ?></div>
+                            <div class="gvn-card__header"><?php echo esc_html( $thankyou_texts['thankyou_payment_title'] ); ?></div>
                             <div class="gvn-card__body">
                                 <?php echo $gateway_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                             </div>
@@ -134,7 +160,7 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
 
                 <!-- Resumo dos Itens -->
                 <div class="gvn-card">
-                    <div class="gvn-card__header"><?php esc_html_e( 'ITENS DO PEDIDO', 'gvn-checkout' ); ?></div>
+                    <div class="gvn-card__header"><?php echo esc_html( $thankyou_texts['thankyou_items_title'] ); ?></div>
                     <div class="gvn-card__body">
                         <div class="gvn-order-labels">
                             <span><?php esc_html_e( 'Produto', 'gvn-checkout' ); ?></span>
@@ -195,7 +221,7 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
             <!-- Dados do cliente -->
             <div class="gvn-thankyou__customer">
                 <div class="gvn-card">
-                    <div class="gvn-card__header"><?php esc_html_e( 'SEUS DADOS', 'gvn-checkout' ); ?></div>
+                    <div class="gvn-card__header"><?php echo esc_html( $thankyou_texts['thankyou_customer_title'] ); ?></div>
                     <div class="gvn-card__body">
                         <div class="gvn-thankyou__customer-grid">
                             <div class="gvn-thankyou__customer-col">
@@ -254,12 +280,12 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
             <div class="gvn-thankyou__actions">
                 <?php if ( is_user_logged_in() && function_exists( 'wc_get_account_endpoint_url' ) ) : ?>
                     <a href="<?php echo esc_url( wc_get_account_endpoint_url( 'orders' ) ); ?>" class="gvn-thankyou__action-btn gvn-thankyou__action-btn--primary">
-                        <?php esc_html_e( 'Ver meus pedidos', 'gvn-checkout' ); ?>
+                        <?php echo esc_html( $thankyou_texts['thankyou_orders_button_text'] ); ?>
                     </a>
                 <?php endif; ?>
                 <?php $shop_permalink = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : ''; ?>
                 <a href="<?php echo esc_url( $shop_permalink ); ?>" class="gvn-thankyou__action-btn gvn-thankyou__action-btn--secondary">
-                    <?php esc_html_e( 'Continuar comprando', 'gvn-checkout' ); ?>
+                    <?php echo esc_html( $thankyou_texts['thankyou_shop_button_text'] ); ?>
                 </a>
             </div>
 
@@ -270,13 +296,13 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
         <!-- Pedido não encontrado -->
         <div class="gvn-thankyou__status gvn-thankyou__status--not-found">
             <div class="gvn-thankyou__status-icon">?</div>
-            <h1 class="gvn-thankyou__status-title"><?php esc_html_e( 'Pedido não encontrado', 'gvn-checkout' ); ?></h1>
+            <h1 class="gvn-thankyou__status-title"><?php echo esc_html( $thankyou_texts['thankyou_not_found_title'] ); ?></h1>
             <p class="gvn-thankyou__status-text">
-                <?php esc_html_e( 'Não foi possível localizar seu pedido. Verifique se o link está correto ou entre em contato conosco.', 'gvn-checkout' ); ?>
+                <?php echo esc_html( $thankyou_texts['thankyou_not_found_message'] ); ?>
             </p>
             <?php $shop_permalink = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : ''; ?>
             <a href="<?php echo esc_url( $shop_permalink ); ?>" class="gvn-thankyou__action-btn gvn-thankyou__action-btn--primary">
-                <?php esc_html_e( 'Voltar à loja', 'gvn-checkout' ); ?>
+                <?php echo esc_html( $thankyou_texts['thankyou_not_found_button_text'] ); ?>
             </a>
         </div>
 

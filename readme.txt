@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.41
+Stable tag: 1.13.42
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,7 +39,9 @@ O **GVN Checkout** substitui o checkout padrão do WooCommerce por um layout mod
 
 **Atalhos nos textos:**
 
-Nos campos de texto das configurações, clique nos atalhos exibidos abaixo do editor para inserir dados dinâmicos. Estão disponíveis `{produto}`, `{qtd-produto}`, `{subtotal}`, `{total}` e `{nome-loja}`. Os valores são obtidos do carrinho atual e também funcionam no header da confirmação do pedido.
+Nos campos de texto das configurações, clique nos atalhos exibidos abaixo do editor para inserir dados dinâmicos. Estão disponíveis `{produto}`, `{qtd-produto}`, `{subtotal}`, `{total}` e `{nome-loja}`. Na seção **Textos da Página de Obrigado**, também podem ser usados `{primeiro-nome}`, `{numero-pedido}` e `{metodo-pagamento}`.
+
+Os textos de sucesso, falha, pedido não encontrado, títulos de cards e botões da página de confirmação podem ser personalizados sem remover as instruções ou hooks nativos dos gateways.
 
 == Installation ==
 
@@ -74,6 +76,7 @@ Este inventário registra o comportamento observado no código canônico antes d
 * `gvn_checkout_order_bump_description`: descrição da oferta.
 * `gvn_checkout_order_bump_cta_text`: texto da chamada para ação; default `Sim! Quero adicionar ao meu pedido`.
 * `gvn_checkout_order_bump_price`: preço decimal textual ou vazio; vazio/valor não positivo usa o preço padrão do produto.
+* `gvn_checkout_thankyou_*`: títulos, mensagens e CTAs personalizáveis dos estados de sucesso, falha e pedido não encontrado, além dos cards e ações da página de confirmação.
 * `gvn_checkout_fields`: array de campos com `key`, `label`, `type`, `required`, `width`, `position`, `placeholder`, `enabled`, `mask`, `is_default`, `is_woo_default`, `options`, `default_option` e `conditions`.
 * `gvn_checkout_default_fields_config`: opção legada de campos brasileiros, usada somente pela migração administrativa e removida depois do processamento.
 
@@ -116,6 +119,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.42 =
+* Adiciona uma seção administrativa para personalizar mensagens, títulos e botões da página de obrigado, com atalhos próprios do pedido e persistência sincronizada no schema unificado.
 
 = 1.13.41 =
 * Adiciona atalhos clicáveis nos editores de texto das configurações e substituição segura por produto, quantidade, subtotal, total e nome da loja no checkout.

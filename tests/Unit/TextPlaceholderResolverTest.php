@@ -43,11 +43,11 @@ class TextPlaceholderResolverTest extends TestCase {
         $order = new Mock_WC_Order_Complete(123, 'key_123');
 
         $resolved = TextPlaceholderResolver::resolve(
-            'Você garantiu {qtd-produto}x {produto} por {total}',
+            'Olá {primeiro-nome}, pedido #{numero-pedido}: {qtd-produto}x {produto} por {total} via {metodo-pagamento}',
             $order
         );
 
-        $this->assertSame('Você garantiu 1x Curso Principal por R$ 150,00', $resolved);
+        $this->assertSame('Olá João, pedido #123: 1x Curso Principal por R$ 150,00 via Pix', $resolved);
     }
 
     public function test_preserves_unknown_placeholders_and_sanitizes_product_names(): void {
@@ -70,6 +70,20 @@ class TextPlaceholderResolverTest extends TestCase {
         $this->assertSame(
             ['{produto}', '{qtd-produto}', '{subtotal}', '{total}', '{nome-loja}'],
             array_keys($placeholders)
+        );
+
+        $this->assertSame(
+            [
+                '{produto}',
+                '{qtd-produto}',
+                '{subtotal}',
+                '{total}',
+                '{nome-loja}',
+                '{primeiro-nome}',
+                '{numero-pedido}',
+                '{metodo-pagamento}',
+            ],
+            array_keys(TextPlaceholderResolver::get_thankyou_placeholders())
         );
     }
 }

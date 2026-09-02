@@ -122,6 +122,49 @@ class ThankYouTest extends TestCase {
         $this->assertMatchesRegularExpression('/<script[^>]*>\s*const order_id = "107";<\/script>/', $html);
     }
 
+    public function test_thankyou_template_renders_custom_texts_and_order_placeholders(): void {
+        global $wp_mock_options, $order;
+
+        $order = new Mock_WC_Order_Complete(108, 'key_108');
+        $wp_mock_options['gvn_checkout_thankyou_success_title'] = 'Tudo certo, {primeiro-nome}!';
+        $wp_mock_options['gvn_checkout_thankyou_success_message'] = 'Pedido #{numero-pedido} via {metodo-pagamento}: {produto} por {total}.';
+        $wp_mock_options['gvn_checkout_thankyou_payment_title'] = 'PRÓXIMO PASSO';
+        $wp_mock_options['gvn_checkout_thankyou_items_title'] = 'O QUE VOCÊ GARANTIU';
+        $wp_mock_options['gvn_checkout_thankyou_customer_title'] = 'DADOS DA COMPRA';
+        $wp_mock_options['gvn_checkout_thankyou_shop_button_text'] = 'Conhecer outros produtos';
+        add_action('woocommerce_thankyou_pix', static function (): void {
+            echo '<p>Use o Pix para concluir.</p>';
+        });
+
+        ob_start();
+        include GVN_CHECKOUT_PLUGIN_DIR . 'templates/thankyou-template.php';
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('Tudo certo, João!', $html);
+        $this->assertStringContainsString('Pedido #108 via Pix: Curso Principal por R$ 150,00.', $html);
+        $this->assertStringContainsString('PRÓXIMO PASSO', $html);
+        $this->assertStringContainsString('O QUE VOCÊ GARANTIU', $html);
+        $this->assertStringContainsString('DADOS DA COMPRA', $html);
+        $this->assertStringContainsString('Conhecer outros produtos', $html);
+    }
+
+    public function test_thankyou_template_renders_custom_not_found_texts(): void {
+        global $wp_mock_options, $order;
+
+        $order = false;
+        $wp_mock_options['gvn_checkout_thankyou_not_found_title'] = 'Não encontramos esta compra';
+        $wp_mock_options['gvn_checkout_thankyou_not_found_message'] = 'Confira o link enviado para você.';
+        $wp_mock_options['gvn_checkout_thankyou_not_found_button_text'] = 'Ir para a vitrine';
+
+        ob_start();
+        include GVN_CHECKOUT_PLUGIN_DIR . 'templates/thankyou-template.php';
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('Não encontramos esta compra', $html);
+        $this->assertStringContainsString('Confira o link enviado para você.', $html);
+        $this->assertStringContainsString('Ir para a vitrine', $html);
+    }
+
     public function test_thankyou_template_renders_failed_status_when_order_failed(): void {
         global $order;
 

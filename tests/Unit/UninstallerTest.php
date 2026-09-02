@@ -28,6 +28,8 @@ class UninstallerTest extends TestCase {
         $this->assertContains('gvn_checkout_header_text', $keys);
         $this->assertContains('gvn_checkout_order_bump_enabled', $keys);
         $this->assertContains('gvn_checkout_order_bump_price', $keys);
+        $this->assertContains('gvn_checkout_thankyou_success_title', $keys);
+        $this->assertContains('gvn_checkout_thankyou_shop_button_text', $keys);
     }
 
     public function test_uninstall_removes_all_options_and_resets_cache(): void {

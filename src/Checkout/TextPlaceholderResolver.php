@@ -14,12 +14,25 @@ final class TextPlaceholderResolver {
      */
     public static function get_available_placeholders(): array {
         return [
-            '{produto}'     => __('Nome do produto ou produtos do carrinho', 'gvn-checkout'),
-            '{qtd-produto}' => __('Quantidade total de produtos', 'gvn-checkout'),
-            '{subtotal}'    => __('Subtotal atual do carrinho', 'gvn-checkout'),
-            '{total}'       => __('Total atual do carrinho', 'gvn-checkout'),
+            '{produto}'     => __('Nome do produto ou produtos do carrinho ou pedido', 'gvn-checkout'),
+            '{qtd-produto}' => __('Quantidade total de produtos do carrinho ou pedido', 'gvn-checkout'),
+            '{subtotal}'    => __('Subtotal atual do carrinho ou pedido', 'gvn-checkout'),
+            '{total}'       => __('Total atual do carrinho ou pedido', 'gvn-checkout'),
             '{nome-loja}'   => __('Nome da loja', 'gvn-checkout'),
         ];
+    }
+
+    /**
+     * Retorna os atalhos adicionais disponíveis somente nos textos da Thank You.
+     *
+     * @return array<string, string>
+     */
+    public static function get_thankyou_placeholders(): array {
+        return array_merge(self::get_available_placeholders(), [
+            '{primeiro-nome}'    => __('Primeiro nome do cliente', 'gvn-checkout'),
+            '{numero-pedido}'    => __('Número do pedido', 'gvn-checkout'),
+            '{metodo-pagamento}' => __('Método de pagamento escolhido', 'gvn-checkout'),
+        ]);
     }
 
     /**
@@ -51,10 +64,13 @@ final class TextPlaceholderResolver {
      */
     private static function get_context_values($context): array {
         $values = [
-            '{produto}'     => '',
-            '{qtd-produto}' => '0',
-            '{subtotal}'    => '',
-            '{total}'       => '',
+            '{produto}'          => '',
+            '{qtd-produto}'      => '0',
+            '{subtotal}'         => '',
+            '{total}'            => '',
+            '{primeiro-nome}'    => '',
+            '{numero-pedido}'    => '',
+            '{metodo-pagamento}' => '',
         ];
 
         if (!is_object($context) || (!method_exists($context, 'get_items') && !method_exists($context, 'get_cart'))) {
@@ -133,6 +149,15 @@ final class TextPlaceholderResolver {
         }
         if (method_exists($order, 'get_formatted_order_total')) {
             $values['{total}'] = self::plain_text((string) $order->get_formatted_order_total());
+        }
+        if (method_exists($order, 'get_billing_first_name')) {
+            $values['{primeiro-nome}'] = self::plain_text((string) $order->get_billing_first_name());
+        }
+        if (method_exists($order, 'get_order_number')) {
+            $values['{numero-pedido}'] = self::plain_text((string) $order->get_order_number());
+        }
+        if (method_exists($order, 'get_payment_method_title')) {
+            $values['{metodo-pagamento}'] = self::plain_text((string) $order->get_payment_method_title());
         }
 
         return $values;

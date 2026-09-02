@@ -31,6 +31,19 @@ class SettingsSchema {
             'order_bump_description'  => 'Adicione este item ao seu pedido com condições especiais.',
             'order_bump_cta_text'     => 'Sim! Quero adicionar ao meu pedido',
             'order_bump_price'        => '',
+            'thankyou_success_title'  => 'Pedido recebido!',
+            'thankyou_success_message' => 'Obrigado pela sua compra. Seu pedido foi registrado com sucesso.',
+            'thankyou_failed_title'   => 'Pagamento não processado',
+            'thankyou_failed_message' => 'Infelizmente seu pagamento não pôde ser processado. Tente novamente ou entre em contato conosco.',
+            'thankyou_retry_text'     => 'Tentar novamente',
+            'thankyou_not_found_title' => 'Pedido não encontrado',
+            'thankyou_not_found_message' => 'Não foi possível localizar seu pedido. Verifique se o link está correto ou entre em contato conosco.',
+            'thankyou_not_found_button_text' => 'Voltar à loja',
+            'thankyou_payment_title'  => 'INSTRUÇÕES DE PAGAMENTO',
+            'thankyou_items_title'    => 'ITENS DO PEDIDO',
+            'thankyou_customer_title' => 'SEUS DADOS',
+            'thankyou_orders_button_text' => 'Ver meus pedidos',
+            'thankyou_shop_button_text' => 'Continuar comprando',
             'thankyou_custom_url'     => '',
             'thankyou_custom_url_enabled' => 'no',
         ];
@@ -240,6 +253,19 @@ class SettingsSchema {
             case 'order_bump_title':
             case 'order_bump_description':
             case 'order_bump_cta_text':
+            case 'thankyou_success_title':
+            case 'thankyou_success_message':
+            case 'thankyou_failed_title':
+            case 'thankyou_failed_message':
+            case 'thankyou_retry_text':
+            case 'thankyou_not_found_title':
+            case 'thankyou_not_found_message':
+            case 'thankyou_not_found_button_text':
+            case 'thankyou_payment_title':
+            case 'thankyou_items_title':
+            case 'thankyou_customer_title':
+            case 'thankyou_orders_button_text':
+            case 'thankyou_shop_button_text':
             default:
                 return sanitize_text_field((string) $value);
         }

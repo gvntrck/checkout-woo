@@ -161,6 +161,25 @@ class SettingsRepository {
     }
 
     /**
+     * Sincroniza opções individuais gravadas pela API de settings do WooCommerce
+     * com o container unificado, preservando chaves não presentes no formulário.
+     */
+    public static function sync_from_legacy_options(): bool {
+        $settings = self::get_all();
+
+        foreach (SettingsSchema::get_defaults() as $key => $default_value) {
+            $legacy_value = get_option('gvn_checkout_' . $key, null);
+            if ($legacy_value !== null) {
+                $settings[$key] = SettingsSchema::sanitize_setting($key, $legacy_value);
+            } elseif (!array_key_exists($key, $settings)) {
+                $settings[$key] = $default_value;
+            }
+        }
+
+        return self::update_all($settings);
+    }
+
+    /**
      * Atualiza os campos do checkout.
      *
      * @param array<int, array<string, mixed>> $fields

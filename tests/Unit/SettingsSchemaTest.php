@@ -15,10 +15,13 @@ class SettingsSchemaTest extends TestCase {
         $this->assertArrayHasKey('primary_color', $defaults);
         $this->assertArrayHasKey('button_color', $defaults);
         $this->assertArrayHasKey('order_bump_enabled', $defaults);
+        $this->assertArrayHasKey('thankyou_success_title', $defaults);
+        $this->assertArrayHasKey('thankyou_shop_button_text', $defaults);
         $this->assertEquals('EFEAD - Conectando Saberes', $defaults['header_text']);
         $this->assertEquals('#3a4759', $defaults['header_bg_color']);
         $this->assertEquals('#0066d4', $defaults['primary_color']);
         $this->assertEquals('no', $defaults['order_bump_enabled']);
+        $this->assertEquals('Pedido recebido!', $defaults['thankyou_success_title']);
     }
 
     public function test_sanitize_hex_colors_with_fallback() {
@@ -54,6 +57,7 @@ class SettingsSchemaTest extends TestCase {
     public function test_sanitize_text_fields_strips_tags() {
         $this->assertEquals('Texto Limpo', SettingsSchema::sanitize_setting('header_text', '<b>Texto Limpo</b>'));
         $this->assertEquals('Sem script', SettingsSchema::sanitize_setting('title_text', '<script>bad</script>Sem script'));
+        $this->assertEquals('Olá {primeiro-nome}', SettingsSchema::sanitize_setting('thankyou_success_title', '<b>Olá {primeiro-nome}</b>'));
     }
 
     public function test_sanitize_all_settings_fills_missing_defaults() {

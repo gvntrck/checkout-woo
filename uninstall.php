@@ -40,6 +40,19 @@ if ( class_exists( 'GVN\Checkout\Lifecycle\Uninstaller' ) ) {
         'gvn_checkout_order_bump_description',
         'gvn_checkout_order_bump_cta_text',
         'gvn_checkout_order_bump_price',
+        'gvn_checkout_thankyou_success_title',
+        'gvn_checkout_thankyou_success_message',
+        'gvn_checkout_thankyou_failed_title',
+        'gvn_checkout_thankyou_failed_message',
+        'gvn_checkout_thankyou_retry_text',
+        'gvn_checkout_thankyou_not_found_title',
+        'gvn_checkout_thankyou_not_found_message',
+        'gvn_checkout_thankyou_not_found_button_text',
+        'gvn_checkout_thankyou_payment_title',
+        'gvn_checkout_thankyou_items_title',
+        'gvn_checkout_thankyou_customer_title',
+        'gvn_checkout_thankyou_orders_button_text',
+        'gvn_checkout_thankyou_shop_button_text',
     );
 
     foreach ( $option_keys as $key ) {

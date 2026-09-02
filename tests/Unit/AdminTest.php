@@ -5,6 +5,7 @@ namespace GVN\Checkout\Tests\Unit;
 use GVN_Admin;
 use GVN_Custom_Fields;
 use GVN\Checkout\Settings\SettingsRepository;
+use GVN\Checkout\Support\Features;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -107,6 +108,44 @@ class AdminTest extends TestCase {
 
         $this->assertEquals('Minha Loja Premium', get_option('gvn_checkout_header_text'));
         $this->assertEquals('Minha Loja Premium', SettingsRepository::get('header_text'));
+    }
+
+    public function test_settings_include_customizable_thankyou_texts(): void {
+        $admin = GVN_Admin::get_instance();
+        $method = new \ReflectionMethod($admin, 'get_settings');
+        $method->setAccessible(true);
+
+        $settings = $method->invoke($admin);
+        $ids = array_column($settings, 'id');
+
+        $this->assertContains('gvn_checkout_thankyou_text_section', $ids);
+        $this->assertContains('gvn_checkout_thankyou_success_title', $ids);
+        $this->assertContains('gvn_checkout_thankyou_failed_message', $ids);
+        $this->assertContains('gvn_checkout_thankyou_not_found_title', $ids);
+        $this->assertContains('gvn_checkout_thankyou_payment_title', $ids);
+        $this->assertContains('gvn_checkout_thankyou_shop_button_text', $ids);
+    }
+
+    public function test_save_thankyou_text_syncs_the_unified_settings_container(): void {
+        global $wp_mock_options;
+
+        $wp_mock_options[Features::FLAG_NEW_SETTINGS_SCHEMA] = 'yes';
+        $wp_mock_options[SettingsRepository::OPTION_SCHEMA_VERSION] = 1;
+        $wp_mock_options[SettingsRepository::OPTION_SETTINGS] = [
+            'header_text' => 'Header preservado',
+            'thankyou_success_title' => 'Título anterior',
+        ];
+        $_GET['subtab'] = 'settings';
+        $_POST['gvn_checkout_thankyou_success_title'] = 'Obrigado, {primeiro-nome}!';
+
+        GVN_Admin::get_instance()->save_settings();
+
+        $this->assertSame('Obrigado, {primeiro-nome}!', SettingsRepository::get('thankyou_success_title'));
+        $this->assertSame('Header preservado', SettingsRepository::get('header_text'));
+        $this->assertSame(
+            'Obrigado, {primeiro-nome}!',
+            $wp_mock_options[SettingsRepository::OPTION_SETTINGS]['thankyou_success_title']
+        );
     }
 
     public function test_ajax_save_fields_denies_unauthorized_users(): void {

@@ -1,7 +1,7 @@
 /**
  * GVN Checkout - Admin Fields Manager
  * Drag-and-drop, CRUD, largura e ordenação de campos.
- * @version 1.13.41
+ * @version 1.13.42
  */
 
 (function ($) {
@@ -695,6 +695,16 @@
             var self = this;
             var fieldIds = gvn_admin_params.placeholder_fields || [];
 
+            this.renderToolbars(fieldIds, gvn_admin_params.text_placeholders);
+            this.renderToolbars(
+                gvn_admin_params.thankyou_placeholder_fields || [],
+                gvn_admin_params.thankyou_placeholders || gvn_admin_params.text_placeholders
+            );
+        },
+
+        renderToolbars: function (fieldIds, placeholders) {
+            var self = this;
+
             $.each(fieldIds, function (_, fieldId) {
                 var $field = $('#' + fieldId);
                 if (!$field.length || $field.next('.gvn-text-shortcuts').length) return;
@@ -704,7 +714,7 @@
                 $label.text(gvn_admin_params.insert_shortcut_text || 'Inserir atalho:');
                 $toolbar.attr('aria-label', $label.text()).append($label);
 
-                $.each(gvn_admin_params.text_placeholders, function (placeholder, description) {
+                $.each(placeholders, function (placeholder, description) {
                     var $button = $('<button type="button" class="gvn-text-shortcuts__chip"></button>');
                     $button.text(placeholder);
                     $button.attr({

@@ -76,6 +76,8 @@ Os editores de texto da página de configurações exibem atalhos clicáveis aba
 
 Os valores vêm das APIs nativas do WooCommerce, são exibidos como texto seguro e também são resolvidos no header da página de confirmação do pedido.
 
+Na seção **Textos da Página de Obrigado**, também ficam disponíveis `{primeiro-nome}`, `{numero-pedido}` e `{metodo-pagamento}`. É possível personalizar as mensagens de sucesso, falha e pedido não encontrado, os títulos dos cards e os botões de navegação, preservando as instruções e hooks oficiais dos gateways.
+
 ---
 
 ## Referência da superfície pública atual (baseline F0.3)
@@ -111,6 +113,7 @@ As opções abaixo usam o prefixo `gvn_checkout_` e são gravadas pela tela **Wo
 | `gvn_checkout_order_bump_description` | Texto/textarea | `Adicione este item ao seu pedido com condições especiais.` | Descrição da oferta; o fallback do template pode ser vazio quando a opção não existir. |
 | `gvn_checkout_order_bump_cta_text` | Texto | `Sim! Quero adicionar ao meu pedido` | Texto da chamada para ação. |
 | `gvn_checkout_order_bump_price` | Decimal textual ou vazio | vazio | Preço promocional; vazio ou valor não positivo faz o item usar o preço padrão. |
+| `gvn_checkout_thankyou_*` | Texto | Defaults do template | Mensagens, títulos e CTAs personalizáveis da página de confirmação. |
 | `gvn_checkout_fields` | Array de definições de campo | Defaults internos | Schema unificado dos campos exibidos e processados. |
 | `gvn_checkout_default_fields_config` | Array legado | — | Configuração antiga de campos brasileiros, lida somente pela migração administrativa e removida após o processamento. Não é uma opção de configuração nova. |
 

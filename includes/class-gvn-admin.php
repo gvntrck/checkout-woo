@@ -4,7 +4,7 @@
  * Gerencia a página de configurações no painel do WordPress com controle estrito de permissões e segurança.
  *
  * @package GVN_Checkout
- * @version 1.13.41
+ * @version 1.13.42
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -103,7 +103,7 @@ class GVN_Admin {
             woocommerce_update_options( $this->get_settings() );
 
             if ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ) {
-                SettingsRepository::flush_cache();
+                SettingsRepository::sync_from_legacy_options();
             }
         }
     }
@@ -182,6 +182,109 @@ class GVN_Admin {
             array(
                 'type' => 'sectionend',
                 'id'   => 'gvn_checkout_text_section',
+            ),
+
+            // Seção: Textos da Thank You
+            array(
+                'title' => __( 'Textos da Página de Obrigado', 'gvn-checkout' ),
+                'type'  => 'title',
+                'desc'  => __( 'Personalize mensagens, títulos e botões exibidos após a tentativa de pagamento.', 'gvn-checkout' ),
+                'id'    => 'gvn_checkout_thankyou_text_section',
+            ),
+            array(
+                'title'    => __( 'Título de sucesso', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_success_title',
+                'type'     => 'text',
+                'default'  => 'Pedido recebido!',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Mensagem de sucesso', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_success_message',
+                'type'     => 'textarea',
+                'default'  => 'Obrigado pela sua compra. Seu pedido foi registrado com sucesso.',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Título de falha', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_failed_title',
+                'type'     => 'text',
+                'default'  => 'Pagamento não processado',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Mensagem de falha', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_failed_message',
+                'type'     => 'textarea',
+                'default'  => 'Infelizmente seu pagamento não pôde ser processado. Tente novamente ou entre em contato conosco.',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Botão tentar novamente', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_retry_text',
+                'type'     => 'text',
+                'default'  => 'Tentar novamente',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Título de pedido não encontrado', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_not_found_title',
+                'type'     => 'text',
+                'default'  => 'Pedido não encontrado',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Mensagem de pedido não encontrado', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_not_found_message',
+                'type'     => 'textarea',
+                'default'  => 'Não foi possível localizar seu pedido. Verifique se o link está correto ou entre em contato conosco.',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Botão voltar à loja', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_not_found_button_text',
+                'type'     => 'text',
+                'default'  => 'Voltar à loja',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Título das instruções de pagamento', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_payment_title',
+                'type'     => 'text',
+                'default'  => 'INSTRUÇÕES DE PAGAMENTO',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Título dos itens do pedido', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_items_title',
+                'type'     => 'text',
+                'default'  => 'ITENS DO PEDIDO',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Título dos dados do cliente', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_customer_title',
+                'type'     => 'text',
+                'default'  => 'SEUS DADOS',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Botão ver pedidos', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_orders_button_text',
+                'type'     => 'text',
+                'default'  => 'Ver meus pedidos',
+                'desc_tip' => true,
+            ),
+            array(
+                'title'    => __( 'Botão continuar comprando', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_thankyou_shop_button_text',
+                'type'     => 'text',
+                'default'  => 'Continuar comprando',
+                'desc_tip' => true,
+            ),
+            array(
+                'type' => 'sectionend',
+                'id'   => 'gvn_checkout_thankyou_text_section',
             ),
 
             // Seção: Visual
@@ -361,6 +464,22 @@ class GVN_Admin {
                 'gvn_checkout_order_bump_cta_text',
             ),
             'insert_shortcut_text' => __( 'Inserir atalho:', 'gvn-checkout' ),
+            'thankyou_placeholders' => class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ? TextPlaceholderResolver::get_thankyou_placeholders() : array(),
+            'thankyou_placeholder_fields' => array(
+                'gvn_checkout_thankyou_success_title',
+                'gvn_checkout_thankyou_success_message',
+                'gvn_checkout_thankyou_failed_title',
+                'gvn_checkout_thankyou_failed_message',
+                'gvn_checkout_thankyou_retry_text',
+                'gvn_checkout_thankyou_not_found_title',
+                'gvn_checkout_thankyou_not_found_message',
+                'gvn_checkout_thankyou_not_found_button_text',
+                'gvn_checkout_thankyou_payment_title',
+                'gvn_checkout_thankyou_items_title',
+                'gvn_checkout_thankyou_customer_title',
+                'gvn_checkout_thankyou_orders_button_text',
+                'gvn_checkout_thankyou_shop_button_text',
+            ),
         ) );
     }
 

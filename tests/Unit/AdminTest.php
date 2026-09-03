@@ -202,4 +202,66 @@ class AdminTest extends TestCase {
         $this->assertStringContainsString('page=wc-settings&tab=gvn_checkout', $links[0]);
         $this->assertStringContainsString('Configurações', $links[0]);
     }
+
+    public function test_admin_css_file_has_valid_syntax_and_balanced_braces(): void {
+        $css_path = GVN_CHECKOUT_PLUGIN_DIR . 'assets/css/gvn-admin-fields.css';
+        $this->assertFileExists($css_path);
+
+        $content = file_get_contents($css_path);
+        $this->assertNotEmpty($content);
+
+        // Remove comentários CSS
+        $clean = preg_replace('!/\*.*?\*/!s', '', $content);
+
+        $depth = 0;
+        $max_depth = 0;
+        $lines = explode("\n", $clean);
+        $errors = [];
+
+        foreach ($lines as $line_num => $line) {
+            $len = strlen($line);
+            for ($i = 0; $i < $len; $i++) {
+                if ($line[$i] === '{') {
+                    $depth++;
+                    if ($depth > $max_depth) {
+                        $max_depth = $depth;
+                    }
+                } elseif ($line[$i] === '}') {
+                    $depth--;
+                    if ($depth < 0) {
+                        $errors[] = "Chave de fechamento prematura/órfã na linha " . ($line_num + 1);
+                        $depth = 0;
+                    }
+                }
+            }
+        }
+
+        if ($depth !== 0) {
+            $errors[] = "Chaves não fechadas ao final do arquivo (profundidade restante: {$depth})";
+        }
+
+        $this->assertEmpty($errors, 'Erros de sintaxe/chaves no CSS do admin: ' . implode('; ', $errors));
+        $this->assertStringNotContainsString('font-style: italic;}', preg_replace('/\s+/', '', $content), 'CSS contém fragmento de declaração órfã');
+    }
+
+    public function test_enqueue_admin_assets_supports_various_wc_settings_hook_formats(): void {
+        global $wp_mock_enqueued_styles, $wp_mock_enqueued_scripts;
+        $wp_mock_enqueued_styles = [];
+        $wp_mock_enqueued_scripts = [];
+
+        $_GET['page'] = 'wc-settings';
+        $_GET['tab'] = 'gvn_checkout';
+
+        $admin = GVN_Admin::get_instance();
+
+        // Cenário onde o hook não é exatamente a string woocommerce_page_wc-settings, mas o usuário está na aba do plugin
+        $admin->enqueue_admin_assets('settings_page_wc-settings');
+
+        $this->assertArrayHasKey(
+            'gvn-admin-fields-css',
+            $wp_mock_enqueued_styles,
+            'O estilo gvn-admin-fields-css deve ser enfileirado quando o usuário está na aba gvn_checkout das configurações do WooCommerce'
+        );
+    }
 }
+

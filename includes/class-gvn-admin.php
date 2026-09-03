@@ -4,7 +4,7 @@
  * Gerencia a página de configurações no painel do WordPress com controle estrito de permissões e segurança.
  *
  * @package GVN_Checkout
- * @version 1.13.42
+ * @version 1.13.46
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -57,6 +57,8 @@ class GVN_Admin {
         if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
             wp_die( esc_html__( 'Você não tem permissão suficiente para acessar esta página.', 'gvn-checkout' ) );
         }
+
+        $this->enqueue_admin_assets( 'woocommerce_page_wc-settings' );
 
         $current_subtab = $this->get_current_subtab();
         $base_url       = admin_url( 'admin.php?page=wc-settings&tab=gvn_checkout' );
@@ -419,12 +421,16 @@ class GVN_Admin {
     /**
      * Enqueue de assets do admin (apenas na aba GVN Checkout).
      */
-    public function enqueue_admin_assets( $hook ) {
+    public function enqueue_admin_assets( $hook = '' ) {
         if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
             return;
         }
 
-        if ( 'woocommerce_page_wc-settings' !== $hook ) {
+        $is_wc_settings = ( 'woocommerce_page_wc-settings' === $hook )
+            || ( is_string( $hook ) && strpos( $hook, 'wc-settings' ) !== false )
+            || ( isset( $_GET['page'] ) && 'wc-settings' === sanitize_key( wp_unslash( $_GET['page'] ) ) );
+
+        if ( ! $is_wc_settings ) {
             return;
         }
 

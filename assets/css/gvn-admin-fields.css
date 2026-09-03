@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - Admin Fields Manager Styles
- * @version 1.13.41
+ * @version 1.13.46
  */
 
 /* ===== Sub-tabs Navigation ===== */
@@ -301,6 +301,8 @@
 
 .gvn-conditions-hint {
     font-size: 11px;
+    color: #999;
+    font-style: italic;
 }
 
 /* Badge WooCommerce */
@@ -317,9 +319,6 @@
     background-color: #e0e0ff;
     color: #5b21b6;
     border: 1px solid #c4b5fd;
-}
-    color: #999;
-    font-style: italic;
 }
 
 .gvn-conditions-logic {

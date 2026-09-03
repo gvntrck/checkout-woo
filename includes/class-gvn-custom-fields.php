@@ -612,7 +612,7 @@ class GVN_Custom_Fields {
      */
     public function validate_custom_fields_after( $data, $errors ) {
         $fields = self::get_enabled_fields();
-        $posted = isset( $_POST ) ? wp_unslash( $_POST ) : array();
+        $posted = ! empty( $_POST ) ? wp_unslash( $_POST ) : array();
         $merged = array_merge( (array) $data, (array) $posted );
         FieldValidator::validate( $fields, $merged, $errors );
     }
@@ -622,7 +622,7 @@ class GVN_Custom_Fields {
      */
     public function validate_custom_fields_process() {
         $fields = self::get_enabled_fields();
-        $posted = isset( $_POST ) ? wp_unslash( $_POST ) : array();
+        $posted = ! empty( $_POST ) ? wp_unslash( $_POST ) : array();
         FieldValidator::validate( $fields, $posted, null );
     }
 
@@ -634,7 +634,7 @@ class GVN_Custom_Fields {
      */
     public function persist_custom_fields_on_order_create( $order, $data ) {
         $fields = self::get_enabled_fields();
-        $posted = isset( $_POST ) ? wp_unslash( $_POST ) : array();
+        $posted = ! empty( $_POST ) ? wp_unslash( $_POST ) : array();
         $merged = array_merge( (array) $data, (array) $posted );
         FieldOrderPersister::persist( $order, $fields, $merged );
     }
@@ -645,13 +645,13 @@ class GVN_Custom_Fields {
      * @param int $order_id
      */
     public function save_custom_fields_to_order( $order_id ) {
-        $order = wc_get_order( $order_id );
+        $order = function_exists( 'wc_get_order' ) ? wc_get_order( $order_id ) : null;
         if ( ! $order ) {
             return;
         }
 
         $fields = self::get_enabled_fields();
-        $posted = isset( $_POST ) ? wp_unslash( $_POST ) : array();
+        $posted = ! empty( $_POST ) ? wp_unslash( $_POST ) : array();
         $persisted = FieldOrderPersister::persist( $order, $fields, $posted );
 
         if ( ! empty( $persisted ) ) {

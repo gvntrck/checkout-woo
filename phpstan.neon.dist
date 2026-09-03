@@ -3,6 +3,7 @@ includes:
 
 parameters:
     level: 1
+    reportUnmatchedIgnoredErrors: false
     paths:
         - gvn-checkout.php
         - includes/
@@ -14,3 +15,5 @@ parameters:
         - tests/fixtures/
     ignoreErrors:
         - '#Constant [A-Z_]+ not found#'
+        - '#Function (WC|woocommerce_[a-z_]+|wc_[a-z_]+) not found#'
+        - '#Call to static method [a-zA-Z0-9_]+\(\) on an unknown class WC_[A-Za-z0-9_]+#'

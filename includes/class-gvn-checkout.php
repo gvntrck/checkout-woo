@@ -263,10 +263,19 @@ class GVN_Checkout {
                 $order_obj = wc_get_order( $order_id );
                 if ( $order_obj ) {
                     $order_key = isset( $_GET['key'] ) ? ( function_exists( 'wc_clean' ) ? wc_clean( wp_unslash( $_GET['key'] ) ) : sanitize_text_field( wp_unslash( $_GET['key'] ) ) ) : '';
-                    if ( ! empty( $order_key ) && function_exists( 'hash_equals' ) && method_exists( $order_obj, 'get_order_key' ) ) {
-                        if ( ! hash_equals( (string) $order_obj->get_order_key(), (string) $order_key ) ) {
+                    if ( empty( $order_key ) ) {
+                        return $template;
+                    }
+                    if ( method_exists( $order_obj, 'get_order_key' ) ) {
+                        if ( function_exists( 'hash_equals' ) ) {
+                            if ( ! hash_equals( (string) $order_obj->get_order_key(), (string) $order_key ) ) {
+                                return $template;
+                            }
+                        } elseif ( (string) $order_obj->get_order_key() !== (string) $order_key ) {
                             return $template;
                         }
+                    } else {
+                        return $template;
                     }
 
                     // Verifica se o pedido foi originado pelo GVN Checkout

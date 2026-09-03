@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - Scripts do Checkout Personalizado
- * @version 1.13.35
+ * @version 1.13.43
  */
 
 (function ($) {
@@ -436,7 +436,8 @@
                 },
                 phone: function (val) {
                     val = val.replace(/\D/g, '').substring(0, 11);
-                    if (val.length > 6) return val.replace(/(\d{2})(\d{5})(\d{1,4})/, '($1) $2-$3');
+                    if (val.length > 10) return val.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+                    if (val.length > 6) return val.replace(/(\d{2})(\d{4})(\d{1,4})/, '($1) $2-$3');
                     if (val.length > 2) return val.replace(/(\d{2})(\d{1,5})/, '($1) $2');
                     return val;
                 },

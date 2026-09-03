@@ -233,21 +233,21 @@ if ( $bump_product && $cart ) {
                         </div>
 
                         <div class="gvn-order-totals">
-                            <div class="gvn-order-totals__row">
+                            <div class="gvn-order-totals__row cart-subtotal">
                                 <span class="gvn-order-totals__label"><?php esc_html_e( 'Subtotal', 'gvn-checkout' ); ?></span>
                                 <span class="gvn-order-totals__value" id="gvn-subtotal"><?php echo ( $cart && function_exists( 'wc_price' ) ) ? wc_price( $cart->get_subtotal() ) : ''; ?></span>
                             </div>
 
                             <?php if ( $cart && $cart->get_discount_total() > 0 ) : ?>
-                                <div class="gvn-order-totals__row gvn-order-totals__row--discount" id="gvn-discount-row">
+                                <div class="gvn-order-totals__row gvn-order-totals__row--discount cart-discount" id="gvn-discount-row">
                                     <span class="gvn-order-totals__label"><?php esc_html_e( 'Desconto', 'gvn-checkout' ); ?></span>
                                     <span class="gvn-order-totals__value" id="gvn-discount">-<?php echo function_exists( 'wc_price' ) ? wc_price( $cart->get_discount_total() ) : ''; ?></span>
                                 </div>
                             <?php endif; ?>
 
-                            <div class="gvn-order-totals__total">
+                            <div class="gvn-order-totals__total order-total">
                                 <span class="gvn-order-totals__total-label"><?php esc_html_e( 'Total', 'gvn-checkout' ); ?></span>
-                                <span class="gvn-order-totals__total-value" id="gvn-total"><?php echo ( $cart ) ? $cart->get_total() : ''; ?></span>
+                                <span class="gvn-order-totals__total-value" id="gvn-total"><?php echo ( $cart ) ? $cart->get_total() : '<bdi>0</bdi>'; ?></span>
                             </div>
                         </div>
 

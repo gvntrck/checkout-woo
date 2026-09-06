@@ -1,0 +1,1880 @@
+Requisitos dos gateways
+×
+A lista combina requisitos declarados pelo WooCommerce e integrações conhecidas. Itens não declarados precisam de homologação.
+
+Plugins de gateway instalados
+Selecione um plugin para consultar os campos exigidos por seus métodos.
+
+
+Plugin: PagBank Connect
+pagbank-connect
+Instalado/inativo · 4 método(s)
+
+Plugin: OpenPix for WooCommerce
+openpix-for-woocommerce
+Instalado/inativo · 4 método(s)
+
+Plugin: WooCommerce
+gateway-cod
+Instalado/inativo · 1 método(s)
+
+Plugin: WooCommerce
+gateway-cheque
+Instalado/inativo · 1 método(s)
+
+Plugin: WooCommerce
+gateway-bacs
+Instalado/inativo · 1 método(s)
+
+Plugin: PagBank for WooCommerce
+pagbank-for-woocommerce
+Instalado/inativo · 6 método(s)
+Plugin
+
+PagBank Connect
+pagbank-connect
+4 método(s)
+Método
+
+Cartão de Crédito via PagBank
+rm-pagbank-cc
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+Boleto via PagBank
+rm-pagbank-boleto
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+PIX via PagBank
+rm-pagbank-pix
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+Pagar no PagBank
+rm-pagbank-redirect
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Plugin
+
+OpenPix for WooCommerce
+openpix-for-woocommerce
+4 método(s)
+Método
+
+OpenPix Boleto
+woocommerce_openpix_boleto
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+Pague com PIX
+woocommerce_openpix_pix
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+Pay with Pix Crediary
+woocommerce_openpix_pix_crediary
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+Pay with Pix and Credit Card
+woocommerce_openpix_pix_parcelado
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Plugin
+
+WooCommerce
+gateway-cod
+1 método(s)
+Método
+
+Pagamento na entrega
+cod
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Plugin
+
+WooCommerce
+gateway-cheque
+1 método(s)
+Método
+
+Cheque
+cheque
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Plugin
+
+WooCommerce
+gateway-bacs
+1 método(s)
+Método
+
+bacs
+bacs
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Plugin
+
+PagBank for WooCommerce
+pagbank-for-woocommerce
+6 método(s)
+Método
+
+Cartão de crédito
+pagbank_credit_card
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+Cartão de débito
+pagbank_debit_card
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+Boleto
+pagbank_boleto
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+Pix
+pagbank_pix
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+Pagar com PagBank
+pagbank_pay_with_pagbank
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Método
+
+Checkout PagBank
+pagbank_checkout
+Requisitos específicos não declarados
+Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.
+
+Nenhum requisito específico declarado para este método.
+
+Requisitos gerais do WooCommerce (24)
+Campo	Variante	Regra	Fonte	Confiança	Status
+Nome
+billing_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+billing_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CPF
+billing_cpf
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Tipo de Pessoa
+billing_persontype
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Número
+billing_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro
+billing_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Celular
+billing_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Celular (Adicional)
+billing_cellphone
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Endereço de e-mail
+billing_email
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+billing_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Cidade
+billing_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço 1 (Logradouro)
+billing_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+billing_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+billing_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Nome
+shipping_first_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Sobrenome
+shipping_last_name
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+País
+shipping_country
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Endereço
+shipping_address_1
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Número (Entrega)
+shipping_number
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Bairro (Entrega)
+shipping_neighborhood
+Geral	Obrigatório	WooCommerce	Confirmado	Desativado
+O campo está desativado no GVN Checkout.
+Cidade
+shipping_city
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Estado
+shipping_state
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+CEP
+shipping_postcode
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.
+Telefone
+shipping_phone
+Geral	Obrigatório	WooCommerce	Confirmado	Disponível
+Campo disponível.

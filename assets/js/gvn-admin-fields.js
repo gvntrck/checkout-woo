@@ -720,10 +720,13 @@
 
             $.each(gateways, function (_, gateway) {
                 var pluginId = String(gateway.plugin_id || gateway.id || 'gateway');
-                // O `plugin_id` genérico do WooCommerce nunca identifica o plugin
-                // real; nesses casos cada método forma seu próprio grupo para não
-                // misturar plugins diferentes no mesmo cartão.
-                if (pluginId === 'woocommerce' || pluginId === 'woocommerce_' || pluginId === 'wc' || pluginId === 'wc_') {
+                var pluginSource = String(gateway.plugin_source || '');
+                // Defesa apenas para relatórios antigos sem `plugin_source`: o
+                // `plugin_id` genérico do WooCommerce nunca identifica o plugin
+                // real, então cada método forma seu próprio grupo para não
+                // misturar plugins diferentes. Relatórios novos já resolvem isso
+                // no backend (ex: núcleo WooCommerce agrupa como `woocommerce`).
+                if (!pluginSource && (pluginId === 'woocommerce' || pluginId === 'woocommerce_' || pluginId === 'wc' || pluginId === 'wc_')) {
                     pluginId = 'gateway-' + String(gateway.id || 'gateway');
                 }
                 if (!groups[pluginId]) {

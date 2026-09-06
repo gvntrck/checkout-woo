@@ -1,7 +1,7 @@
 /**
  * GVN Checkout - Admin Fields Manager
  * Drag-and-drop, CRUD, largura e ordenação de campos.
- * @version 1.13.42
+ * @version 1.13.48
  */
 
 (function ($) {
@@ -581,6 +581,58 @@
             }
         },
 
+        getGatewaySpecificRequirements: function (gateway) {
+            if (gateway.specific_requirements && $.isArray(gateway.specific_requirements)) {
+                return gateway.specific_requirements;
+            }
+            return $.grep(gateway.requirements || [], function (requirement) {
+                return requirement.source !== 'woocommerce';
+            });
+        },
+
+        getGatewayGeneralRequirements: function (gateway) {
+            if (gateway.general_requirements && $.isArray(gateway.general_requirements)) {
+                return gateway.general_requirements;
+            }
+            return $.grep(gateway.requirements || [], function (requirement) {
+                return requirement.source === 'woocommerce';
+            });
+        },
+
+        renderGatewayRequirementsTable: function (requirements) {
+            var self = this;
+            var html = '<div class="gvn-gateway-table-wrap"><table class="widefat striped gvn-gateway-table"><thead><tr><th>Campo</th><th>Variante</th><th>Regra</th><th>Fonte</th><th>Confiança</th><th>Status</th></tr></thead><tbody>';
+            $.each(requirements, function (_, requirement) {
+                var statusLabel = {
+                    ok: 'Disponível',
+                    disabled: 'Desativado',
+                    hidden: 'Oculto',
+                    missing: 'Ausente',
+                    not_required: 'Não obrigatório',
+                    conditional: 'Condicional'
+                }[requirement.status] || 'Revisar';
+                var sourceLabel = {
+                    woocommerce: 'WooCommerce',
+                    adapter: 'Adaptador',
+                    extension: 'Integração'
+                }[requirement.source] || requirement.source;
+                var ruleLabel = requirement.requirement === 'required' ? 'Obrigatório' : 'Presente';
+                var fieldLabel = requirement.field_label || requirement.field_key;
+                var confidenceLabel = requirement.confidence === 'confirmed' ? 'Confirmado' : 'Não confirmado';
+
+                html += '<tr class="gvn-gateway-status--' + self.escAttr(requirement.status || 'unknown') + '">';
+                html += '<td><button type="button" class="button-link gvn-gateway-field-link" data-field-key="' + self.escAttr(requirement.field_key) + '">' + self.escHtml(fieldLabel) + '</button><code>' + self.escHtml(requirement.field_key) + '</code></td>';
+                html += '<td>' + self.escHtml(requirement.variant || 'Geral') + '</td>';
+                html += '<td>' + self.escHtml(ruleLabel) + '</td>';
+                html += '<td>' + self.escHtml(sourceLabel) + '</td>';
+                html += '<td>' + self.escHtml(confidenceLabel) + '</td>';
+                html += '<td><strong>' + self.escHtml(statusLabel) + '</strong><small>' + self.escHtml(requirement.status_message || '') + '</small></td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+            return html;
+        },
+
         renderGatewayRequirements: function () {
             var self = this;
             var report = (typeof gvn_admin_params !== 'undefined' && gvn_admin_params.gateway_requirements) || {};
@@ -601,8 +653,9 @@
                 var pluginTabId = 'gvn-gateway-tab-' + plugin.id;
                 var pluginPanelId = 'gvn-gateway-panel-' + plugin.id;
                 var pluginState = plugin.active ? 'Ativo' : 'Instalado/inativo';
+                var pluginNote = plugin.source === 'fallback' ? ' · Identificação individual' : '';
                 html += '<button type="button" id="' + self.escAttr(pluginTabId) + '" class="gvn-gateway-picker__item" role="tab" aria-selected="false" aria-controls="' + self.escAttr(pluginPanelId) + '" data-gateway-id="' + self.escAttr(plugin.id) + '">';
-                html += '<strong>' + self.escHtml(plugin.title) + '</strong><code>' + self.escHtml(plugin.id) + '</code><small>' + self.escHtml(pluginState) + ' · ' + plugin.methods.length + ' método(s)</small>';
+                html += '<strong>Plugin: ' + self.escHtml(plugin.title) + '</strong><code>' + self.escHtml(plugin.id) + '</code><small>' + self.escHtml(pluginState) + ' · ' + plugin.methods.length + ' método(s)' + self.escHtml(pluginNote) + '</small>';
                 html += '</button>';
             });
             html += '</div></div>';
@@ -611,7 +664,10 @@
                 var pluginTabId = 'gvn-gateway-tab-' + plugin.id;
                 var pluginPanelId = 'gvn-gateway-panel-' + plugin.id;
                 html += '<section id="' + self.escAttr(pluginPanelId) + '" class="gvn-gateway-plugin-panel" role="tabpanel" aria-labelledby="' + self.escAttr(pluginTabId) + '" data-gateway-panel="' + self.escAttr(plugin.id) + '" hidden>';
-                html += '<div class="gvn-gateway-plugin-panel__header"><h3>' + self.escHtml(plugin.title) + '</h3><code>' + self.escHtml(plugin.id) + '</code></div>';
+                html += '<div class="gvn-gateway-plugin-panel__header"><div><p class="gvn-gateway-plugin-panel__kicker">Plugin</p><h3>' + self.escHtml(plugin.title) + '</h3><code>' + self.escHtml(plugin.id) + '</code></div><span class="gvn-gateway-plugin-panel__count">' + plugin.methods.length + ' método(s)</span></div>';
+                if (plugin.source === 'fallback') {
+                    html += '<p class="gvn-gateway-card__notice">Não foi possível identificar o plugin deste método pelo arquivo da classe; ele é exibido individualmente para evitar agrupar plugins diferentes.</p>';
+                }
                 $.each(plugin.methods, function (_, gateway) {
                 var declarationClass = gateway.declaration === 'declared' ? 'is-declared' : 'is-unknown';
                 var declarationLabel = gateway.declaration === 'declared'
@@ -620,7 +676,7 @@
 
                 html += '<article class="gvn-gateway-card ' + declarationClass + '" data-gateway-method="' + self.escAttr(gateway.id) + '">';
                 html += '<div class="gvn-gateway-card__header">';
-                html += '<div><h4>' + self.escHtml(gateway.title || gateway.id) + '</h4><code>' + self.escHtml(gateway.id) + '</code></div>';
+                html += '<div><p class="gvn-gateway-card__kicker">Método</p><h4>' + self.escHtml(gateway.title || gateway.id) + '</h4><code>' + self.escHtml(gateway.id) + '</code></div>';
                 html += '<span class="gvn-gateway-card__declaration">' + self.escHtml(declarationLabel) + '</span>';
                 html += '</div>';
 
@@ -628,38 +684,24 @@
                     html += '<p class="gvn-gateway-card__notice">Não há uma declaração específica deste método. Teste-o em homologação antes de marcá-lo como compatível.</p>';
                 }
 
-                if (!gateway.requirements || !gateway.requirements.length) {
+                var specificRequirements = self.getGatewaySpecificRequirements(gateway);
+                var generalRequirements = self.getGatewayGeneralRequirements(gateway);
+
+                if (!specificRequirements.length && !generalRequirements.length) {
                     html += '<p class="gvn-gateway-modal__empty">Nenhum campo obrigatório conhecido.</p>';
                 } else {
-                    html += '<div class="gvn-gateway-table-wrap"><table class="widefat striped gvn-gateway-table"><thead><tr><th>Campo</th><th>Variante</th><th>Regra</th><th>Fonte</th><th>Confiança</th><th>Status</th></tr></thead><tbody>';
-                    $.each(gateway.requirements, function (_, requirement) {
-                        var statusLabel = {
-                            ok: 'Disponível',
-                            disabled: 'Desativado',
-                            hidden: 'Oculto',
-                            missing: 'Ausente',
-                            not_required: 'Não obrigatório',
-                            conditional: 'Condicional'
-                        }[requirement.status] || 'Revisar';
-                        var sourceLabel = {
-                            woocommerce: 'WooCommerce',
-                            adapter: 'Adaptador',
-                            extension: 'Integração'
-                        }[requirement.source] || requirement.source;
-                        var ruleLabel = requirement.requirement === 'required' ? 'Obrigatório' : 'Presente';
-                        var fieldLabel = requirement.field_label || requirement.field_key;
-                        var confidenceLabel = requirement.confidence === 'confirmed' ? 'Confirmado' : 'Não confirmado';
+                    if (specificRequirements.length) {
+                        html += '<h5 class="gvn-gateway-section-title">Requisitos específicos do método (' + specificRequirements.length + ')</h5>';
+                        html += self.renderGatewayRequirementsTable(specificRequirements);
+                    } else {
+                        html += '<p class="gvn-gateway-modal__empty">Nenhum requisito específico declarado para este método.</p>';
+                    }
 
-                        html += '<tr class="gvn-gateway-status--' + self.escAttr(requirement.status || 'unknown') + '">';
-                        html += '<td><button type="button" class="button-link gvn-gateway-field-link" data-field-key="' + self.escAttr(requirement.field_key) + '">' + self.escHtml(fieldLabel) + '</button><code>' + self.escHtml(requirement.field_key) + '</code></td>';
-                        html += '<td>' + self.escHtml(requirement.variant || 'Geral') + '</td>';
-                        html += '<td>' + self.escHtml(ruleLabel) + '</td>';
-                        html += '<td>' + self.escHtml(sourceLabel) + '</td>';
-                        html += '<td>' + self.escHtml(confidenceLabel) + '</td>';
-                        html += '<td><strong>' + self.escHtml(statusLabel) + '</strong><small>' + self.escHtml(requirement.status_message || '') + '</small></td>';
-                        html += '</tr>';
-                    });
-                    html += '</tbody></table></div>';
+                    if (generalRequirements.length) {
+                        html += '<details class="gvn-gateway-general"><summary>Requisitos gerais do WooCommerce (' + generalRequirements.length + ')</summary>';
+                        html += self.renderGatewayRequirementsTable(generalRequirements);
+                        html += '</details>';
+                    }
                 }
                 html += '</article>';
                 });
@@ -678,16 +720,28 @@
 
             $.each(gateways, function (_, gateway) {
                 var pluginId = String(gateway.plugin_id || gateway.id || 'gateway');
+                // O `plugin_id` genérico do WooCommerce nunca identifica o plugin
+                // real; nesses casos cada método forma seu próprio grupo para não
+                // misturar plugins diferentes no mesmo cartão.
+                if (pluginId === 'woocommerce' || pluginId === 'woocommerce_' || pluginId === 'wc' || pluginId === 'wc_') {
+                    pluginId = 'gateway-' + String(gateway.id || 'gateway');
+                }
                 if (!groups[pluginId]) {
                     groups[pluginId] = {
                         id: pluginId,
                         title: gateway.plugin_title || gateway.title || pluginId,
+                        source: gateway.plugin_source || 'declared',
                         active: !!gateway.active,
                         methods: []
                     };
                     order.push(pluginId);
                 }
+                // O nome do plugin é o nome do plugin — nunca o título do método.
+                // Mantém o primeiro título de plugin detectado para o grupo.
                 groups[pluginId].active = groups[pluginId].active || !!gateway.active;
+                if (!groups[pluginId].title && (gateway.plugin_title || gateway.title)) {
+                    groups[pluginId].title = gateway.plugin_title || gateway.title;
+                }
                 groups[pluginId].methods.push(gateway);
             });
 

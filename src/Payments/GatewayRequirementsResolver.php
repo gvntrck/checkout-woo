@@ -73,16 +73,38 @@ class GatewayRequirementsResolver {
                 );
             }
 
+            $specific_requirements = array_values(
+                array_filter(
+                    $normalized_requirements,
+                    function ( $item ) {
+                        return self::SOURCE_WOOCOMMERCE !== $item['source'];
+                    }
+                )
+            );
+            $general_requirements = array_values(
+                array_filter(
+                    $normalized_requirements,
+                    function ( $item ) {
+                        return self::SOURCE_WOOCOMMERCE === $item['source'];
+                    }
+                )
+            );
+
             $report_gateways[] = array(
                 'id'             => $metadata['id'],
                 'title'          => $metadata['title'],
                 'description'    => $metadata['description'],
                 'plugin_id'      => $metadata['plugin_id'],
                 'plugin_title'   => $metadata['plugin_title'],
+                'plugin_source'  => $metadata['plugin_source'],
                 'active'         => $metadata['active'],
                 'has_fields'     => $metadata['has_fields'],
                 'declaration'    => $has_specific_declaration ? 'declared' : 'not_declared',
                 'requirements'   => $normalized_requirements,
+                'specific_requirements' => $specific_requirements,
+                'general_requirements'  => $general_requirements,
+                'specific_count' => count( $specific_requirements ),
+                'general_count'  => count( $general_requirements ),
                 'conflict_count' => count(
                     array_filter(
                         $normalized_requirements,
@@ -733,6 +755,11 @@ class GatewayRequirementsResolver {
     /**
      * Normaliza a identidade pública de um gateway.
      *
+     * O `plugin_id` nativo do WooCommerce (`WC_Settings_API::$plugin_id`) vale
+     * `woocommerce_` para praticamente todos os gateways, então ele NÃO pode
+     * ser usado como identificador do plugin. Quando o valor é genérico, o
+     * plugin real é detectado pelo arquivo da classe do gateway via Reflection.
+     *
      * @param string|int $key
      * @param object|array $gateway
      * @return array
@@ -750,23 +777,28 @@ class GatewayRequirementsResolver {
         }
         $title = sanitize_text_field( $title ? $title : $id );
 
-        $plugin_id = '';
-        if ( is_object( $gateway ) && isset( $gateway->plugin_id ) ) {
-            $plugin_id = $gateway->plugin_id;
-        } elseif ( is_array( $gateway ) && isset( $gateway['plugin_id'] ) ) {
-            $plugin_id = $gateway['plugin_id'];
-        }
-        $plugin_id = sanitize_key( $plugin_id ? $plugin_id : $id );
-
-        $plugin_title = '';
+        $method_title = '';
         if ( is_object( $gateway ) && method_exists( $gateway, 'get_method_title' ) ) {
-            $plugin_title = $gateway->get_method_title();
+            $method_title = $gateway->get_method_title();
         } elseif ( is_object( $gateway ) && isset( $gateway->method_title ) ) {
-            $plugin_title = $gateway->method_title;
+            $method_title = $gateway->method_title;
         } elseif ( is_array( $gateway ) && isset( $gateway['method_title'] ) ) {
-            $plugin_title = $gateway['method_title'];
+            $method_title = $gateway['method_title'];
         }
-        $plugin_title = sanitize_text_field( $plugin_title ? $plugin_title : $title );
+        $method_title = sanitize_text_field( $method_title );
+
+        $raw_plugin_id = '';
+        if ( is_object( $gateway ) && isset( $gateway->plugin_id ) ) {
+            $raw_plugin_id = $gateway->plugin_id;
+        } elseif ( is_array( $gateway ) && isset( $gateway['plugin_id'] ) ) {
+            $raw_plugin_id = $gateway['plugin_id'];
+        }
+        $raw_plugin_id = is_scalar( $raw_plugin_id ) ? sanitize_key( $raw_plugin_id ) : '';
+
+        $plugin_identity = $this->resolve_plugin_identity( $gateway, $id, $raw_plugin_id, $method_title, $title );
+        $plugin_id = $plugin_identity['id'];
+        $plugin_title = $plugin_identity['title'];
+        $plugin_source = $plugin_identity['source'];
 
         $description = '';
         if ( is_object( $gateway ) && method_exists( $gateway, 'get_description' ) ) {
@@ -797,10 +829,234 @@ class GatewayRequirementsResolver {
             'description' => sanitize_text_field( $description ),
             'plugin_id'   => $plugin_id,
             'plugin_title' => $plugin_title,
+            'plugin_source' => $plugin_source,
             'active'      => $active,
             'has_fields'  => $has_fields,
             'object'      => $gateway,
         );
+    }
+
+    /**
+     * Resolve a identidade real do plugin que fornece o gateway.
+     *
+     * Nunca confia em `plugin_id` genérico do WooCommerce (`woocommerce_`,
+     * `woocommerce`, `wc`, etc.) nem em valor igual ao ID do gateway — ambos
+     * indicam ausência de declaração e causariam o agrupamento indevido de
+     * plugins diferentes no painel.
+     *
+     * @param object|array $gateway
+     * @param string $gateway_id
+     * @param string $raw_plugin_id
+     * @param string $method_title
+     * @param string $title
+     * @return array{id:string,title:string,source:string}
+     */
+    private function resolve_plugin_identity( $gateway, $gateway_id, $raw_plugin_id, $method_title, $title ) {
+        if ( '' !== $raw_plugin_id && ! $this->is_generic_plugin_id( $raw_plugin_id, $gateway_id ) ) {
+            $plugin_title = $method_title ? $method_title : $title;
+            return array(
+                'id'     => $raw_plugin_id,
+                'title'  => $plugin_title ? $plugin_title : $raw_plugin_id,
+                'source' => 'declared',
+            );
+        }
+
+        $detected = $this->detect_plugin_from_gateway_class( $gateway );
+        if ( is_array( $detected ) && '' !== $detected['id'] ) {
+            return $detected;
+        }
+
+        // Fallback honesto: sem evidência do plugin real, cada método forma
+        // seu próprio grupo para jamais misturar plugins diferentes. O painel
+        // sinaliza essa situação como identificação individual.
+        $fallback_title = ( '' !== $method_title && $method_title !== $title ) ? $method_title : $title;
+        if ( '' === $fallback_title ) {
+            $fallback_title = $gateway_id;
+        }
+
+        return array(
+            'id'     => $gateway_id ? $gateway_id : 'gateway',
+            'title'  => $fallback_title,
+            'source' => 'fallback',
+        );
+    }
+
+    /**
+     * Indica se o `plugin_id` é genérico demais para identificar o plugin.
+     *
+     * @param string $plugin_id
+     * @param string $gateway_id
+     * @return bool
+     */
+    private function is_generic_plugin_id( $plugin_id, $gateway_id ) {
+        $generic = array( '', 'woocommerce', 'woocommerce_', 'wc', 'wc_', 'wordpress', 'payment', 'payments', 'gateway', 'gateways' );
+        if ( in_array( $plugin_id, $generic, true ) ) {
+            return true;
+        }
+        if ( '' !== $gateway_id && $plugin_id === $gateway_id ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Detecta o plugin pelo arquivo da classe do gateway (Reflection).
+     *
+     * Gateways do mesmo plugin compartilham o mesmo diretório de plugin, então
+     * métodos como cartão/boleto/Pix do PagBank são agrupados corretamente sem
+     * depender do `plugin_id` genérico do WooCommerce.
+     *
+     * @param object|array $gateway
+     * @return array|null
+     */
+    private function detect_plugin_from_gateway_class( $gateway ) {
+        if ( ! is_object( $gateway ) ) {
+            return null;
+        }
+
+        try {
+            $reflection = new \ReflectionClass( $gateway );
+            $file = $reflection->getFileName();
+        } catch ( \Exception $e ) {
+            return null;
+        } catch ( \Throwable $e ) {
+            return null;
+        }
+
+        if ( ! is_string( $file ) || '' === $file ) {
+            return null;
+        }
+
+        $normalized_file = $this->normalize_fs_path( $file );
+
+        $plugin_dir = defined( 'WP_PLUGIN_DIR' ) ? $this->normalize_fs_path( (string) WP_PLUGIN_DIR ) : '';
+        if ( '' !== $plugin_dir && 0 === strpos( $normalized_file, rtrim( $plugin_dir, '/' ) . '/' ) ) {
+            $relative = ltrim( substr( $normalized_file, strlen( rtrim( $plugin_dir, '/' ) . '/' ) ), '/' );
+            if ( '' === $relative ) {
+                return null;
+            }
+            $parts = explode( '/', $relative );
+            $slug_dir = $parts[0];
+            if ( '' === $slug_dir ) {
+                return null;
+            }
+            if ( 1 === count( $parts ) ) {
+                $slug = (string) preg_replace( '/\.php$/', '', $slug_dir );
+            } else {
+                $slug = $slug_dir;
+            }
+            $slug = sanitize_key( $slug );
+            if ( '' === $slug ) {
+                return null;
+            }
+
+            return array(
+                'id'     => $slug,
+                'title'  => $this->get_plugin_name_for_slug( $slug, $relative ),
+                'source' => 'detected',
+            );
+        }
+
+        $mu_dir = defined( 'WPMU_PLUGIN_DIR' ) ? $this->normalize_fs_path( (string) WPMU_PLUGIN_DIR ) : '';
+        if ( '' !== $mu_dir && 0 === strpos( $normalized_file, rtrim( $mu_dir, '/' ) . '/' ) ) {
+            $relative = ltrim( substr( $normalized_file, strlen( rtrim( $mu_dir, '/' ) . '/' ) ), '/' );
+            $parts = explode( '/', $relative );
+            $slug = sanitize_key( (string) preg_replace( '/\.php$/', '', $parts[0] ) );
+            if ( '' !== $slug ) {
+                return array(
+                    'id'     => $slug,
+                    'title'  => $this->humanize_slug( $slug ),
+                    'source' => 'detected',
+                );
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve o nome de exibição do plugin a partir do slug.
+     *
+     * @param string $slug
+     * @param string $relative_file
+     * @return string
+     */
+    private function get_plugin_name_for_slug( $slug, $relative_file ) {
+        if ( 'woocommerce' === $slug ) {
+            return 'WooCommerce';
+        }
+
+        if ( function_exists( 'get_plugins' ) ) {
+            static $all_plugins = null;
+            if ( null === $all_plugins ) {
+                $all_plugins = get_plugins();
+            }
+            if ( is_array( $all_plugins ) ) {
+                foreach ( $all_plugins as $basename => $data ) {
+                    $dir = strpos( $basename, '/' ) !== false ? substr( $basename, 0, strpos( $basename, '/' ) ) : (string) preg_replace( '/\.php$/', '', $basename );
+                    if ( $dir === $slug && is_array( $data ) && ! empty( $data['Name'] ) ) {
+                        return sanitize_text_field( $data['Name'] );
+                    }
+                }
+            }
+        }
+
+        if ( function_exists( 'get_plugin_data' ) ) {
+            $candidate = '';
+            if ( defined( 'WP_PLUGIN_DIR' ) ) {
+                $base = rtrim( (string) WP_PLUGIN_DIR, '/\\' );
+                foreach ( array( $slug . '/' . $slug . '.php', $slug . '.php' ) as $try ) {
+                    $full = $base . '/' . $try;
+                    if ( is_string( $full ) && file_exists( $full ) ) {
+                        $candidate = $full;
+                        break;
+                    }
+                }
+            }
+            if ( '' !== $candidate ) {
+                $data = get_plugin_data( $candidate, false, false );
+                if ( is_array( $data ) && ! empty( $data['Name'] ) ) {
+                    return sanitize_text_field( $data['Name'] );
+                }
+            }
+        }
+
+        return $this->humanize_slug( $slug );
+    }
+
+    /**
+     * Normaliza caminho de arquivo para comparação (barras + minúsculas no Windows).
+     *
+     * @param string $path
+     * @return string
+     */
+    private function normalize_fs_path( $path ) {
+        if ( function_exists( 'wp_normalize_path' ) ) {
+            return wp_normalize_path( $path );
+        }
+
+        return str_replace( '\\', '/', (string) $path );
+    }
+
+    /**
+     * Converte um slug em nome legível ("pagbank-connect" → "Pagbank Connect").
+     *
+     * @param string $slug
+     * @return string
+     */
+    private function humanize_slug( $slug ) {
+        $slug = trim( (string) $slug );
+        if ( '' === $slug ) {
+            return $slug;
+        }
+        $label = str_replace( array( '-', '_' ), ' ', $slug );
+
+        if ( function_exists( 'mb_convert_case' ) ) {
+            return mb_convert_case( $label, MB_CASE_TITLE, 'UTF-8' );
+        }
+
+        return ucwords( $label );
     }
 
     /**

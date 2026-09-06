@@ -69,6 +69,13 @@ Integrações devem retornar uma lista com `field_key`, `requirement` (`required
 
 Somente requisitos com confiança `confirmed` participam da proteção server-side. Um gateway sem declaração específica aparece no painel como **não declarado** e exige homologação; o GVN não infere requisitos lendo JavaScript, executando validadores de cobrança ou preenchendo dados fictícios.
 
+A identidade do plugin nunca usa o `plugin_id` genérico do WooCommerce (`woocommerce_`):
+o resolver detecta o plugin real pelo arquivo da classe do gateway (Reflection) e obtém o
+nome via `get_plugins()`/`get_plugin_data()`. Sem evidência, cada método é exibido
+individualmente (`plugin_source: fallback`) para jamais agrupar plugins diferentes.
+No painel, cada método exibe primeiro os requisitos específicos e mantém os requisitos
+gerais do WooCommerce em uma seção recolhível ("Requisitos gerais do WooCommerce").
+
 ### Cobertura por gateway/variante
 
 | Declaração | Cobertura | Comportamento no painel e checkout |

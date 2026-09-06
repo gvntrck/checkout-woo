@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.47
+Stable tag: 1.13.48
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -119,6 +119,10 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.13.48 =
+* Corrige a identificação do plugin no diagnóstico de gateways: ignora o `plugin_id` genérico do WooCommerce (`woocommerce_`) e detecta o plugin real pelo arquivo da classe, evitando agrupar métodos de plugins diferentes.
+* Separa requisitos específicos do método e requisitos gerais do WooCommerce no modal, com seção recolhível para os campos gerais.
 
 = 1.13.47 =
 * Adiciona diagnóstico de requisitos de campos por plugin de gateway no editor do checkout, com seleção individual por plugin e suporte a múltiplos métodos.

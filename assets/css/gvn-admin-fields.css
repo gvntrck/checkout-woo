@@ -1,6 +1,6 @@
 /**
  * GVN Checkout - Admin Fields Manager Styles
- * @version 1.13.47
+ * @version 1.13.48
  */
 
 /* ===== Sub-tabs Navigation ===== */
@@ -271,6 +271,81 @@
     margin: 0;
     color: #1d2327;
     font-size: 15px;
+}
+
+.gvn-gateway-plugin-panel__kicker,
+.gvn-gateway-card__kicker {
+    margin: 0 0 2px;
+    color: #646970;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.gvn-gateway-plugin-panel__count {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #f0f0f1;
+    color: #50575e;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.gvn-gateway-section-title {
+    margin: 12px 14px 8px;
+    color: #1d2327;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.gvn-gateway-general {
+    margin: 10px 14px 14px;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    background: #f6f7f7;
+}
+
+.gvn-gateway-general > summary {
+    padding: 8px 12px;
+    color: #50575e;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+}
+
+.gvn-gateway-general > summary::-webkit-details-marker {
+    display: none;
+}
+
+.gvn-gateway-general > summary::before {
+    content: "▸";
+    display: inline-block;
+    margin-right: 6px;
+    color: #2271b1;
+}
+
+.gvn-gateway-general[open] > summary::before {
+    content: "▾";
+}
+
+.gvn-gateway-general > summary:hover,
+.gvn-gateway-general > summary:focus-visible {
+    color: #1d2327;
+}
+
+.gvn-gateway-general .gvn-gateway-table-wrap {
+    border-top: 1px solid #dcdcde;
+    background: #fff;
+}
+
+.gvn-gateway-card .gvn-gateway-modal__empty {
+    margin: 0;
+    padding: 10px 14px;
 }
 
 .gvn-gateway-plugin-panel__header code {

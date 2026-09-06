@@ -188,9 +188,45 @@ if ( $bump_product && $cart ) {
                             }
                         }
 
-                        // Renderiza os que sobraram como hidden
+                        // Um gateway pode declarar que um campo nativo precisa permanecer visível.
+                        // A declaração é específica do gateway; não executamos código do gateway aqui.
+                        $gvn_gateway_resolver = new \GVN\Checkout\Payments\GatewayRequirementsResolver();
+                        $gvn_posted_data      = array();
+                        if ( isset( $_POST['payment_method'] ) ) {
+                            $gvn_posted_data['payment_method'] = sanitize_key( wp_unslash( $_POST['payment_method'] ) );
+                        }
+                        foreach ( array( 'payment_method_variant', 'gateway_variant', 'payment_variant' ) as $gvn_context_key ) {
+                            if ( isset( $_POST[ $gvn_context_key ] ) ) {
+                                $gvn_posted_data[ $gvn_context_key ] = sanitize_key( wp_unslash( $_POST[ $gvn_context_key ] ) );
+                            }
+                        }
+                        $gvn_gateway_id       = $gvn_gateway_resolver->get_current_gateway_id( $gvn_posted_data );
+                        $gvn_checkout_fields  = array();
+                        if ( $checkout && method_exists( $checkout, 'get_checkout_fields' ) ) {
+                            $gvn_checkout_fields = (array) $checkout->get_checkout_fields();
+                        }
+
+                        // Renderiza os campos não exigidos como hidden e os requisitos confirmados como campo nativo.
                         foreach ( $woo_hidden_defaults as $wk => $wval ) {
-                            echo '<input type="hidden" name="' . esc_attr( $wk ) . '" value="' . esc_attr( $wval ) . '" />';
+                            if ( $gvn_gateway_resolver->is_field_required( $wk, $gvn_checkout_fields, $gvn_gateway_id, $gvn_posted_data, false ) ) {
+                                $gvn_native_field = isset( $gvn_checkout_fields['billing'][ $wk ] ) && is_array( $gvn_checkout_fields['billing'][ $wk ] )
+                                    ? $gvn_checkout_fields['billing'][ $wk ]
+                                    : array(
+                                        'type'     => 'text',
+                                        'label'    => ucwords( str_replace( '_', ' ', preg_replace( '/^billing_/', '', $wk ) ) ),
+                                        'required' => true,
+                                    );
+                                $gvn_native_field['required'] = true;
+                                $gvn_native_value = ( $checkout && method_exists( $checkout, 'get_value' ) ) ? $checkout->get_value( $wk ) : $wval;
+
+                                if ( function_exists( 'woocommerce_form_field' ) ) {
+                                    woocommerce_form_field( $wk, $gvn_native_field, $gvn_native_value );
+                                } else {
+                                    echo '<p class="form-row form-row-wide"><label for="' . esc_attr( $wk ) . '">' . esc_html( $gvn_native_field['label'] ) . ' <abbr class="required" title="required">*</abbr></label><input type="text" name="' . esc_attr( $wk ) . '" id="' . esc_attr( $wk ) . '" value="' . esc_attr( $gvn_native_value ) . '" required /></p>';
+                                }
+                            } else {
+                                echo '<input type="hidden" name="' . esc_attr( $wk ) . '" value="' . esc_attr( $wval ) . '" />';
+                            }
                         }
                         ?>
                     </div>

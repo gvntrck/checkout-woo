@@ -38,6 +38,12 @@ Nenhuma célula permanece em branco: combinações sem execução em ambiente de
 | **PagBank / PagSeguro** | A definir em O-01 | Não testado | Não testado | Não testado | Não testado | Não testado |
 | **Asaas / Woovi / Pagar.me**| A definir em O-01 | Não testado | Não testado | Não testado | Não testado | Não testado |
 
+O diagnóstico de campos segue a mesma regra de cobertura: BACS, Cheque/COD e os demais
+gateways acima permanecem **não declarados** até que um adaptador com versão homologada
+seja adicionado. Não há gateway/variante marcada como **suportada** nesta versão; uma
+declaração recebida pelo filtro sem evidência de homologação é exibida como **não testada**
+e nunca é convertida automaticamente em compatibilidade.
+
 ---
 
 ## 3. Matriz de Navegadores e Dispositivos
@@ -54,3 +60,28 @@ Nenhuma célula permanece em branco: combinações sem execução em ambiente de
 
 ## Regra de Atualização
 Esta matriz deve ser atualizada a cada rodada de homologação e a cada execução da suite automatizada de testes (F1/F13).
+
+## 5. Contrato de Requisitos de Campos
+
+O GVN Checkout agrega os campos obrigatórios gerais expostos por `woocommerce_checkout_fields` e declara requisitos específicos de gateways através do filtro `gvn_checkout_gateway_requirements`.
+
+Integrações devem retornar uma lista com `field_key`, `requirement` (`required` ou `present`), `variant` opcional, `confidence` (`confirmed` ou `unknown`), `source` (`adapter` ou `extension`) e `message` opcional. Regras condicionais podem usar `when` no mesmo formato de condições dos campos (`logic` e `rules`).
+
+Somente requisitos com confiança `confirmed` participam da proteção server-side. Um gateway sem declaração específica aparece no painel como **não declarado** e exige homologação; o GVN não infere requisitos lendo JavaScript, executando validadores de cobrança ou preenchendo dados fictícios.
+
+### Cobertura por gateway/variante
+
+| Declaração | Cobertura | Comportamento no painel e checkout |
+|---|---|---|
+| Adaptador homologado | Suportada | Requisitos confirmados preservam o campo e são validados no servidor. |
+| Integração declarada, sem homologação registrada | Não testada | A fonte e a confiança aparecem no modal; o administrador deve validar em sandbox. |
+| Nenhuma declaração específica | Não declarada | O gateway aparece como não declarado e não recebe requisitos inventados. |
+
+As linhas específicas de uma variante (por exemplo, `boleto`) devem informar `variant` no
+item do filtro. O resolver deduplica declarações por gateway/variante/campo, priorizando
+adaptador sobre extensão, confiança confirmada sobre desconhecida e `required` sobre
+`present`. Em gateways que reutilizam o mesmo ID para mais de uma modalidade, o adaptador
+deve enviar `payment_method_variant`, `gateway_variant` ou `payment_variant` no contexto;
+sem essa seleção, uma variante específica não é aplicada. Itens sem `field_key`,
+`requirement`, `confidence` ou `source` válidos (inclusive payloads embrulhados em uma
+chave `requirements`) são ignorados integralmente.

@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use GVN\Checkout\Settings\SettingsRepository;
 use GVN\Checkout\Checkout\TextPlaceholderResolver;
+use GVN\Checkout\Payments\GatewayRequirementsResolver;
 
 class GVN_Admin {
 
@@ -458,6 +459,7 @@ class GVN_Admin {
         wp_localize_script( 'gvn-admin-fields-js', 'gvn_admin_params', array(
             'ajax_url'            => admin_url( 'admin-ajax.php' ),
             'nonce'               => wp_create_nonce( 'gvn_admin_fields_nonce' ),
+            'gateway_requirements' => ( new GatewayRequirementsResolver() )->get_report(),
             'text_placeholders'   => class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ? TextPlaceholderResolver::get_available_placeholders() : array(),
             'placeholder_fields'  => array(
                 'gvn_checkout_header_text',
@@ -503,7 +505,20 @@ class GVN_Admin {
                 <button type="button" class="button button-secondary" id="gvn-add-field"><?php esc_html_e( '+ Adicionar Campo', 'gvn-checkout' ); ?></button>
                 <button type="button" class="button button-secondary" id="gvn-import-woo-fields" title="<?php esc_attr_e( 'Adiciona campos nativos de endereço do WooCommerce à lista', 'gvn-checkout' ); ?>"><?php esc_html_e( '📥 Importar Campos Padrões do WooCommerce', 'gvn-checkout' ); ?></button>
                 <button type="button" class="button button-secondary" id="gvn-import-br-fields" title="<?php esc_attr_e( 'Adiciona campos brasileiros (CPF, CNPJ, RG, etc.) à lista', 'gvn-checkout' ); ?>"><?php esc_html_e( '🇧🇷 Importar Campos Brasileiros', 'gvn-checkout' ); ?></button>
+                <button type="button" class="button button-secondary" id="gvn-open-gateway-requirements" aria-haspopup="dialog" aria-controls="gvn-gateway-requirements-modal"><?php esc_html_e( '🔎 Requisitos dos gateways', 'gvn-checkout' ); ?></button>
                 <span id="gvn-fields-status" style="display:none;"></span>
+            </div>
+
+            <div id="gvn-gateway-requirements-modal" class="gvn-gateway-modal" role="dialog" aria-modal="true" aria-labelledby="gvn-gateway-requirements-title" aria-hidden="true" hidden>
+                <div class="gvn-gateway-modal__backdrop" data-gvn-gateway-modal-close="true"></div>
+                <div class="gvn-gateway-modal__dialog" role="document">
+                    <div class="gvn-gateway-modal__header">
+                        <h2 id="gvn-gateway-requirements-title"><?php esc_html_e( 'Requisitos dos gateways', 'gvn-checkout' ); ?></h2>
+                        <button type="button" class="button-link gvn-gateway-modal__close" data-gvn-gateway-modal-close="true" aria-label="<?php esc_attr_e( 'Fechar requisitos dos gateways', 'gvn-checkout' ); ?>">&times;</button>
+                    </div>
+                    <p class="description"><?php esc_html_e( 'A lista combina requisitos declarados pelo WooCommerce e integrações conhecidas. Itens não declarados precisam de homologação.', 'gvn-checkout' ); ?></p>
+                    <div id="gvn-gateway-requirements-content" class="gvn-gateway-modal__content" aria-live="polite"></div>
+                </div>
             </div>
 
             <div id="gvn-fields-list">
@@ -612,6 +627,7 @@ class GVN_Admin {
                                         <div class="gvn-condition-rule">
                                             <select class="gvn-rule-field">
                                                 <option value=""><?php esc_html_e( '-- Campo --', 'gvn-checkout' ); ?></option>
+                                                <option value="payment_method" <?php selected( $rule_field, 'payment_method' ); ?>><?php esc_html_e( 'Método de pagamento', 'gvn-checkout' ); ?></option>
                                                 <?php foreach ( $all_fields as $af ) : ?>
                                                     <?php if ( $af['key'] !== $field['key'] ) : ?>
                                                         <option value="<?php echo esc_attr( $af['key'] ); ?>" <?php selected( $rule_field, $af['key'] ); ?>><?php echo esc_html( $af['label'] ?: $af['key'] ); ?></option>

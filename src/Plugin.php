@@ -89,6 +89,7 @@ final class Plugin {
         require_once GVN_CHECKOUT_PLUGIN_DIR . 'includes/class-gvn-order-bump.php';
         require_once GVN_CHECKOUT_PLUGIN_DIR . 'includes/class-gvn-address-validation.php';
 
+        $this->modules['gateway_requirements'] = new \GVN\Checkout\Payments\GatewayRequirementsResolver();
         $this->modules['custom_fields']       = \GVN_Custom_Fields::get_instance();
         $this->modules['checkout']            = \GVN_Checkout::get_instance();
         $this->modules['order_bump']          = \GVN_Order_Bump::get_instance();

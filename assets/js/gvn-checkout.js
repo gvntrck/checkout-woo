@@ -132,6 +132,11 @@
                 $this.find('.gvn-gateway__radio').prop('checked', true).trigger('change');
 
                 self.showGatewayFields(gatewayId);
+                self.refreshConditionalFields();
+            });
+
+            $(document).on('change', 'input[name="payment_method"]', function () {
+                self.refreshConditionalFields();
             });
         },
 
@@ -148,6 +153,16 @@
             if ($fields.length && $fields.children().length > 0) {
                 $fields.show();
             }
+        },
+
+        refreshConditionalFields: function () {
+            var $container = $('.gvn-fields-dynamic');
+            if (!$container.length) return;
+
+            var $conditionalFields = $container.find('.gvn-field--conditional');
+            if (!$conditionalFields.length) return;
+
+            this.evaluateAllConditions($container, $conditionalFields);
         },
 
         /* ============================
@@ -247,6 +262,13 @@
 
                 if (!conditions || !conditions.rules || conditions.rules.length === 0) return;
 
+                // Requisitos confirmados pelo gateway selecionado têm
+                // precedência sobre a condição visual configurada no editor.
+                if (self.isGatewayRequiredField($field.data('field-key'))) {
+                    self.showConditionalField($field);
+                    return;
+                }
+
                 var logic = conditions.logic || 'and';
                 var rules = conditions.rules;
                 var visible = self.evaluateRules(rules, logic, $container);
@@ -257,6 +279,35 @@
                     self.hideConditionalField($field);
                 }
             });
+        },
+
+        isGatewayRequiredField: function (fieldKey) {
+            var params = (typeof gvn_checkout_params !== 'undefined' && gvn_checkout_params) || {};
+            var gatewayRequirements = params.gateway_requirements || {};
+            var gatewayId = $('input[name="payment_method"]:checked').val() || '';
+            var requirements = gatewayRequirements[gatewayId] || [];
+            var self = this;
+
+            for (var i = 0; i < requirements.length; i++) {
+                var requirement = requirements[i] || {};
+                if (String(requirement.field_key || '') !== String(fieldKey || '')) continue;
+
+                if (requirement.variant) {
+                    var activeVariant = this.getFieldValue('payment_method_variant', $('.gvn-fields-dynamic')) ||
+                        this.getFieldValue('gateway_variant', $('.gvn-fields-dynamic')) ||
+                        this.getFieldValue('payment_variant', $('.gvn-fields-dynamic'));
+                    if (activeVariant && activeVariant !== requirement.variant) continue;
+                    if (!activeVariant && (!requirement.when || !requirement.when.rules || !requirement.when.rules.length)) continue;
+                }
+
+                if (requirement.when && requirement.when.rules && requirement.when.rules.length) {
+                    if (!self.evaluateRules(requirement.when.rules, requirement.when.logic || 'and', $('.gvn-fields-dynamic'))) continue;
+                }
+
+                return true;
+            }
+
+            return false;
         },
 
         evaluateRules: function (rules, logic, $container) {
@@ -308,8 +359,19 @@
         },
 
         getFieldValue: function (fieldKey, $container) {
+            if (fieldKey === 'payment_method') {
+                var $payment = $container.closest('form').find('input[name="payment_method"]:checked');
+                if (!$payment.length) {
+                    $payment = $('input[name="payment_method"]:checked');
+                }
+                return $payment.length ? ($payment.val() || '') : '';
+            }
+
             var $wrapper = $container.find('.gvn-field[data-field-key="' + fieldKey + '"]');
-            if (!$wrapper.length) return '';
+            if (!$wrapper.length) {
+                var $externalInput = $('input[name="' + fieldKey + '"], select[name="' + fieldKey + '"], textarea[name="' + fieldKey + '"]').first();
+                return $externalInput.length ? ($externalInput.val() || '') : '';
+            }
 
             var $input = $wrapper.find('input, select, textarea').first();
             if (!$input.length) return '';
@@ -741,6 +803,7 @@
 
     $(document.body).on('updated_checkout', function () {
         GVNCheckout.showFirstGatewayFields();
+        GVNCheckout.refreshConditionalFields();
     });
 
 })(jQuery);

@@ -16,6 +16,7 @@ use GVN\Checkout\Fields\FieldOrderPersister;
 use GVN\Checkout\Fields\FieldSanitizer;
 use GVN\Checkout\Fields\FieldSecurityPolicy;
 use GVN\Checkout\Fields\FieldValidator;
+use GVN\Checkout\Payments\GatewayRequirementsResolver;
 
 class GVN_Custom_Fields {
 
@@ -539,6 +540,17 @@ class GVN_Custom_Fields {
      */
     public function register_custom_fields_with_woo( $checkout_fields ) {
         $fields = self::get_enabled_fields();
+        $posted_data = array();
+        if ( isset( $_POST['payment_method'] ) ) {
+            $posted_data['payment_method'] = sanitize_key( wp_unslash( $_POST['payment_method'] ) );
+        }
+        foreach ( array( 'payment_method_variant', 'gateway_variant', 'payment_variant' ) as $context_key ) {
+            if ( isset( $_POST[ $context_key ] ) ) {
+                $posted_data[ $context_key ] = sanitize_key( wp_unslash( $_POST[ $context_key ] ) );
+            }
+        }
+        $resolver    = new GatewayRequirementsResolver();
+        $gateway_id  = $resolver->get_current_gateway_id( $posted_data );
 
         $width_class_map = array(
             '25'  => array( 'form-row-first' ),
@@ -594,6 +606,9 @@ class GVN_Custom_Fields {
         foreach ( $hide_fields as $field_key ) {
             if ( in_array( $field_key, $enabled_keys, true ) ) {
                 continue; // O admin adicionou este campo, não ocultar
+            }
+            if ( $resolver->is_field_required( $field_key, $checkout_fields, $gateway_id, $posted_data, false ) ) {
+                continue;
             }
             if ( isset( $checkout_fields['billing'][ $field_key ] ) ) {
                 $checkout_fields['billing'][ $field_key ]['required'] = false;

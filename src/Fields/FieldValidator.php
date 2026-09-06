@@ -2,6 +2,8 @@
 
 namespace GVN\Checkout\Fields;
 
+use GVN\Checkout\Payments\GatewayRequirementsResolver;
+
 /**
  * Validador server-side de campos de checkout respeitando visibilidade condicional e obrigatoriedade.
  */
@@ -69,7 +71,74 @@ class FieldValidator {
             }
         }
 
+        self::validate_gateway_requirements($fields, $posted_data, $errors, $validation_errors);
+
         return $validation_errors;
+    }
+
+    /**
+     * Valida requisitos confirmados por uma integração de gateway.
+     *
+     * Requisitos desconhecidos nunca bloqueiam o checkout. Quando um gateway
+     * declara um campo como obrigatório, a validação continua server-side mesmo
+     * que o campo tenha sido marcado como opcional no editor do GVN.
+     *
+     * @param array<string, array<string, mixed>> $fields
+     * @param array<string, mixed>                 $posted_data
+     * @param object|null                          $errors
+     * @param array<string, string>                $validation_errors
+     * @return void
+     */
+    private static function validate_gateway_requirements(array $fields, array $posted_data, $errors, array &$validation_errors): void {
+        $gateway_id = sanitize_key((string) ($posted_data['payment_method'] ?? ''));
+        if ($gateway_id === '') {
+            return;
+        }
+
+        $resolver     = new GatewayRequirementsResolver();
+        $requirements = $resolver->get_active_requirements_for_gateway($gateway_id, $posted_data);
+        if (empty($requirements)) {
+            return;
+        }
+
+        $fields_by_key = [];
+        foreach ($fields as $field) {
+            if (is_array($field) && !empty($field['key'])) {
+                $fields_by_key[(string) $field['key']] = $field;
+            }
+        }
+
+        foreach ($requirements as $requirement) {
+            if (($requirement['requirement'] ?? '') !== GatewayRequirementsResolver::REQUIREMENT_REQUIRED) {
+                continue;
+            }
+
+            // A requirement confirmed for the selected gateway takes
+            // precedence over the editor's visibility condition. The resolver
+            // already evaluated the gateway's own `when` rule; hiding the
+            // configured field here would make the server-side protection
+            // bypassable.
+            $key   = (string) ($requirement['field_key'] ?? '');
+            $field = $fields_by_key[$key] ?? null;
+            $raw_value = $posted_data[$key] ?? '';
+            $value_str = is_scalar($raw_value) ? trim((string) $raw_value) : '';
+            if ($value_str !== '' || isset($validation_errors[$key])) {
+                continue;
+            }
+
+            $label = is_array($field) && !empty($field['label'])
+                ? (string) $field['label']
+                : (string) ($requirement['field_key'] ?? $key);
+            $message = sprintf(
+                /* translators: 1: Field label, 2: payment method ID. */
+                __('O campo "%1$s" é obrigatório para o método de pagamento "%2$s".', 'gvn-checkout'),
+                $label,
+                $gateway_id
+            );
+
+            $validation_errors[$key] = $message;
+            self::add_error($errors, $key . '_gateway', $message);
+        }
     }
 
     /**

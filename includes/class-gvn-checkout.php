@@ -83,6 +83,9 @@ class GVN_Checkout {
                 'ajax_url'    => admin_url( 'admin-ajax.php' ),
                 'nonce'       => wp_create_nonce( 'gvn_checkout_nonce' ),
                 'wc_ajax_url' => function_exists( 'WC_AJAX' ) ? WC_AJAX::get_endpoint( '%%endpoint%%' ) : '',
+                'gateway_requirements' => class_exists( 'GVN\\Checkout\\Payments\\GatewayRequirementsResolver' )
+                    ? ( new \GVN\Checkout\Payments\GatewayRequirementsResolver() )->get_frontend_requirements()
+                    : array(),
             ) );
         }
 
@@ -298,4 +301,3 @@ class GVN_Checkout {
         return $template;
     }
 }
-

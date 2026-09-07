@@ -17,6 +17,7 @@ $header_badge_text = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) 
 $title_text        = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'title_text', 'Finalize sua inscrição' ) : get_option( 'gvn_checkout_title_text', 'Finalize sua inscrição' );
 $subtitle_text     = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'subtitle_text', 'Acesso imediato após confirmação do pagamento' ) : get_option( 'gvn_checkout_subtitle_text', 'Acesso imediato após confirmação do pagamento' );
 $button_text       = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'button_text', 'Finalizar pedido' ) : get_option( 'gvn_checkout_button_text', 'Finalizar pedido' );
+$coupon_enabled    = 'yes' === ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'coupon_enabled', 'yes' ) : get_option( 'gvn_checkout_coupon_enabled', 'yes' ) );
 $bump_enabled      = 'yes' === ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_enabled', 'no' ) : get_option( 'gvn_checkout_order_bump_enabled', 'no' ) );
 $bump_product_id   = absint( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_product_id', 0 ) : get_option( 'gvn_checkout_order_bump_product_id', 0 ) );
 $bump_title        = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_title', 'Oferta Exclusiva' ) : get_option( 'gvn_checkout_order_bump_title', 'Oferta Exclusiva' );
@@ -349,32 +350,34 @@ if ( $bump_product && $cart ) {
                     <div class="gvn-card__header"><?php esc_html_e( 'FORMA DE PAGAMENTO', 'gvn-checkout' ); ?></div>
                     <div class="gvn-card__body">
 
-                        <!-- Cupom Integrado -->
-                        <div class="gvn-coupon" id="gvn-coupon-toggle">
-                            <div class="gvn-coupon__trigger">
-                                <div class="gvn-coupon__trigger-inner">
-                                    <span class="gvn-coupon__icon">🏷️</span>
-                                    <span class="gvn-coupon__text"><?php esc_html_e( 'Tem um cupom de desconto?', 'gvn-checkout' ); ?></span>
-                                </div>
-                                <span class="gvn-coupon__arrow" id="gvn-coupon-arrow">▼</span>
-                            </div>
-                        </div>
-                        <div class="gvn-coupon__form" id="gvn-coupon-form" style="display: none;">
-                            <div class="gvn-coupon__form-inner">
-                                <input type="text" class="gvn-field__input" id="gvn-coupon-code" placeholder="<?php esc_attr_e( 'Digite o código do cupom', 'gvn-checkout' ); ?>" />
-                                <button type="button" class="gvn-coupon__btn" id="gvn-apply-coupon"><?php esc_html_e( 'Aplicar', 'gvn-checkout' ); ?></button>
-                            </div>
-                            <div class="gvn-coupon__message" id="gvn-coupon-message"></div>
-
-                            <?php if ( $cart ) : ?>
-                                <?php foreach ( $cart->get_applied_coupons() as $coupon_code ) : ?>
-                                    <div class="gvn-coupon__applied">
-                                        <span><?php esc_html_e( 'Cupom:', 'gvn-checkout' ); ?> <strong><?php echo esc_html( $coupon_code ); ?></strong></span>
-                                        <button type="button" class="gvn-coupon__remove" data-coupon="<?php echo esc_attr( $coupon_code ); ?>"><?php esc_html_e( 'Remover', 'gvn-checkout' ); ?></button>
+                        <?php if ( $coupon_enabled ) : ?>
+                            <!-- Cupom Integrado -->
+                            <div class="gvn-coupon" id="gvn-coupon-toggle">
+                                <div class="gvn-coupon__trigger">
+                                    <div class="gvn-coupon__trigger-inner">
+                                        <span class="gvn-coupon__icon">🏷️</span>
+                                        <span class="gvn-coupon__text"><?php esc_html_e( 'Tem um cupom de desconto?', 'gvn-checkout' ); ?></span>
                                     </div>
+                                    <span class="gvn-coupon__arrow" id="gvn-coupon-arrow">▼</span>
+                                </div>
+                            </div>
+                            <div class="gvn-coupon__form" id="gvn-coupon-form" style="display: none;">
+                                <div class="gvn-coupon__form-inner">
+                                    <input type="text" class="gvn-field__input" id="gvn-coupon-code" placeholder="<?php esc_attr_e( 'Digite o código do cupom', 'gvn-checkout' ); ?>" />
+                                    <button type="button" class="gvn-coupon__btn" id="gvn-apply-coupon"><?php esc_html_e( 'Aplicar', 'gvn-checkout' ); ?></button>
+                                </div>
+                                <div class="gvn-coupon__message" id="gvn-coupon-message"></div>
+
+                                <?php if ( $cart ) : ?>
+                                    <?php foreach ( $cart->get_applied_coupons() as $coupon_code ) : ?>
+                                        <div class="gvn-coupon__applied">
+                                            <span><?php esc_html_e( 'Cupom:', 'gvn-checkout' ); ?> <strong><?php echo esc_html( $coupon_code ); ?></strong></span>
+                                            <button type="button" class="gvn-coupon__remove" data-coupon="<?php echo esc_attr( $coupon_code ); ?>"><?php esc_html_e( 'Remover', 'gvn-checkout' ); ?></button>
+                                        </div>
                                 <?php endforeach; ?>
-                            <?php endif; ?>
-                        </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
 
                         <?php do_action( 'woocommerce_review_order_before_payment' ); ?>
 

@@ -126,6 +126,40 @@ class AdminTest extends TestCase {
         $this->assertContains('gvn_checkout_thankyou_shop_button_text', $ids);
     }
 
+    public function test_settings_include_coupon_visibility_option(): void {
+        $admin = GVN_Admin::get_instance();
+        $method = new \ReflectionMethod($admin, 'get_settings');
+        $method->setAccessible(true);
+
+        $settings = $method->invoke($admin);
+        $coupon_setting = null;
+
+        foreach ($settings as $setting) {
+            if (isset($setting['id']) && 'gvn_checkout_coupon_enabled' === $setting['id']) {
+                $coupon_setting = $setting;
+                break;
+            }
+        }
+
+        $this->assertIsArray($coupon_setting);
+        $this->assertSame('checkbox', $coupon_setting['type']);
+        $this->assertSame('yes', $coupon_setting['default']);
+        $this->assertStringContainsString('Tem um cupom de desconto?', $coupon_setting['desc']);
+    }
+
+    public function test_save_coupon_visibility_syncs_the_unified_settings_container(): void {
+        global $wp_mock_options;
+
+        $_GET['subtab'] = 'settings';
+        $_POST['gvn_checkout_coupon_enabled'] = 'no';
+
+        GVN_Admin::get_instance()->save_settings();
+
+        $this->assertSame('no', $wp_mock_options['gvn_checkout_coupon_enabled']);
+        $this->assertSame('no', SettingsRepository::get('coupon_enabled'));
+        $this->assertSame('no', $wp_mock_options[SettingsRepository::OPTION_SETTINGS]['coupon_enabled']);
+    }
+
     public function test_save_thankyou_text_syncs_the_unified_settings_container(): void {
         global $wp_mock_options;
 
@@ -264,4 +298,3 @@ class AdminTest extends TestCase {
         );
     }
 }
-

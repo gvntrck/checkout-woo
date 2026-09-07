@@ -187,6 +187,25 @@ class GVN_Admin {
                 'id'   => 'gvn_checkout_text_section',
             ),
 
+            // Seção: Opções do Checkout
+            array(
+                'title' => __( 'Opções do Checkout', 'gvn-checkout' ),
+                'type'  => 'title',
+                'desc'  => __( 'Controle elementos opcionais exibidos no checkout.', 'gvn-checkout' ),
+                'id'    => 'gvn_checkout_options_section',
+            ),
+            array(
+                'title'   => __( 'Exibir campo de cupom', 'gvn-checkout' ),
+                'id'      => 'gvn_checkout_coupon_enabled',
+                'type'    => 'checkbox',
+                'default' => 'yes',
+                'desc'    => __( 'Exibir o campo "Tem um cupom de desconto?" no checkout.', 'gvn-checkout' ),
+            ),
+            array(
+                'type' => 'sectionend',
+                'id'   => 'gvn_checkout_options_section',
+            ),
+
             // Seção: Textos da Thank You
             array(
                 'title' => __( 'Textos da Página de Obrigado', 'gvn-checkout' ),

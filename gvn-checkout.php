@@ -70,6 +70,7 @@ function gvn_checkout_activate() {
         'primary_color' => '#0066d4',
         'button_color' => '#ff8a22',
         'button_text' => 'Finalizar pedido',
+        'coupon_enabled' => 'yes',
         'order_bump_enabled' => 'no',
         'order_bump_product_id' => '',
         'order_bump_title' => 'Oferta Exclusiva',

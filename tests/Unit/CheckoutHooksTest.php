@@ -108,6 +108,25 @@ class CheckoutHooksTest extends TestCase {
         $this->assertStringContainsString('custom-filter-btn', $html);
     }
 
+    public function test_coupon_field_is_rendered_by_default(): void {
+        $html = $this->renderCheckoutTemplate();
+
+        $this->assertStringContainsString('Tem um cupom de desconto?', $html);
+        $this->assertStringContainsString('id="gvn-coupon-form"', $html);
+    }
+
+    public function test_coupon_field_can_be_hidden_from_checkout(): void {
+        global $wp_mock_options;
+        $wp_mock_options['gvn_checkout_coupon_enabled'] = 'no';
+        \GVN\Checkout\Settings\SettingsRepository::flush_cache();
+
+        $html = $this->renderCheckoutTemplate();
+
+        $this->assertStringNotContainsString('Tem um cupom de desconto?', $html);
+        $this->assertStringNotContainsString('class="gvn-coupon"', $html);
+        $this->assertStringNotContainsString('id="gvn-coupon-form"', $html);
+    }
+
     public function test_configured_text_placeholders_are_resolved_and_escaped(): void {
         global $wp_mock_options;
         $wp_mock_options['gvn_checkout_header_text'] = 'Você escolheu {qtd-produto}x {produto}';

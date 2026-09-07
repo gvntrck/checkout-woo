@@ -25,6 +25,7 @@ class SettingsSchema {
             'primary_color'           => '#0066d4',
             'button_color'            => '#ff8a22',
             'button_text'             => 'Finalizar pedido',
+            'coupon_enabled'          => 'yes',
             'order_bump_enabled'      => 'no',
             'order_bump_product_id'   => 0,
             'order_bump_title'        => 'Oferta Exclusiva',
@@ -223,6 +224,7 @@ class SettingsSchema {
                 return !empty($sanitized) ? $sanitized : $fallback;
 
             case 'order_bump_enabled':
+            case 'coupon_enabled':
             case 'thankyou_custom_url_enabled':
                 if (is_bool($value)) {
                     return $value ? 'yes' : 'no';

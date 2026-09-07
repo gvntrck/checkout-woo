@@ -14,6 +14,7 @@ class SettingsSchemaTest extends TestCase {
         $this->assertArrayHasKey('header_bg_color', $defaults);
         $this->assertArrayHasKey('primary_color', $defaults);
         $this->assertArrayHasKey('button_color', $defaults);
+        $this->assertArrayHasKey('coupon_enabled', $defaults);
         $this->assertArrayHasKey('order_bump_enabled', $defaults);
         $this->assertArrayHasKey('thankyou_success_title', $defaults);
         $this->assertArrayHasKey('thankyou_shop_button_text', $defaults);
@@ -21,6 +22,7 @@ class SettingsSchemaTest extends TestCase {
         $this->assertEquals('#3a4759', $defaults['header_bg_color']);
         $this->assertEquals('#0066d4', $defaults['primary_color']);
         $this->assertEquals('no', $defaults['order_bump_enabled']);
+        $this->assertEquals('yes', $defaults['coupon_enabled']);
         $this->assertEquals('Pedido recebido!', $defaults['thankyou_success_title']);
     }
 
@@ -52,6 +54,14 @@ class SettingsSchemaTest extends TestCase {
         $this->assertEquals('29.90', SettingsSchema::sanitize_setting('order_bump_price', '29,90'));
         $this->assertEquals('19.99', SettingsSchema::sanitize_setting('order_bump_price', '19.99'));
         $this->assertEquals('', SettingsSchema::sanitize_setting('order_bump_price', 'invalid_price'));
+    }
+
+    public function test_sanitize_coupon_visibility_toggle() {
+        $this->assertEquals('yes', SettingsSchema::sanitize_setting('coupon_enabled', true));
+        $this->assertEquals('yes', SettingsSchema::sanitize_setting('coupon_enabled', 'yes'));
+        $this->assertEquals('yes', SettingsSchema::sanitize_setting('coupon_enabled', '1'));
+        $this->assertEquals('no', SettingsSchema::sanitize_setting('coupon_enabled', false));
+        $this->assertEquals('no', SettingsSchema::sanitize_setting('coupon_enabled', 'other'));
     }
 
     public function test_sanitize_text_fields_strips_tags() {

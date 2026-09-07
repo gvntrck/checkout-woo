@@ -30,6 +30,7 @@ class GVN_Checkout {
         add_action( 'wp_ajax_nopriv_gvn_apply_coupon', array( $this, 'ajax_apply_coupon' ) );
         add_action( 'wp_ajax_gvn_remove_coupon', array( $this, 'ajax_remove_coupon' ) );
         add_action( 'wp_ajax_nopriv_gvn_remove_coupon', array( $this, 'ajax_remove_coupon' ) );
+        add_filter( 'woocommerce_update_order_review_fragments', array( $this, 'refresh_checkout_fragments' ) );
         add_filter( 'wc_get_template', array( $this, 'override_thankyou_template' ), 10, 5 );
     }
 
@@ -247,6 +248,103 @@ class GVN_Checkout {
             'total'    => WC()->cart->get_total(),
             'subtotal' => WC()->cart->get_subtotal(),
         ) );
+    }
+
+    /**
+     * Atualiza os componentes próprios do checkout depois que o WooCommerce
+     * recalcula frete, impostos, cupons ou gateways disponíveis.
+     *
+     * @param array $fragments Fragments retornados pelo endpoint update_order_review.
+     * @return array
+     */
+    public function refresh_checkout_fragments( $fragments ) {
+        if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+            return $fragments;
+        }
+
+        $fragments['#gvn-order-items']  = $this->render_order_items_fragment();
+        $fragments['#gvn-order-totals'] = $this->render_order_totals_fragment();
+        $fragments['#payment']          = $this->render_payment_methods_fragment();
+
+        return $fragments;
+    }
+
+    /**
+     * Gera o fragmento de itens do resumo do pedido.
+     *
+     * @return string
+     */
+    private function render_order_items_fragment() {
+        $cart = WC()->cart;
+
+        ob_start();
+        ?>
+        <div class="gvn-order-items" id="gvn-order-items">
+            <?php foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) : ?>
+                <?php
+                $product  = isset( $cart_item['data'] ) ? $cart_item['data'] : null;
+                $quantity = isset( $cart_item['quantity'] ) ? $cart_item['quantity'] : 0;
+                if ( ! is_object( $product ) ) {
+                    continue;
+                }
+                $subtotal = $cart->get_product_subtotal( $product, $quantity );
+                ?>
+                <div class="gvn-order-item" data-key="<?php echo esc_attr( $cart_item_key ); ?>">
+                    <div class="gvn-order-item__name">
+                        <?php echo esc_html( $product->get_name() ); ?>
+                        <div class="gvn-order-item__qty">&times; <?php echo esc_html( $quantity ); ?></div>
+                    </div>
+                    <div class="gvn-order-item__subtotal"><?php echo wp_kses_post( $subtotal ); ?></div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Gera o fragmento de totais do resumo do pedido.
+     *
+     * @return string
+     */
+    private function render_order_totals_fragment() {
+        $cart = WC()->cart;
+
+        ob_start();
+        ?>
+        <div class="gvn-order-totals" id="gvn-order-totals">
+            <div class="gvn-order-totals__row cart-subtotal">
+                <span class="gvn-order-totals__label"><?php esc_html_e( 'Subtotal', 'gvn-checkout' ); ?></span>
+                <span class="gvn-order-totals__value" id="gvn-subtotal"><?php echo wp_kses_post( wc_price( $cart->get_subtotal() ) ); ?></span>
+            </div>
+
+            <?php if ( $cart->get_discount_total() > 0 ) : ?>
+                <div class="gvn-order-totals__row gvn-order-totals__row--discount cart-discount" id="gvn-discount-row">
+                    <span class="gvn-order-totals__label"><?php esc_html_e( 'Desconto', 'gvn-checkout' ); ?></span>
+                    <span class="gvn-order-totals__value" id="gvn-discount">-<?php echo wp_kses_post( wc_price( $cart->get_discount_total() ) ); ?></span>
+                </div>
+            <?php endif; ?>
+
+            <div class="gvn-order-totals__total order-total">
+                <span class="gvn-order-totals__total-label"><?php esc_html_e( 'Total', 'gvn-checkout' ); ?></span>
+                <span class="gvn-order-totals__total-value" id="gvn-total"><?php echo wp_kses_post( $cart->get_total() ); ?></span>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Gera novamente os gateways após uma atualização de endereço ou total.
+     *
+     * @return string
+     */
+    private function render_payment_methods_fragment() {
+        $available_gateways = WC()->payment_gateways()->get_available_payment_gateways();
+
+        ob_start();
+        include GVN_CHECKOUT_PLUGIN_DIR . 'templates/payment-methods.php';
+        return ob_get_clean();
     }
 
     /**

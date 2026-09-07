@@ -209,7 +209,7 @@ class GVN_Address_Validation {
      * @return array Dados normalizados.
      */
     public static function normalize_viacep_data( $raw, $cep ) {
-        $uf          = isset( $raw['uf'] ) ? mb_strtoupper( trim( (string) $raw['uf'] ) ) : '';
+        $uf          = isset( $raw['uf'] ) ? self::uppercase( trim( (string) $raw['uf'] ) ) : '';
         $uf_esperada = self::get_uf_from_cep( $cep );
 
         return array(
@@ -248,14 +248,14 @@ class GVN_Address_Validation {
         }
 
         $prepositions = array( 'de', 'da', 'do', 'das', 'dos', 'e', 'em', 'no', 'na', 'nos', 'nas' );
-        $words        = explode( ' ', mb_strtolower( $city ) );
+        $words        = explode( ' ', self::lowercase( $city ) );
         $result       = array();
 
         foreach ( $words as $i => $word ) {
             if ( $i > 0 && in_array( $word, $prepositions, true ) ) {
                 $result[] = $word;
             } else {
-                $result[] = mb_strtoupper( mb_substr( $word, 0, 1 ) ) . mb_substr( $word, 1 );
+                $result[] = self::uppercase( self::substring( $word, 0, 1 ) ) . self::substring( $word, 1 );
             }
         }
 
@@ -269,7 +269,7 @@ class GVN_Address_Validation {
      * @return string UF normalizada ou vazio se inválida.
      */
     public static function normalize_uf( $uf ) {
-        $uf = mb_strtoupper( trim( (string) $uf ) );
+        $uf = self::uppercase( trim( (string) $uf ) );
         return in_array( $uf, self::VALID_UFS, true ) ? $uf : '';
     }
 
@@ -321,7 +321,7 @@ class GVN_Address_Validation {
         if ( empty( $expected ) ) {
             return true; // Não mapeado, não bloqueia
         }
-        return ( mb_strtoupper( trim( (string) $uf ) ) === $expected );
+        return ( self::uppercase( trim( (string) $uf ) ) === $expected );
     }
 
     /**
@@ -336,7 +336,7 @@ class GVN_Address_Validation {
      * Valida se UF é brasileira válida.
      */
     public static function is_valid_uf( $uf ) {
-        return in_array( mb_strtoupper( trim( (string) $uf ) ), self::VALID_UFS, true );
+        return in_array( self::uppercase( trim( (string) $uf ) ), self::VALID_UFS, true );
     }
 
     /**
@@ -412,10 +412,33 @@ class GVN_Address_Validation {
         // --- Validação de cidade ---
         if ( isset( $data['billing_city'] ) ) {
             $city = trim( (string) $data['billing_city'] );
-            if ( ! empty( $city ) && mb_strlen( $city ) < 2 ) {
+            if ( ! empty( $city ) && self::string_length( $city ) < 2 ) {
                 $errors->add( 'gvn_invalid_city', sprintf( '<strong>%s</strong> %s', esc_html__( 'Cidade', 'gvn-checkout' ), esc_html__( 'deve ter ao menos 2 caracteres.', 'gvn-checkout' ) ) );
             }
         }
+    }
+
+    /**
+     * Funções de texto com fallback para instalações de PHP sem mbstring.
+     */
+    private static function uppercase( $value ) {
+        return function_exists( 'mb_strtoupper' ) ? mb_strtoupper( $value ) : strtoupper( $value );
+    }
+
+    private static function lowercase( $value ) {
+        return function_exists( 'mb_strtolower' ) ? mb_strtolower( $value ) : strtolower( $value );
+    }
+
+    private static function substring( $value, $start, $length = null ) {
+        if ( function_exists( 'mb_substr' ) ) {
+            return null === $length ? mb_substr( $value, $start ) : mb_substr( $value, $start, $length );
+        }
+
+        return null === $length ? substr( $value, $start ) : substr( $value, $start, $length );
+    }
+
+    private static function string_length( $value ) {
+        return function_exists( 'mb_strlen' ) ? mb_strlen( $value ) : strlen( $value );
     }
 
     /* =========================================================================

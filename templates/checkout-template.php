@@ -268,7 +268,7 @@ if ( $bump_product && $cart ) {
                             <?php endif; ?>
                         </div>
 
-                        <div class="gvn-order-totals">
+                        <div class="gvn-order-totals" id="gvn-order-totals">
                             <div class="gvn-order-totals__row cart-subtotal">
                                 <span class="gvn-order-totals__label"><?php esc_html_e( 'Subtotal', 'gvn-checkout' ); ?></span>
                                 <span class="gvn-order-totals__value" id="gvn-subtotal"><?php echo ( $cart && function_exists( 'wc_price' ) ) ? wc_price( $cart->get_subtotal() ) : ''; ?></span>

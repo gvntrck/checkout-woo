@@ -134,15 +134,13 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
                 <?php
                 $payment_method = $order->get_payment_method();
                 if ( $payment_method ) :
-                    $gateways = ( function_exists( 'WC' ) && WC()->payment_gateways() ) ? WC()->payment_gateways()->get_available_payment_gateways() : array();
-                    if ( isset( $gateways[ $payment_method ] ) ) :
-                        ob_start();
-                        // Hook específico do método de pagamento.
-                        do_action( 'woocommerce_thankyou_' . $payment_method, $order->get_id() );
-                        // Hook global do WC (plugins de e-mail, tracking, etc. dependem dele).
-                        do_action( 'woocommerce_thankyou', $order->get_id() );
-                        $gateway_output = ob_get_clean();
-                        if ( ! empty( trim( $gateway_output ) ) ) :
+                    ob_start();
+                    // Executa para o método gravado no pedido, mesmo que ele já
+                    // não esteja disponível para uma nova compra.
+                    do_action( 'woocommerce_thankyou_' . $payment_method, $order->get_id() );
+                    do_action( 'woocommerce_thankyou', $order->get_id() );
+                    $gateway_output = ob_get_clean();
+                    if ( ! empty( trim( $gateway_output ) ) ) :
                 ?>
                     <div class="gvn-thankyou__payment-instructions">
                         <div class="gvn-card">
@@ -153,7 +151,6 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
                         </div>
                     </div>
                 <?php
-                        endif;
                     endif;
                 endif;
                 ?>

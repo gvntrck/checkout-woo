@@ -40,7 +40,7 @@ class FieldConditionEvaluator {
                 if ($target_value === '') {
                     return true;
                 }
-                return mb_stripos($str_val, $target_value) !== false;
+                return self::contains_case_insensitive($str_val, $target_value);
 
             case 'greater':
             case '>':
@@ -119,5 +119,16 @@ class FieldConditionEvaluator {
         }
 
         return self::evaluate($conditions, $data);
+    }
+
+    /**
+     * Mantém a avaliação de condições disponível em instalações sem mbstring.
+     */
+    private static function contains_case_insensitive(string $value, string $needle): bool {
+        if (function_exists('mb_stripos')) {
+            return mb_stripos($value, $needle) !== false;
+        }
+
+        return stripos($value, $needle) !== false;
     }
 }

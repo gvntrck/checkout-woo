@@ -127,6 +127,17 @@ class GVN_Admin {
                 $layouts2 = implode( ',', \GVN\Checkout\Layouts\LayoutRegistry::get_ids() );
             }
         }
+
+        // TEMP DEBUG [DEBUG-gvn1] — require explícito + estado da cadeia de autoload.
+        $loaders = function_exists( 'spl_autoload_functions' ) ? count( (array) spl_autoload_functions() ) : '-';
+        $class3  = '-';
+        if ( 'NO' === $class2 && is_readable( $reg_file ) ) {
+            require_once $reg_file;
+            $class3 = class_exists( 'GVN\Checkout\Layouts\LayoutRegistry', false ) ? 'yes' : 'NO';
+            if ( 'yes' === $class3 ) {
+                $layouts2 = implode( ',', \GVN\Checkout\Layouts\LayoutRegistry::get_ids() );
+            }
+        }
         ?>
         <div class="notice notice-warning" style="margin:15px 0;">
             <p><strong>[DEBUG-gvn1]</strong>
@@ -141,7 +152,9 @@ class GVN_Admin {
                 <?php echo esc_html( 'splitok=' . $split_ok ); ?> |
                 <?php echo esc_html( 'inv=' . $inv ); ?> |
                 <?php echo esc_html( 'class2=' . $class2 ); ?> |
-                <?php echo esc_html( 'layouts2=' . $layouts2 ); ?>
+                <?php echo esc_html( 'layouts2=' . $layouts2 ); ?> |
+                <?php echo esc_html( 'loaders=' . $loaders ); ?> |
+                <?php echo esc_html( 'class3=' . $class3 ); ?>
             </p>
         </div>
         <?php

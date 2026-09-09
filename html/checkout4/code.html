@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout Institucional — Finalização de Inscrição</title>
+  <!-- Google Fonts: Inter & Newsreader/Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              600: '#1e293b', // Grafite/Navy institucional
+              700: '#0f172a',
+              800: '#090d16',
+              900: '#020617',
+            },
+            surface: '#fcfcfd',
+            sidebar: '#f8fafc',
+            borderLight: '#e2e8f0',
+            borderSubtle: '#edf2f7'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #fbfbfc;
+      color: #0f172a;
+      -webkit-font-smoothing: antialiased;
+    }
+    input::placeholder {
+      color: #94a3b8;
+    }
+    /* Simple focus states */
+    input:focus, select:focus {
+      outline: none;
+      border-color: #0f172a;
+      box-shadow: 0 0 0 1px #0f172a;
+    }
+    /* Tab transition */
+    .pay-tab {
+      transition: all 0.15s ease-in-out;
+    }
+    .pay-tab.active {
+      border-color: #0f172a;
+      color: #0f172a;
+      background-color: #ffffff;
+      font-weight: 600;
+    }
+    .pay-tab:not(.active) {
+      border-color: transparent;
+      color: #64748b;
+      background-color: transparent;
+    }
+    .pay-tab:not(.active):hover {
+      color: #1e293b;
+      background-color: #f1f5f9;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans">
+
+  <!-- HEADER -->
+  <header class="w-full bg-white border-b border-slate-200">
+    <div class="max-w-[1180px] mx-auto px-6 h-20 flex items-center justify-between">
+      <!-- Marca / Logo Institucional -->
+      <div class="flex items-center gap-3">
+        <!-- Monograma / Símbolo sóbrio -->
+        <div class="w-9 h-9 rounded bg-slate-900 flex items-center justify-center text-white font-bold text-base tracking-wider">
+          V
+        </div>
+        <div class="flex flex-col">
+          <span class="text-base font-bold tracking-tight text-slate-900 leading-tight">INSTITUTO VALENÇA</span>
+          <span class="text-[11px] uppercase tracking-widest text-slate-500 font-medium leading-none mt-0.5">Educação Corporativa & Direito</span>
+        </div>
+      </div>
+
+      <!-- Selo Discreto de Segurança -->
+      <div class="flex items-center gap-2 text-slate-600 text-xs font-medium">
+        <svg class="w-4 h-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        <span class="tracking-wide">Ambiente de pagamento seguro</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-grow max-w-[1180px] w-full mx-auto px-6 py-10 lg:py-12">
+    <!-- Grid principal: 62% e 38% -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+      
+      <!-- COLUNA ESQUERDA (62% ~ 7 cols) -->
+      <div class="lg:col-span-7 flex flex-col gap-10">
+        
+        <!-- SEÇÃO 1: DADOS DO PARTICIPANTE -->
+        <section aria-labelledby="participante-title">
+          <div class="border-b border-slate-200 pb-4 mb-6">
+            <h1 id="participante-title" class="text-xl font-bold tracking-tight text-slate-900">
+              Dados do participante
+            </h1>
+          </div>
+
+          <div class="space-y-5">
+            <!-- Nome completo -->
+            <div>
+              <label for="fullname" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                Nome completo
+              </label>
+              <input 
+                type="text" 
+                id="fullname" 
+                name="fullname" 
+                placeholder="Ex: Carlos Eduardo de Almeida"
+                class="w-full h-12 px-4 rounded border border-slate-300 bg-white text-sm text-slate-900 transition-colors"
+                autocomplete="name"
+                required
+              >
+            </div>
+
+            <!-- E-mail -->
+            <div>
+              <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                E-mail corporativo ou pessoal
+              </label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                placeholder="carlos.almeida@empresa.com.br"
+                class="w-full h-12 px-4 rounded border border-slate-300 bg-white text-sm text-slate-900 transition-colors"
+                autocomplete="email"
+                required
+              >
+            </div>
+
+            <!-- CPF e Telefone em 2 colunas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label for="tax_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                  CPF
+                </label>
+                <input 
+                  type="text" 
+                  id="tax_id" 
+                  name="tax_id" 
+                  placeholder="000.000.000-00"
+                  class="w-full h-12 px-4 rounded border border-slate-300 bg-white text-sm text-slate-900 transition-colors"
+                  inputmode="numeric"
+                  required
+                >
+              </div>
+
+              <div>
+                <label for="phone" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                  Telefone celular
+                </label>
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  name="phone" 
+                  placeholder="(11) 90000-0000"
+                  class="w-full h-12 px-4 rounded border border-slate-300 bg-white text-sm text-slate-900 transition-colors"
+                  inputmode="tel"
+                  required
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SEÇÃO 2: FORMA DE PAGAMENTO -->
+        <section aria-labelledby="pagamento-title">
+          <div class="border-b border-slate-200 pb-4 mb-6">
+            <h2 id="pagamento-title" class="text-xl font-bold tracking-tight text-slate-900">
+              Forma de pagamento
+            </h2>
+          </div>
+
+          <!-- Barra horizontal de seleção sóbria -->
+          <div class="bg-slate-100 p-1 rounded-md flex border border-slate-200 mb-6" role="tablist">
+            <button 
+              type="button" 
+              role="tab" 
+              aria-selected="false" 
+              onclick="setPaymentTab('pix')" 
+              id="tab-pix" 
+              class="pay-tab flex-1 py-3 text-center text-sm rounded cursor-pointer font-medium"
+            >
+              Pix
+            </button>
+            <button 
+              type="button" 
+              role="tab" 
+              aria-selected="true" 
+              onclick="setPaymentTab('cartao')" 
+              id="tab-cartao" 
+              class="pay-tab active flex-1 py-3 text-center text-sm rounded cursor-pointer shadow-sm"
+            >
+              Cartão de crédito
+            </button>
+            <button 
+              type="button" 
+              role="tab" 
+              aria-selected="false" 
+              onclick="setPaymentTab('boleto')" 
+              id="tab-boleto" 
+              class="pay-tab flex-1 py-3 text-center text-sm rounded cursor-pointer font-medium"
+            >
+              Boleto bancário
+            </button>
+          </div>
+
+          <!-- ÁREA DO GATEWAY (Campos limpos) -->
+          <div class="p-6 bg-white rounded-lg border border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+            
+            <!-- Painel Cartão -->
+            <div id="panel-cartao" class="space-y-5">
+              <div>
+                <label for="card-number" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                  Número do cartão
+                </label>
+                <input 
+                  type="text" 
+                  id="card-number" 
+                  placeholder="0000 0000 0000 0000"
+                  class="w-full h-12 px-4 rounded border border-slate-300 bg-white text-sm text-slate-900 font-mono tracking-wider transition-colors"
+                  inputmode="numeric"
+                >
+              </div>
+
+              <div>
+                <label for="card-holder" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                  Nome impresso no cartão
+                </label>
+                <input 
+                  type="text" 
+                  id="card-holder" 
+                  placeholder="Como aparece no cartão"
+                  class="w-full h-12 px-4 rounded border border-slate-300 bg-white text-sm text-slate-900 transition-colors uppercase"
+                >
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="card-expiry" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                    Validade
+                  </label>
+                  <input 
+                    type="text" 
+                    id="card-expiry" 
+                    placeholder="MM/AA"
+                    class="w-full h-12 px-4 rounded border border-slate-300 bg-white text-sm text-slate-900 font-mono transition-colors"
+                  >
+                </div>
+                <div>
+                  <label for="card-cvv" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                    Código CVV
+                  </label>
+                  <input 
+                    type="password" 
+                    id="card-cvv" 
+                    placeholder="123"
+                    maxlength="4"
+                    class="w-full h-12 px-4 rounded border border-slate-300 bg-white text-sm text-slate-900 font-mono transition-colors"
+                  >
+                </div>
+              </div>
+
+              <div>
+                <label for="card-installments" class="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-2">
+                  Opções de parcelamento
+                </label>
+                <select 
+                  id="card-installments" 
+                  class="w-full h-12 px-4 rounded border border-slate-300 bg-white text-sm text-slate-900 transition-colors"
+                >
+                  <option value="1">1x de R$ 997,00 (à vista sem juros)</option>
+                  <option value="2">2x de R$ 498,50 sem juros</option>
+                  <option value="3">3x de R$ 332,33 sem juros</option>
+                  <option value="4">4x de R$ 249,25 sem juros</option>
+                  <option value="5">5x de R$ 199,40 sem juros</option>
+                  <option value="6">6x de R$ 166,16 sem juros</option>
+                  <option value="10">10x de R$ 99,70 sem juros</option>
+                  <option value="12">12x de R$ 83,08 sem juros</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Painel Pix (inicialmente oculto) -->
+            <div id="panel-pix" class="hidden py-6 text-center">
+              <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-700 mb-3">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <p class="text-sm font-semibold text-slate-800 mb-1">Pagamento instantâneo via Pix</p>
+              <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                O QR Code e a chave copia-e-cola serão gerados imediatamente após a confirmação do pedido na próxima tela.
+              </p>
+            </div>
+
+            <!-- Painel Boleto (inicialmente oculto) -->
+            <div id="panel-boleto" class="hidden py-6 text-center">
+              <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 text-slate-700 mb-3">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <p class="text-sm font-semibold text-slate-800 mb-1">Boleto Bancário</p>
+              <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                O boleto será gerado após a finalização da inscrição. O prazo para compensação bancária é de até 3 dias úteis.
+              </p>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+
+      <!-- COLUNA DIREITA (38% ~ 5 cols) -->
+      <aside class="lg:col-span-5">
+        <div class="bg-slate-50 border border-slate-200 rounded-lg p-6 lg:p-7 sticky top-8">
+          
+          <h2 class="text-lg font-bold tracking-tight text-slate-900 pb-4 border-b border-slate-200 mb-6">
+            Resumo do pedido
+          </h2>
+
+          <!-- Item / Produto -->
+          <div class="flex items-start gap-4 pb-6 border-b border-slate-200">
+            <!-- Thumbnail institucional compacta -->
+            <div class="w-16 h-16 rounded bg-slate-200 border border-slate-300 flex-shrink-0 flex items-center justify-center text-slate-600">
+              <svg class="w-7 h-7 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+
+            <div class="flex-grow">
+              <h3 class="text-sm font-semibold text-slate-900 leading-snug">
+                Curso Avançado de Direito Empresarial e Governança
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">
+                Turma Executiva • Acesso individual online
+              </p>
+            </div>
+          </div>
+
+          <!-- Valores Financeiros -->
+          <div class="py-5 space-y-3 text-sm border-b border-slate-200">
+            <div class="flex justify-between text-slate-600">
+              <span>Subtotal</span>
+              <span class="font-medium text-slate-900">R$ 1.497,00</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>Desconto institucional</span>
+              <span class="font-medium text-slate-900">- R$ 500,00</span>
+            </div>
+          </div>
+
+          <!-- Total Final -->
+          <div class="py-5 flex items-baseline justify-between">
+            <span class="text-base font-semibold text-slate-900">Total</span>
+            <div class="text-right">
+              <span class="text-2xl font-bold tracking-tight text-slate-900">R$ 997,00</span>
+              <span class="block text-[11px] text-slate-500 mt-0.5 font-normal">ou em até 12x no cartão de crédito</span>
+            </div>
+          </div>
+
+          <!-- Bloco Cupom -->
+          <div class="pt-2 pb-6">
+            <button 
+              type="button" 
+              id="coupon-btn" 
+              onclick="toggleCoupon()"
+              class="text-xs font-medium text-slate-600 hover:text-slate-900 underline underline-offset-4 focus:outline-none"
+            >
+              Adicionar cupom
+            </button>
+            <div id="coupon-box" class="hidden mt-3">
+              <div class="flex gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Código do cupom"
+                  class="flex-1 h-10 px-3 rounded border border-slate-300 bg-white text-xs text-slate-900 uppercase tracking-wider"
+                >
+                <button 
+                  type="button" 
+                  class="h-10 px-4 rounded bg-slate-200 text-slate-800 text-xs font-semibold hover:bg-slate-300 transition-colors"
+                >
+                  Aplicar
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botão CTA Principal -->
+          <button 
+            type="submit" 
+            class="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-base rounded transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 flex items-center justify-center tracking-wide shadow-none"
+          >
+            Finalizar compra
+          </button>
+
+          <!-- Avisos e Garantia pós-CTA -->
+          <div class="mt-4 flex items-center justify-center gap-4 text-[11px] text-slate-500 font-medium">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              Pagamento seguro
+            </span>
+            <span class="text-slate-300">•</span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+              Garantia de 7 dias
+            </span>
+          </div>
+
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- FOOTER INSTITUCIONAL -->
+  <footer class="w-full bg-white border-t border-slate-200 mt-auto">
+    <div class="max-w-[1180px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-center sm:text-left">
+        <span class="font-medium text-slate-700">Instituto Valença de Ensino S/A</span>
+        <span class="hidden sm:inline text-slate-300">|</span>
+        <span>CNPJ 12.345.678/0001-90</span>
+      </div>
+      <div class="flex items-center gap-6 font-normal">
+        <a href="#termos" class="hover:text-slate-900 transition-colors">Termos de Uso</a>
+        <a href="#privacidade" class="hover:text-slate-900 transition-colors">Privacidade</a>
+        <a href="#suporte" class="hover:text-slate-900 transition-colors">Suporte</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script simples e nativo para alternância visual de abas e cupom -->
+  <script>
+    function setPaymentTab(method) {
+      // Tabs
+      const tabs = ['pix', 'cartao', 'boleto'];
+      tabs.forEach(tab => {
+        const btn = document.getElementById('tab-' + tab);
+        const panel = document.getElementById('panel-' + tab);
+        if (tab === method) {
+          btn.classList.add('active', 'shadow-sm');
+          btn.setAttribute('aria-selected', 'true');
+          panel.classList.remove('hidden');
+        } else {
+          btn.classList.remove('active', 'shadow-sm');
+          btn.setAttribute('aria-selected', 'false');
+          panel.classList.add('hidden');
+        }
+      });
+    }
+
+    function toggleCoupon() {
+      const box = document.getElementById('coupon-box');
+      const btn = document.getElementById('coupon-btn');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        btn.classList.add('hidden');
+      } else {
+        box.classList.add('hidden');
+        btn.classList.remove('hidden');
+      }
+    }
+  </script>
+</body>
+</html>

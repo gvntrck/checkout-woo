@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Pagar com Pix - QuantBrasil</title>
+<!-- Tailwind CSS CDN with forms plugin -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#002B49',
+              green: '#34c77b',
+              emerald: '#3ecf8e',
+              cta: '#3ec888',
+              ctaHover: '#33b378',
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-typography">
+    body {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-white text-gray-900 font-sans antialiased selection:bg-emerald-500 selection:text-white">
+<!-- BEGIN: MainContainer -->
+<main class="min-h-screen flex flex-col md:flex-row w-full">
+<!-- BEGIN: LeftColumnSummary -->
+<!-- Dark Navy Left Column with Order Info -->
+<section class="w-full md:w-1/2 bg-[#002B49] text-white flex flex-col justify-start md:min-h-screen pt-12 pb-10 px-8 sm:px-14 lg:px-24">
+<div class="max-w-md w-full ml-auto mr-0 md:mr-10 xl:mr-16">
+<!-- Brand Header & Back Button -->
+<div class="flex items-center space-x-3 mb-12">
+<!-- Back arrow link -->
+<a aria-label="Voltar" class="text-white/60 hover:text-white transition-colors duration-150 inline-flex items-center" href="#">
+<svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</a>
+<!-- Brand Logo & Name -->
+<div class="flex items-center space-x-2">
+<!-- Custom QuantBrasil Logo Graphic -->
+<div class="w-7 h-7 rounded-full border border-[#22c55e] flex items-center justify-center p-1">
+<svg class="w-4 h-4 text-[#22c55e]" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<span class="text-white font-medium text-lg tracking-tight">Checkout site</span>
+</div>
+</div>
+<!-- Product Details -->
+<div class="space-y-3">
+<p class="text-sm font-medium text-slate-300 tracking-normal">Premium Pass</p>
+<h1 class="text-4xl lg:text-[42px] font-bold tracking-tight text-white">R$ 899,00</h1>
+<p class="text-sm text-slate-300 font-normal leading-relaxed pt-1">
+            Acesso Premium por período fixo, pago à vista no Pix.
+          </p>
+</div>
+</div>
+</section>
+<!-- END: LeftColumnSummary -->
+<!-- BEGIN: RightColumnCheckout -->
+<!-- White Right Column with Checkout Form -->
+<section class="w-full md:w-1/2 bg-white flex flex-col justify-between md:min-h-screen pt-12 pb-8 px-8 sm:px-14 lg:px-20">
+<div class="max-w-md w-full mr-auto ml-0 md:ml-10 xl:ml-16">
+<!-- Heading -->
+<h2 class="text-2xl font-semibold text-gray-900 tracking-tight mb-8">Pagar com Pix</h2>
+<!-- Form Elements -->
+<form class="space-y-6" onsubmit="event.preventDefault();">
+<!-- E-mail Input Field -->
+<div class="space-y-2" data-purpose="email-field">
+<label class="block text-sm font-normal text-gray-700" for="email">E-mail</label>
+<input class="w-full rounded-md border border-gray-300 px-3.5 py-2.5 text-gray-900 placeholder-gray-400 text-sm shadow-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors" id="email" name="email" placeholder="e-mail@exemplo.com" required="" type="email">
+</div>
+<!-- Payment Method Section -->
+<div class="space-y-3 pt-2" data-purpose="payment-method">
+<label class="block text-sm font-normal text-gray-800">Forma de pagamento</label>
+<!-- Selected Pix Option Box -->
+<div class="border border-gray-200 rounded-lg p-4 bg-white space-y-4">
+<!-- Pix Tag / Brand -->
+<div class="flex items-center space-x-2.5">
+<!-- Pix Diamond Icon -->
+<svg class="w-4 h-4 text-[#32BCAD]" fill="currentColor" viewBox="0 0 512 512">
+<path d="M112.5 137.6l71.7-71.7c39.6-39.6 103.8-39.6 143.4 0l71.7 71.7c39.6 39.6 39.6 103.8 0 143.4l-71.7 71.7c-39.6 39.6-103.8 39.6-143.4 0l-71.7-71.7c-39.6-39.6-39.6-103.8 0-143.4zm42.7 100.7l49.7 49.7c27.6 27.6 72.4 27.6 100 0l49.7-49.7c27.6-27.6 27.6-72.4 0-100l-49.7-49.7c-27.6-27.6-72.4-27.6-100 0l-49.7 49.7c-27.6 27.6-27.6 72.4 0 100z"></path>
+</svg>
+<span class="text-sm font-semibold text-gray-800">Pix</span>
+</div>
+<!-- Pix Instructions with QR Code Frame Icon -->
+<div class="flex items-start space-x-3.5 text-gray-500 pt-1">
+<!-- QR Scanner Outline Icon -->
+<div class="shrink-0 pt-0.5 text-gray-400">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+<path d="M4 8V6a2 2 0 0 1 2-2h2"></path>
+<path d="M4 16v2a2 2 0 0 0 2 2h2"></path>
+<path d="M16 4h2a2 2 0 0 1 2 2v2"></path>
+<path d="M16 20h2a2 2 0 0 0 2-2v-2"></path>
+<rect height="6" rx="1" width="6" x="9" y="9"></rect>
+</svg>
+</div>
+<p class="text-xs text-gray-500 leading-relaxed font-normal">
+                  Um código QR será exibido para você escanear e concluir sua compra.
+                </p>
+</div>
+</div>
+</div>
+<!-- Submit CTA Button -->
+<div class="pt-4">
+<button class="w-full bg-[#3ec888] hover:bg-[#34b679] active:bg-[#2fa36c] text-white font-medium text-sm py-3.5 px-4 rounded-md shadow-sm transition duration-150 ease-in-out cursor-pointer text-center" type="submit">
+              Continuar
+            </button>
+</div>
+</form>
+</div>
+<!-- BEGIN: Footer -->
+<footer class="max-w-md w-full mr-auto ml-0 md:ml-10 xl:ml-16 mt-12 pt-6">
+<div class="flex items-center justify-center space-x-2 text-xs text-gray-500">
+<!-- Powered by Stripe -->
+<span class="inline-flex items-center text-gray-500 font-normal">
+            Powered by 
+            <span class="font-bold text-gray-700 ml-1 tracking-tight">stripe</span>
+</span>
+<span class="text-gray-300 font-light">|</span>
+<a class="text-gray-500 hover:text-gray-700 transition-colors" href="#">Termos</a>
+<a class="text-gray-500 hover:text-gray-700 transition-colors ml-1" href="#">Privacidade</a>
+</div>
+</footer>
+<!-- END: Footer -->
+</section>
+<!-- END: RightColumnCheckout -->
+</main>
+<!-- END: MainContainer -->
+
+
+</body></html>

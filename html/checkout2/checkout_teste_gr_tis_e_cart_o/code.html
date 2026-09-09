@@ -1,0 +1,249 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>QuantBrasil - Finalizar Pagamento</title>
+<!-- Tailwind CSS v3 with forms plugin -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#032644',
+              navy: '#022B4A',
+              muted: '#7fa6c8',
+              green: '#2ec57d',
+              'green-hover': '#26ad6e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-typography">
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-800 antialiased min-h-screen">
+<div class="min-h-screen flex flex-col lg:flex-row">
+<!-- BEGIN: LeftSummaryColumn -->
+<aside class="w-full lg:w-1/2 bg-[#022B4A] text-white px-8 py-10 lg:px-16 lg:py-16 flex flex-col justify-between" data-purpose="order-summary-sidebar">
+<div class="max-w-md mx-auto lg:max-w-lg w-full">
+<!-- Logo and Back Navigation -->
+<div class="flex items-center gap-3 mb-10 cursor-pointer group">
+<svg class="w-4 h-4 text-slate-300 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full border border-emerald-400 flex items-center justify-center">
+<svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<span class="text-sm font-semibold tracking-wide text-white">checkout site</span>
+</div>
+</div>
+<!-- Plan Heading & Details -->
+<div class="mb-8">
+<p class="text-sm font-medium text-slate-300 mb-1">Testar Plano Premium</p>
+<h1 class="text-3xl lg:text-4xl font-bold tracking-tight text-white mb-2">7 dias grátis</h1>
+<p class="text-xs lg:text-sm text-slate-300">
+            Depois, <span class="font-semibold text-white">R$ 899,00</span> por ano começando em 16 de setembro de 2026
+          </p>
+</div>
+<!-- Detailed Breakdown Accordion Card -->
+<div class="border-t border-slate-700/60 pt-6 pb-6 text-xs text-slate-300 leading-relaxed">
+<div class="flex justify-between items-start mb-2 font-medium text-white text-sm">
+<span class="">Plano Premium</span>
+<span class="">7 dias grátis</span>
+</div>
+<p class="text-slate-300 text-[11px] leading-relaxed mb-3">
+            Assine o nosso Plano Premium para acesso ilimitado a ferramentas de trading quantitativo. Receba atualizações em tempo real, desbloqueie todas as funcionalidades e otimize suas estratégias de investimento.
+          </p>
+<div class="flex justify-end items-center gap-1.5 text-slate-300 text-xs">
+<span class="">Depois R$ 899,00/ano</span>
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M5 15l7-7 7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Pricing Subtotals -->
+<div class="border-t border-slate-700/60 pt-4 space-y-4">
+<div class="flex justify-between items-center text-sm font-medium">
+<span class="text-slate-200">Subtotal</span>
+<span class="text-white">R$ 899,00</span>
+</div>
+<!-- Promo Code Button -->
+<div>
+<button class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-200 bg-[#07365c] hover:bg-[#0c4270] transition-colors border border-slate-600/40 shadow-sm" type="button">
+              Adicionar código promocional
+            </button>
+</div>
+<!-- Totals Calculation -->
+<div class="pt-4 border-t border-slate-700/60 space-y-2">
+<div class="flex justify-between text-xs text-slate-300">
+<span class="">Total após período de avaliação</span>
+<span class="text-white font-medium">R$ 899,00</span>
+</div>
+<div class="flex justify-between items-baseline text-sm pt-1">
+<span class="text-white font-medium">Total devido hoje</span>
+<span class="text-lg font-bold text-white">R$ 0,00</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- END: LeftSummaryColumn -->
+<!-- BEGIN: RightCheckoutForm -->
+<main class="w-full lg:w-1/2 bg-white px-8 py-10 lg:px-16 lg:py-16 flex justify-start items-start" data-purpose="checkout-form-container">
+<div class="max-w-md w-full mx-auto lg:mx-0">
+<h2 class="text-xl font-semibold text-slate-900 mb-6 tracking-tight">Inserir detalhes de pagamento</h2>
+<form action="#" class="space-y-6" method="POST" onsubmit="event.preventDefault()">
+<!-- Contact Info Section -->
+<div class="space-y-3">
+<label class="block text-xs font-semibold text-slate-600">Dados de contato</label>
+<!-- Email Input -->
+<div class="relative rounded-md shadow-sm">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+<svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+</svg>
+</div>
+<input class="block w-full rounded-md border-slate-300 pl-9 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-emerald-500 focus:ring-emerald-500 py-2.5" placeholder="e-mail@exemplo.com" required="" type="email">
+</div>
+<!-- Phone Input -->
+<div class="relative rounded-md shadow-sm">
+<div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+<span class="text-sm">🇧🇷</span>
+</div>
+<input class="block w-full rounded-md border-slate-300 pl-9 pr-9 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-emerald-500 focus:ring-emerald-500 py-2.5" placeholder="(11) 96123-4567" type="tel">
+<div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+<svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<circle cx="12" cy="12" r="10" stroke-width="1.8"></circle>
+<path d="M12 16v-4m0-4h.01" stroke-linecap="round" stroke-width="1.8"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Full Name Section -->
+<div class="space-y-1.5">
+<label class="block text-xs font-semibold text-slate-600">Nome completo</label>
+<input class="block w-full rounded-md border-slate-300 text-xs sm:text-sm text-slate-800 focus:border-emerald-500 focus:ring-emerald-500 py-2.5" placeholder="" type="text">
+</div>
+<!-- Payment Methods Section -->
+<div class="space-y-3">
+<label class="block text-xs font-semibold text-slate-600">Forma de pagamento</label>
+<div class="border border-slate-300 rounded-lg overflow-hidden divide-y divide-slate-200">
+<!-- Credit Card Option (Active Tab) -->
+<div class="p-4 bg-white">
+<div class="flex items-center gap-3 mb-4">
+<input checked="" class="h-4 w-4 text-slate-900 border-slate-400 focus:ring-slate-900" id="card" name="payment_method" type="radio">
+<label class="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 cursor-pointer" for="card">
+<svg class="w-4 h-4 text-slate-700" fill="currentColor" viewBox="0 0 24 24">
+<rect fill="none" height="14" rx="2" stroke="currentColor" stroke-width="2" width="20" x="2" y="5"></rect>
+<line stroke="currentColor" stroke-width="2" x1="2" x2="22" y1="10" y2="10"></line>
+</svg>
+                    Cartão
+                  </label>
+</div>
+<!-- Card Details Subfields -->
+<div class="space-y-3 pl-7">
+<div>
+<label class="block text-[11px] font-medium text-slate-500 mb-1">Dados do cartão</label>
+<div class="rounded-md border border-slate-300 overflow-hidden focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 divide-y divide-slate-200">
+<!-- Card Number -->
+<div class="relative flex items-center bg-white">
+<input class="block w-full border-none text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-0 py-2 px-3" placeholder="1234 1234 1234 1234" type="text">
+<div class="flex items-center space-x-1 pr-2.5 shrink-0">
+<!-- Visa Badge -->
+<div class="px-1.5 py-0.5 rounded bg-blue-900 text-[9px] font-bold tracking-tighter text-white">VISA</div>
+<!-- Mastercard Badge -->
+<div class="flex -space-x-1 items-center px-1">
+<span class="w-3.5 h-3.5 rounded-full bg-red-500 inline-block opacity-90"></span>
+<span class="w-3.5 h-3.5 rounded-full bg-amber-500 inline-block opacity-90"></span>
+</div>
+</div>
+</div>
+<!-- Expiry and CVC Row -->
+<div class="grid grid-cols-2 divide-x divide-slate-200 bg-white">
+<input class="block w-full border-none text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-0 py-2 px-3" placeholder="MM / AA" type="text">
+<div class="relative flex items-center">
+<input class="block w-full border-none text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-0 py-2 px-3" placeholder="CVC" type="text">
+<div class="pr-2.5 pointer-events-none text-slate-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<rect height="14" rx="2" stroke-width="1.8" width="18" x="3" y="5"></rect>
+<path d="M7 15h3" stroke-linecap="round" stroke-width="1.8"></path>
+</svg>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Cardholder Name -->
+<div>
+<label class="block text-[11px] font-medium text-slate-500 mb-1">Nome do titular do cartão</label>
+<input class="block w-full rounded-md border-slate-300 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-emerald-500 focus:ring-emerald-500 py-2 px-3" placeholder="Nome completo" type="text">
+</div>
+<!-- Country Selector -->
+<div>
+<label class="block text-[11px] font-medium text-slate-500 mb-1">País ou região</label>
+<select class="block w-full rounded-md border-slate-300 text-xs sm:text-sm text-slate-800 focus:border-emerald-500 focus:ring-emerald-500 py-2 px-3 bg-white">
+<option selected="">Brasil</option>
+<option>Portugal</option>
+<option>Estados Unidos</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Google Pay Option -->
+<div class="p-4 bg-white flex items-center justify-between">
+<div class="flex items-center gap-3">
+<input class="h-4 w-4 text-slate-900 border-slate-400 focus:ring-slate-900" id="gpay" name="payment_method" type="radio">
+<label class="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-900 cursor-pointer" for="gpay">
+<span class="inline-flex items-center justify-center border border-slate-300 rounded px-1.5 py-0.5 text-[10px] font-medium tracking-tight bg-slate-50">
+                      GPay
+                    </span>
+                    Google Pay
+                  </label>
+</div>
+</div>
+</div>
+</div>
+<!-- Save Information Checkbox -->
+<div class="border border-slate-200 rounded-lg p-3.5 bg-slate-50/50">
+<div class="flex items-start gap-3">
+<input class="mt-0.5 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" id="save-info" type="checkbox">
+<div class="text-xs">
+<label class="font-medium text-slate-800 block cursor-pointer" for="save-info">
+                  Salve minhas informações para um checkout mais rápido
+                </label>
+<p class="text-slate-500 text-[11px] mt-0.5 leading-normal">
+                  Pague com segurança em QuantBrasil e em qualquer lugar onde a <span class="underline decoration-dotted cursor-pointer">Link</span> é aceita.
+                </p>
+</div>
+</div>
+</div>
+<!-- Submit CTA Button -->
+<div>
+<button class="w-full py-3.5 px-4 bg-[#2ec57d] hover:bg-[#26ad6e] text-slate-900 font-semibold text-sm rounded-lg shadow-sm transition duration-150 ease-in-out" type="submit">
+              Iniciar teste
+            </button>
+</div>
+<!-- Disclaimer Text -->
+<p class="text-[11px] text-slate-500 text-center leading-relaxed">
+            Ao se inscrever, você autoriza o {site} a cobrar de acordo com os termos do plano escolhido após o período de teste. Cancele a qualquer momento.
+          </p>
+</form>
+</div>
+</main>
+<!-- END: RightCheckoutForm -->
+</div>
+
+
+
+
+</body></html>

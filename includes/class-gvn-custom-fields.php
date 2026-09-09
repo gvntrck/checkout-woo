@@ -365,7 +365,9 @@ class GVN_Custom_Fields {
             if ( ! is_array( $field ) || empty( $field['key'] ) ) {
                 continue;
             }
-            $normalized[] = array_merge( $defaults, $field );
+            $field = array_merge( $defaults, $field );
+            $field['conditions'] = self::sanitize_conditions( $field['conditions'] );
+            $normalized[] = $field;
         }
 
         if ( ! in_array( 'billing_postcode', array_column( $normalized, 'key' ), true ) ) {
@@ -488,6 +490,7 @@ class GVN_Custom_Fields {
      */
     public static function sanitize_conditions( $conditions ) {
         $valid_operators = array( 'equals', 'not_equals', 'filled', 'empty', 'contains', 'greater', 'less' );
+        $operator_aliases = array( '==' => 'equals', 'eq' => 'equals', '!=' => 'not_equals', 'neq' => 'not_equals', '>' => 'greater', '<' => 'less' );
 
         $sanitized = array(
             'logic' => 'and',
@@ -502,22 +505,25 @@ class GVN_Custom_Fields {
             $sanitized['logic'] = $conditions['logic'];
         }
 
-        if ( isset( $conditions['rules'] ) && is_array( $conditions['rules'] ) ) {
-            foreach ( $conditions['rules'] as $rule ) {
-                if ( ! is_array( $rule ) || empty( $rule['field'] ) || empty( $rule['operator'] ) ) {
-                    continue;
-                }
+        $rules = isset( $conditions['rules'] ) && is_array( $conditions['rules'] )
+            ? $conditions['rules']
+            : ( isset( $conditions[0] ) && is_array( $conditions[0] ) ? $conditions : array() );
 
-                if ( ! in_array( $rule['operator'], $valid_operators, true ) ) {
-                    continue;
-                }
-
-                $sanitized['rules'][] = array(
-                    'field'    => sanitize_key( $rule['field'] ),
-                    'operator' => sanitize_key( $rule['operator'] ),
-                    'value'    => sanitize_text_field( isset( $rule['value'] ) ? $rule['value'] : '' ),
-                );
+        foreach ( $rules as $rule ) {
+            if ( ! is_array( $rule ) || empty( $rule['field'] ) || empty( $rule['operator'] ) ) {
+                continue;
             }
+
+            $operator = $operator_aliases[ $rule['operator'] ] ?? $rule['operator'];
+            if ( ! in_array( $operator, $valid_operators, true ) ) {
+                continue;
+            }
+
+            $sanitized['rules'][] = array(
+                'field'    => sanitize_key( $rule['field'] ),
+                'operator' => $operator,
+                'value'    => sanitize_text_field( isset( $rule['value'] ) ? $rule['value'] : '' ),
+            );
         }
 
         return $sanitized;
@@ -911,6 +917,8 @@ class GVN_Custom_Fields {
         foreach ( $lines as $line ) {
             if ( strpos( $line, '|' ) !== false ) {
                 list( $value, $label ) = array_map( 'trim', explode( '|', $line, 2 ) );
+            } elseif ( strpos( $line, ' : ' ) !== false ) {
+                list( $value, $label ) = array_map( 'trim', explode( ' : ', $line, 2 ) );
             } else {
                 $value = sanitize_title( $line );
                 $label = $line;

@@ -5,6 +5,7 @@ namespace GVN\Checkout\Tests\Unit;
 use GVN_Admin;
 use GVN_Custom_Fields;
 use GVN\Checkout\Settings\SettingsRepository;
+use GVN\Checkout\Settings\SettingsSchema;
 use GVN\Checkout\Support\Features;
 use PHPUnit\Framework\TestCase;
 
@@ -59,6 +60,24 @@ class AdminTest extends TestCase {
         $this->assertNotContains('gvn-hidden-field', $checkoutFields['billing']['billing_postcode']['class']);
         $this->assertTrue($checkoutFields['billing']['billing_city']['required']);
         $this->assertNotContains('gvn-hidden-field', $checkoutFields['billing']['billing_city']['class']);
+    }
+
+    public function test_legacy_direct_conditions_are_normalized_before_woocommerce_registration(): void {
+        global $wp_mock_options;
+        $wp_mock_options[GVN_Custom_Fields::OPTION_KEY] = SettingsSchema::get_default_fields();
+
+        $fields = GVN_Custom_Fields::get_fields();
+        $cnpj = $fields[array_search('billing_cnpj', array_column($fields, 'key'), true)];
+
+        $this->assertSame('and', $cnpj['conditions']['logic']);
+        $this->assertSame('equals', $cnpj['conditions']['rules'][0]['operator']);
+        $this->assertTrue(GVN_Custom_Fields::has_conditions($cnpj));
+
+        $checkout_fields = GVN_Custom_Fields::get_instance()->register_custom_fields_with_woo([
+            'billing' => [], 'shipping' => [], 'account' => [], 'order' => [],
+        ]);
+        $this->assertArrayHasKey('1', $checkout_fields['billing']['billing_persontype']['options']);
+        $this->assertFalse($checkout_fields['billing']['billing_cnpj']['required']);
     }
 
     public function test_render_settings_page_denies_unauthorized_users(): void {

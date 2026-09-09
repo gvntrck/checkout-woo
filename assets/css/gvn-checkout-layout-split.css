@@ -1,0 +1,358 @@
+/**
+ * GVN Checkout - Layout "Dividido" (resumo lateral escuro + formulário claro).
+ *
+ * CSS exclusivo e autocontido: tudo escopado sob .gvn-layout-split para
+ * nunca vazar para o layout clássico. Não depende de Tailwind/CDN.
+ *
+ * @version 1.14.0
+ */
+
+/* Estrutura: ocupa toda a largura disponível do container do tema. */
+.gvn-checkout.gvn-layout-split {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.gvn-split__form {
+    margin: 0;
+}
+
+.gvn-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "summary"
+        "main"
+        "pay";
+    align-items: stretch;
+    min-height: 100vh;
+    background: #ffffff;
+}
+
+.gvn-split__summary { grid-area: summary; }
+.gvn-split__main { grid-area: main; }
+.gvn-split__pay { grid-area: pay; }
+
+/* ============ Coluna lateral (resumo) ============ */
+
+.gvn-split__summary {
+    background: #022b4a;
+    color: #ffffff;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.gvn-split__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 2.5rem;
+}
+
+.gvn-split__back {
+    color: rgba(255, 255, 255, 0.6);
+    display: inline-flex;
+    transition: color 0.15s ease-in-out, transform 0.15s ease-in-out;
+}
+
+.gvn-split__back:hover {
+    color: #ffffff;
+    transform: translateX(-2px);
+}
+
+.gvn-split__brand-check {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1px solid #34d399;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #34d399;
+    flex-shrink: 0;
+}
+
+.gvn-split__brand-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.gvn-split__plan {
+    margin-bottom: 2rem;
+}
+
+.gvn-split__plan-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #cbd5e1;
+    margin: 0 0 0.25rem;
+}
+
+.gvn-split__plan-price {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: #ffffff;
+}
+
+/* Itens e totais sobre o fundo escuro. */
+.gvn-layout-split .gvn-split__items {
+    border-top: 1px solid rgba(148, 163, 184, 0.25);
+    padding-top: 1.25rem;
+}
+
+.gvn-layout-split .gvn-order-item__name,
+.gvn-layout-split .gvn-order-item__subtotal {
+    color: #f1f5f9;
+}
+
+.gvn-layout-split .gvn-order-item__qty {
+    color: #94a3b8;
+}
+
+.gvn-layout-split .gvn-split__totals {
+    border-top: 1px solid rgba(148, 163, 184, 0.25);
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+}
+
+.gvn-layout-split .gvn-order-totals__label {
+    color: #cbd5e1;
+}
+
+.gvn-layout-split .gvn-order-totals__value,
+.gvn-layout-split .gvn-order-totals__total-label,
+.gvn-layout-split .gvn-order-totals__total-value {
+    color: #ffffff;
+}
+
+.gvn-layout-split .gvn-order-totals__row--discount .gvn-order-totals__value {
+    color: #6ee7b7;
+}
+
+/* Cupom sobre o fundo escuro. */
+.gvn-split__promo {
+    margin-top: 1.25rem;
+}
+
+.gvn-split__promo-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.9rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #e2e8f0;
+    background: #07365c;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    cursor: pointer;
+    transition: background 0.15s ease-in-out;
+}
+
+.gvn-split__promo-btn:hover {
+    background: #0c4270;
+}
+
+.gvn-layout-split .gvn-split__promo-form {
+    margin-top: 0.75rem;
+}
+
+.gvn-layout-split .gvn-split__promo-form .gvn-field__input {
+    background: #ffffff;
+}
+
+.gvn-layout-split .gvn-coupon__message {
+    color: #fecaca;
+}
+
+.gvn-layout-split .gvn-coupon__message--success {
+    color: #6ee7b7;
+}
+
+.gvn-layout-split .gvn-coupon__applied {
+    color: #e2e8f0;
+}
+
+.gvn-split__secure {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+/* ============ Coluna principal (formulário) ============ */
+
+.gvn-split__main,
+.gvn-split__pay {
+    background: #ffffff;
+    padding: 2.5rem 2rem;
+    min-width: 0;
+}
+
+.gvn-split__panel {
+    max-width: 28rem;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.gvn-split__heading {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #0f172a;
+    margin: 0 0 0.25rem;
+}
+
+.gvn-split__subheading {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0 0 1.5rem;
+}
+
+.gvn-split__section-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    margin: 1.5rem 0 0.75rem;
+}
+
+.gvn-split__section-label:first-of-type {
+    margin-top: 0;
+}
+
+/* Gateways empilhados (estilo lista selecionável). */
+.gvn-layout-split .gvn-gateways__list {
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.gvn-layout-split .gvn-gateway {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.gvn-layout-split .gvn-gateway + .gvn-gateway {
+    border-top: 1px solid #e2e8f0;
+}
+
+.gvn-layout-split .gvn-gateway--active {
+    border-color: transparent;
+    background: #f8fafc;
+    box-shadow: inset 0 0 0 2px #10b981;
+}
+
+.gvn-layout-split .gvn-gateway__radio {
+    margin-top: 0.2rem;
+    accent-color: #0f172a;
+}
+
+.gvn-layout-split .gvn-gateway__name {
+    font-size: 0.875rem;
+}
+
+.gvn-layout-split .gvn-gateway-fields {
+    border: 1px solid #cbd5e1;
+    border-top: 0;
+    border-radius: 0 0 0.5rem 0.5rem;
+    padding: 1rem;
+    background: #f8fafc;
+}
+
+.gvn-layout-split .gvn-gateways__content .gvn-gateway-fields:not(:last-child) {
+    border-radius: 0;
+}
+
+/* Order bump e termos herdam a base; apenas respiro. */
+.gvn-layout-split .gvn-split__bump {
+    margin-top: 1.25rem;
+}
+
+.gvn-layout-split .gvn-terms-wrapper {
+    margin-top: 1.25rem;
+}
+
+/* CTA principal verde do modelo. */
+.gvn-layout-split .gvn-split__submit {
+    margin-top: 1.5rem;
+}
+
+.gvn-layout-split .gvn-split__cta {
+    width: 100%;
+    background: #2ec57d;
+    color: #032644;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    padding: 0.9rem 1rem;
+    border: 0;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s ease-in-out;
+}
+
+.gvn-layout-split .gvn-split__cta:hover {
+    background: #26ad6e;
+}
+
+/* Avisos do Woo dentro do split. */
+.gvn-layout-split .woocommerce-error,
+.gvn-layout-split .woocommerce-message,
+.gvn-layout-split .woocommerce-info {
+    max-width: 28rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ============ Desktop: duas colunas ============ */
+
+@media (min-width: 1024px) {
+    .gvn-split {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "summary main"
+            "summary pay";
+    }
+
+    .gvn-split__summary {
+        padding: 3rem 3.5rem;
+    }
+
+    .gvn-split__summary > * {
+        max-width: 28rem;
+        width: 100%;
+        margin-left: auto;
+    }
+
+    .gvn-split__main,
+    .gvn-split__pay {
+        padding: 3rem 3.5rem;
+    }
+
+    .gvn-split__main .gvn-split__panel,
+    .gvn-split__pay .gvn-split__panel {
+        margin-left: 0;
+    }
+
+    .gvn-split__plan-price {
+        font-size: 2.25rem;
+    }
+}

@@ -116,8 +116,32 @@ class GVN_Admin {
      */
     private function get_settings() {
         $products = $this->get_products_list();
+        $layouts  = class_exists( 'GVN\Checkout\Layouts\LayoutRegistry' )
+            ? \GVN\Checkout\Layouts\LayoutRegistry::get_options_for_admin()
+            : array( 'classic' => __( 'Clássico (padrão)', 'gvn-checkout' ) );
 
         $settings = array(
+
+            // Seção: Layout
+            array(
+                'title' => __( 'Layout do Checkout', 'gvn-checkout' ),
+                'type'  => 'title',
+                'desc'  => __( 'Escolha o modelo visual da página de checkout. Também é possível sobrescrever por página com [gvn-checkout layout="split"].', 'gvn-checkout' ),
+                'id'    => 'gvn_checkout_layout_section',
+            ),
+            array(
+                'title'    => __( 'Modelo do checkout', 'gvn-checkout' ),
+                'desc'     => __( 'Modelo visual aplicado ao shortcode [gvn-checkout].', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_checkout_layout',
+                'type'     => 'select',
+                'options'  => $layouts,
+                'default'  => 'classic',
+                'desc_tip' => true,
+            ),
+            array(
+                'type' => 'sectionend',
+                'id'   => 'gvn_checkout_layout_section',
+            ),
 
             // Seção: Header
             array(

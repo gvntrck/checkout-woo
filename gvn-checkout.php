@@ -63,6 +63,7 @@ add_action('plugins_loaded', function () {
  */
 function gvn_checkout_activate() {
     $defaults = array(
+        'checkout_layout' => 'classic',
         'header_text' => 'EFEAD - Conectando Saberes',
         'header_badge_text' => 'COMPRA SEGURA',
         'header_bg_color' => '#3a4759',

@@ -47,7 +47,79 @@ class GVN_Checkout {
             $classes[] = 'gvn-checkout-active';
         }
 
+        if ( $is_checkout_page ) {
+            $classes[] = 'gvn-layout-' . self::get_current_layout( array(), 'body' );
+        }
+
         return $classes;
+    }
+
+    /**
+     * Resolve o layout de checkout vigente.
+     *
+     * Prioridade: atributo `layout` do shortcode > atributo no conteúdo da
+     * página > configuração do plugin > layout padrão. O resultado passa
+     * pelo filtro `gvn_checkout_layout` e sempre cai para um slug válido.
+     *
+     * @param array|string $atts Atributos do shortcode (quando em renderização).
+     * @param string       $context Contexto: 'render', 'enqueue' ou 'body'.
+     * @return string Slug do layout.
+     */
+    public static function get_current_layout( $atts = array(), $context = 'render' ) {
+        $requested = '';
+
+        if ( is_array( $atts ) && isset( $atts['layout'] ) ) {
+            $requested = trim( (string) $atts['layout'] );
+        }
+
+        if ( '' === $requested ) {
+            $requested = self::detect_page_layout();
+        }
+
+        if ( '' === $requested ) {
+            $requested = class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
+                ? \GVN\Checkout\Settings\SettingsRepository::get( 'checkout_layout', 'classic' )
+                : get_option( 'gvn_checkout_checkout_layout', 'classic' );
+        }
+
+        $layout = class_exists( 'GVN\Checkout\Layouts\LayoutRegistry' )
+            ? \GVN\Checkout\Layouts\LayoutRegistry::resolve( $requested )
+            : 'classic';
+
+        if ( function_exists( 'apply_filters' ) ) {
+            $filtered = apply_filters( 'gvn_checkout_layout', $layout, $context );
+            if ( is_string( $filtered ) && '' !== $filtered && class_exists( 'GVN\Checkout\Layouts\LayoutRegistry' ) ) {
+                $layout = \GVN\Checkout\Layouts\LayoutRegistry::resolve( $filtered );
+            }
+        }
+
+        return $layout;
+    }
+
+    /**
+     * Detecta o atributo `layout` do shortcode [gvn-checkout] no conteúdo da página.
+     * Permite enfileirar o CSS/JS correto antes da renderização do shortcode.
+     *
+     * @return string Slug bruto encontrado ou string vazia.
+     */
+    private static function detect_page_layout() {
+        global $post;
+
+        if ( ! is_object( $post ) || ! isset( $post->post_content ) ) {
+            return '';
+        }
+
+        $content = (string) $post->post_content;
+
+        if ( false === strpos( $content, 'gvn-checkout' ) ) {
+            return '';
+        }
+
+        if ( preg_match( '/\[gvn-checkout[^\]]*layout\s*=\s*["\']([^"\']+)["\']/', $content, $matches ) ) {
+            return trim( $matches[1] );
+        }
+
+        return '';
     }
 
     /**
@@ -69,6 +141,30 @@ class GVN_Checkout {
             array(),
             GVN_CHECKOUT_VERSION
         );
+
+        // CSS/JS exclusivos do layout vigente (o clássico usa apenas a base).
+        if ( class_exists( 'GVN\Checkout\Layouts\LayoutRegistry' ) ) {
+            $layout  = self::get_current_layout( array(), 'enqueue' );
+            $css_url = \GVN\Checkout\Layouts\LayoutRegistry::get_css_url( $layout );
+            if ( '' !== $css_url ) {
+                wp_enqueue_style(
+                    'gvn-checkout-layout-' . $layout,
+                    $css_url,
+                    array( 'gvn-checkout-css' ),
+                    GVN_CHECKOUT_VERSION
+                );
+            }
+            $js_url = \GVN\Checkout\Layouts\LayoutRegistry::get_js_url( $layout );
+            if ( '' !== $js_url ) {
+                wp_enqueue_script(
+                    'gvn-checkout-layout-' . $layout,
+                    $js_url,
+                    array( 'gvn-checkout-js' ),
+                    GVN_CHECKOUT_VERSION,
+                    true
+                );
+            }
+        }
 
         // JS do checkout só é necessário na página de checkout (não na thank you).
         if ( $is_checkout_page ) {
@@ -158,8 +254,14 @@ class GVN_Checkout {
             return '<p>' . esc_html__( 'Não foi possível inicializar o checkout. Tente novamente.', 'gvn-checkout' ) . '</p>';
         }
 
+        $layout      = self::get_current_layout( $atts, 'render' );
+        $gvn_layout  = $layout;
+        $template    = class_exists( 'GVN\Checkout\Layouts\LayoutRegistry' )
+            ? \GVN\Checkout\Layouts\LayoutRegistry::get_template( $layout )
+            : GVN_CHECKOUT_PLUGIN_DIR . 'templates/checkout-template.php';
+
         ob_start();
-        include GVN_CHECKOUT_PLUGIN_DIR . 'templates/checkout-template.php';
+        include $template;
         return ob_get_clean();
     }
 

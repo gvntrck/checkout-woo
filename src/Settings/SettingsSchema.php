@@ -16,6 +16,7 @@ class SettingsSchema {
      */
     public static function get_defaults(): array {
         return [
+            'checkout_layout'         => 'classic',
             'header_text'             => 'EFEAD - Conectando Saberes',
             'header_badge_text'       => 'COMPRA SEGURA',
             'header_bg_color'         => '#3a4759',
@@ -235,6 +236,18 @@ class SettingsSchema {
             case 'order_bump_product_id':
                 $id = (int) $value;
                 return ($id > 0) ? $id : 0;
+
+            case 'checkout_layout':
+                $slug = function_exists( 'sanitize_key' )
+                    ? sanitize_key( (string) $value )
+                    : strtolower( (string) preg_replace( '/[^a-zA-Z0-9_\-]/', '', (string) $value ) );
+                if ( '' === $slug ) {
+                    return $fallback;
+                }
+                if ( class_exists( 'GVN\Checkout\Layouts\LayoutRegistry' ) ) {
+                    return \GVN\Checkout\Layouts\LayoutRegistry::resolve( $slug );
+                }
+                return $slug;
 
             case 'order_bump_price':
                 if (empty($value)) {

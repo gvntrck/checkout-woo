@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.14.0
+Stable tag: 1.15.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -119,6 +119,12 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.15.0 =
+* Permite chaves (key) duplicadas com exibição alternada por condição (ex.: "Nome do aluno" / "Nome do comprador" no mesmo destino), com ids únicos no front e envio somente do campo visível.
+* Adiciona a etiqueta "Condicional" na lista de Campos do Formulário para identificar campos com condição de exibição ativa.
+* Corrige o Valor padrão pré-selecionado de campos do tipo seleção, que não era aplicado no checkout.
+* Usa 7-Zip no script de build Windows (build-zip.ps1) em vez de Compress-Archive.
 
 = 1.14.0 =
 * Adiciona layouts de checkout selecionáveis: Clássico (padrão) e Dividido (resumo lateral escuro + formulário claro), via Configurações > GVN Checkout > Layout ou shortcode [gvn-checkout layout="split"].

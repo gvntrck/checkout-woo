@@ -14,7 +14,8 @@ class LayoutRegistryTest extends TestCase {
 
     protected function setUp(): void {
         parent::setUp();
-        global $wp_mock_options, $wp_mock_filters, $post;
+        global $wp_mock_actions, $wp_mock_options, $wp_mock_filters, $post;
+        $wp_mock_actions = [];
         $wp_mock_options = [];
         $wp_mock_filters = [];
         $post = null;

@@ -12,13 +12,18 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$OutputDir = (Join-Path (Get-Location) 'dist'),
+    [string]$OutputDir = '',
     [string]$ZipName = 'gvn-checkout.zip'
 )
 
 $ErrorActionPreference = 'Stop'
 
 $PluginSlug = 'gvn-checkout'
+# Âncora na raiz do repo (pai da pasta scripts/) para funcionar de qualquer cwd.
+$RepoRoot = Split-Path -Parent $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($OutputDir)) {
+    $OutputDir = Join-Path $RepoRoot 'dist'
+}
 $BuildRoot  = Join-Path ([System.IO.Path]::GetTempPath()) "$PluginSlug-build"
 $Stage      = Join-Path $BuildRoot $PluginSlug
 $ZipPath    = Join-Path $OutputDir $ZipName
@@ -45,6 +50,7 @@ $JunkPatterns = @(
 )
 
 Write-Host "==> Gerando pacote de release do ${PluginSlug}..."
+Write-Host "    Repo: $RepoRoot"
 
 if (Test-Path -LiteralPath $BuildRoot) {
     Remove-Item -LiteralPath $BuildRoot -Recurse -Force
@@ -54,31 +60,46 @@ if (!(Test-Path -LiteralPath $OutputDir)) {
 }
 New-Item -ItemType Directory -Path $Stage | Out-Null
 
-foreach ($path in $RuntimePaths) {
-    if (Test-Path -LiteralPath $path) {
-        Copy-Item -LiteralPath $path -Destination $Stage -Recurse -Force
-    } else {
-        Write-Warning "Ignorado (ausente): $path"
+try {
+    foreach ($path in $RuntimePaths) {
+        $source = Join-Path $RepoRoot $path
+        if (Test-Path -LiteralPath $source) {
+            Copy-Item -LiteralPath $source -Destination $Stage -Recurse -Force
+        } else {
+            Write-Warning "Ignorado (ausente): $path"
+        }
+    }
+
+    $stagedFiles = @(Get-ChildItem -LiteralPath $Stage -Recurse -Force -File)
+    if ($stagedFiles.Count -eq 0) {
+        throw "Nenhum arquivo de runtime encontrado em '$RepoRoot'. Abortando antes de gerar um zip vazio."
+    }
+
+    $junk = Get-ChildItem -LiteralPath $Stage -Recurse -Force -File | Where-Object {
+        $name = $_.Name
+        foreach ($pattern in $JunkPatterns) {
+            if ($name -like $pattern) { return $true }
+        }
+        return $false
+    }
+    if ($junk) {
+        $junk | Remove-Item -Force
+    }
+
+    if (Test-Path -LiteralPath $ZipPath) {
+        Remove-Item -LiteralPath $ZipPath -Force
+    }
+    Compress-Archive -Path $Stage -DestinationPath $ZipPath
+
+    if (!(Test-Path -LiteralPath $ZipPath)) {
+        throw "Compress-Archive não gerou '$ZipPath'."
     }
 }
-
-$junk = Get-ChildItem -LiteralPath $Stage -Recurse -Force -File | Where-Object {
-    $name = $_.Name
-    foreach ($pattern in $JunkPatterns) {
-        if ($name -like $pattern) { return $true }
+finally {
+    if (Test-Path -LiteralPath $BuildRoot) {
+        Remove-Item -LiteralPath $BuildRoot -Recurse -Force
     }
-    return $false
 }
-if ($junk) {
-    $junk | Remove-Item -Force
-}
-
-if (Test-Path -LiteralPath $ZipPath) {
-    Remove-Item -LiteralPath $ZipPath -Force
-}
-Compress-Archive -Path $Stage -DestinationPath $ZipPath
-
-Remove-Item -LiteralPath $BuildRoot -Recurse -Force
 
 $zip = Get-Item -LiteralPath $ZipPath
 Write-Host "==> Pacote gerado com sucesso em: $($zip.FullName) ($([math]::Round($zip.Length / 1KB)) KB)"

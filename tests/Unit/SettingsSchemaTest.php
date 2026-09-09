@@ -109,4 +109,21 @@ class SettingsSchemaTest extends TestCase {
         $this->assertTrue($city['enabled']);
         $this->assertTrue($city['is_default']);
     }
+
+    public function test_default_fields_use_canonical_persontype_values_and_operators(): void {
+        $fields = SettingsSchema::get_default_fields();
+        $by_key = [];
+        foreach ($fields as $field) {
+            $by_key[$field['key']] = $field;
+        }
+
+        $this->assertStringContainsString('pf|Pessoa Física', $by_key['billing_persontype']['options']);
+        $this->assertStringContainsString('pj|Pessoa Jurídica', $by_key['billing_persontype']['options']);
+
+        $this->assertSame('pf', $by_key['billing_cpf']['conditions'][0]['value']);
+        $this->assertSame('equals', $by_key['billing_cpf']['conditions'][0]['operator']);
+        $this->assertSame('pj', $by_key['billing_cnpj']['conditions'][0]['value']);
+        $this->assertSame('pj', $by_key['billing_company']['conditions'][0]['value']);
+        $this->assertSame('pj', $by_key['billing_ie']['conditions'][0]['value']);
+    }
 }

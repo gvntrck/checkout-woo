@@ -24,6 +24,16 @@ class GVN_Custom_Fields {
 
     const OPTION_KEY = 'gvn_checkout_fields';
 
+    /**
+     * @var int Máximo de regras de condição por campo (proteção contra abuso).
+     */
+    const MAX_CONDITION_RULES = 10;
+
+    /**
+     * @var int Profundidade máxima da busca de ciclos entre condições.
+     */
+    const CONDITION_CYCLE_MAX_DEPTH = 10;
+
     public static function get_instance() {
         if ( null === self::$instance ) {
             self::$instance = new self();
@@ -430,6 +440,7 @@ class GVN_Custom_Fields {
 
         $sanitized    = array();
         $seen_keys    = array();
+        $condition_errors = array();
 
         foreach ( $fields as $index => $field ) {
             $key = FieldSecurityPolicy::sanitize_field_key( isset( $field['key'] ) ? $field['key'] : '' );
@@ -439,6 +450,20 @@ class GVN_Custom_Fields {
                 continue;
             }
             $seen_keys[ $key ] = true;
+
+            $raw_conditions = isset( $field['conditions'] ) ? $field['conditions'] : array();
+            if ( is_array( $raw_conditions ) && isset( $raw_conditions['rules'] ) && is_array( $raw_conditions['rules'] ) ) {
+                foreach ( $raw_conditions['rules'] as $raw_rule ) {
+                    if ( is_array( $raw_rule ) && ! empty( $raw_rule['field'] ) && sanitize_key( $raw_rule['field'] ) === $key ) {
+                        $condition_errors[] = sprintf(
+                            /* translators: %s: chave do campo */
+                            __( 'Campo "%s": a condição não pode depender do próprio campo.', 'gvn-checkout' ),
+                            $key
+                        );
+                        break;
+                    }
+                }
+            }
 
             $type = isset( $field['type'] ) ? sanitize_text_field( $field['type'] ) : 'text';
             if ( ! FieldSecurityPolicy::is_valid_type( $type ) ) {
@@ -469,8 +494,19 @@ class GVN_Custom_Fields {
                 'is_woo_default' => ! empty( $field['is_woo_default'] ),
                 'options'        => sanitize_textarea_field( $options_raw ),
                 'default_option' => $default_option,
-                'conditions'     => self::sanitize_conditions( isset( $field['conditions'] ) ? $field['conditions'] : array() ),
+                'conditions'     => self::sanitize_conditions( $raw_conditions, $key ),
             );
+        }
+
+        if ( ! empty( $condition_errors ) ) {
+            wp_send_json_error( array( 'message' => implode( ' ', $condition_errors ) ) );
+            return;
+        }
+
+        $batch_validation = self::validate_conditions_batch( $sanitized );
+        if ( ! empty( $batch_validation['errors'] ) ) {
+            wp_send_json_error( array( 'message' => implode( ' ', $batch_validation['errors'] ) ) );
+            return;
         }
 
         update_option( self::OPTION_KEY, $sanitized );
@@ -479,16 +515,26 @@ class GVN_Custom_Fields {
             \GVN\Checkout\Settings\SettingsRepository::flush_cache();
         }
 
-        wp_send_json_success( array( 'message' => __( 'Campos salvos com sucesso!', 'gvn-checkout' ), 'fields' => $sanitized ) );
+        $success_payload = array( 'message' => __( 'Campos salvos com sucesso!', 'gvn-checkout' ), 'fields' => $sanitized );
+        if ( ! empty( $batch_validation['warnings'] ) ) {
+            $success_payload['warnings'] = $batch_validation['warnings'];
+        }
+
+        wp_send_json_success( $success_payload );
         return;
     }
 
     /**
      * Sanitiza a estrutura de condições de um campo.
+     *
+     * Aliases legados de operadores são normalizados para o canônico.
+     * Regras auto-referentes (campo dependendo de si mesmo) são descartadas.
+     *
+     * @param mixed  $conditions Estrutura bruta de condições.
+     * @param string $own_key Chave do próprio campo (para descartar auto-referência).
+     * @return array{logic: string, rules: array<int, array{field: string, operator: string, value: string}>}
      */
-    public static function sanitize_conditions( $conditions ) {
-        $valid_operators = array( 'equals', 'not_equals', 'filled', 'empty', 'contains', 'greater', 'less' );
-
+    public static function sanitize_conditions( $conditions, $own_key = '' ) {
         $sanitized = array(
             'logic' => 'and',
             'rules' => array(),
@@ -502,25 +548,227 @@ class GVN_Custom_Fields {
             $sanitized['logic'] = $conditions['logic'];
         }
 
+        // Aceita o formato legado de lista direta de regras (sem envelope logic/rules).
+        $raw_rules = array();
         if ( isset( $conditions['rules'] ) && is_array( $conditions['rules'] ) ) {
-            foreach ( $conditions['rules'] as $rule ) {
-                if ( ! is_array( $rule ) || empty( $rule['field'] ) || empty( $rule['operator'] ) ) {
-                    continue;
-                }
+            $raw_rules = $conditions['rules'];
+        } elseif ( isset( $conditions[0] ) && is_array( $conditions[0] ) ) {
+            $raw_rules = $conditions;
+        }
 
-                if ( ! in_array( $rule['operator'], $valid_operators, true ) ) {
-                    continue;
-                }
+        $own_key = FieldSecurityPolicy::sanitize_field_key( (string) $own_key );
 
-                $sanitized['rules'][] = array(
-                    'field'    => sanitize_key( $rule['field'] ),
-                    'operator' => sanitize_key( $rule['operator'] ),
-                    'value'    => sanitize_text_field( isset( $rule['value'] ) ? $rule['value'] : '' ),
-                );
+        foreach ( $raw_rules as $rule ) {
+            if ( count( $sanitized['rules'] ) >= self::MAX_CONDITION_RULES ) {
+                break;
             }
+
+            if ( ! is_array( $rule ) || empty( $rule['field'] ) || empty( $rule['operator'] ) ) {
+                continue;
+            }
+
+            $operator = FieldConditionEvaluator::normalize_operator( (string) $rule['operator'] );
+            if ( '' === $operator ) {
+                continue;
+            }
+
+            $trigger = sanitize_key( $rule['field'] );
+            if ( '' === $trigger ) {
+                continue;
+            }
+
+            // Auto-referência nunca é válida: o campo ficaria permanentemente instável.
+            if ( '' !== $own_key && $trigger === $own_key ) {
+                continue;
+            }
+
+            // Operadores de presença não usam valor de comparação.
+            $value = in_array( $operator, array( 'filled', 'empty' ), true )
+                ? ''
+                : sanitize_text_field( isset( $rule['value'] ) ? $rule['value'] : '' );
+
+            $sanitized['rules'][] = array(
+                'field'    => $trigger,
+                'operator' => $operator,
+                'value'    => $value,
+            );
         }
 
         return $sanitized;
+    }
+
+    /**
+     * Valida as condições de um lote de campos já sanitizado.
+     *
+     * Erros bloqueiam o salvamento (ciclos). Avisos são informativos
+     * (trigger inexistente/desativado, cascata, valor fora das opções).
+     *
+     * @param array<int, array<string, mixed>> $fields Campos sanitizados.
+     * @return array{errors: array<int, string>, warnings: array<int, string>}
+     */
+    public static function validate_conditions_batch( array $fields ) {
+        $errors   = array();
+        $warnings = array();
+
+        $by_key = array();
+        foreach ( $fields as $field ) {
+            if ( is_array( $field ) && ! empty( $field['key'] ) ) {
+                $by_key[ (string) $field['key'] ] = $field;
+            }
+        }
+
+        foreach ( $by_key as $key => $field ) {
+            $rules = isset( $field['conditions']['rules'] ) && is_array( $field['conditions']['rules'] )
+                ? $field['conditions']['rules']
+                : array();
+
+            foreach ( $rules as $rule ) {
+                if ( ! is_array( $rule ) || empty( $rule['field'] ) ) {
+                    continue;
+                }
+
+                $trigger = (string) $rule['field'];
+                if ( 'payment_method' === $trigger ) {
+                    continue;
+                }
+
+                if ( ! isset( $by_key[ $trigger ] ) ) {
+                    $warnings[] = sprintf(
+                        /* translators: 1: campo condicional, 2: campo trigger inexistente */
+                        __( 'Campo "%1$s": depende de "%2$s", que não existe na lista (avaliado como vazio).', 'gvn-checkout' ),
+                        $key,
+                        $trigger
+                    );
+                    continue;
+                }
+
+                $trigger_field = $by_key[ $trigger ];
+
+                if ( empty( $trigger_field['enabled'] ) ) {
+                    $warnings[] = sprintf(
+                        /* translators: 1: campo condicional, 2: campo trigger desativado */
+                        __( 'Campo "%1$s": o campo "%2$s" está desativado; a condição pode nunca ser atendida.', 'gvn-checkout' ),
+                        $key,
+                        $trigger
+                    );
+                }
+
+                if ( self::has_conditions( $trigger_field ) ) {
+                    $warnings[] = sprintf(
+                        /* translators: 1: campo condicional, 2: campo trigger condicional */
+                        __( 'Campo "%1$s": o campo "%2$s" também é condicional (cascata).', 'gvn-checkout' ),
+                        $key,
+                        $trigger
+                    );
+                }
+
+                $rule_operator = isset( $rule['operator'] ) ? (string) $rule['operator'] : '';
+                if (
+                    'select' === (string) ( $trigger_field['type'] ?? '' )
+                    && ! empty( $trigger_field['options'] )
+                    && in_array( $rule_operator, array( 'equals', 'not_equals', 'contains' ), true )
+                ) {
+                    $parsed = self::parse_select_options( (string) $trigger_field['options'] );
+                    if ( ! empty( $parsed ) && ! array_key_exists( (string) ( $rule['value'] ?? '' ), $parsed ) ) {
+                        $warnings[] = sprintf(
+                            /* translators: 1: campo condicional, 2: valor, 3: campo trigger */
+                            __( 'Campo "%1$s": o valor "%2$s" não está entre as opções de "%3$s".', 'gvn-checkout' ),
+                            $key,
+                            (string) ( $rule['value'] ?? '' ),
+                            $trigger
+                        );
+                    }
+                }
+            }
+        }
+
+        $cycle = self::find_condition_cycle( $fields );
+        if ( ! empty( $cycle ) ) {
+            $errors[] = sprintf(
+                /* translators: %s: caminho do ciclo, ex. A → B → A */
+                __( 'Ciclo detectado entre campos: %s.', 'gvn-checkout' ),
+                implode( ' → ', $cycle )
+            );
+        }
+
+        return array( 'errors' => $errors, 'warnings' => $warnings );
+    }
+
+    /**
+     * Detecta ciclos de dependência entre condições (A→B→A, direto ou indireto).
+     *
+     * @param array<int, array<string, mixed>> $fields Campos sanitizados.
+     * @return array<int, string> Caminho do ciclo (vazio quando não há ciclo).
+     */
+    public static function find_condition_cycle( array $fields ) {
+        $graph = array();
+        foreach ( $fields as $field ) {
+            if ( ! is_array( $field ) || empty( $field['key'] ) ) {
+                continue;
+            }
+
+            $triggers = array();
+            $rules    = isset( $field['conditions']['rules'] ) && is_array( $field['conditions']['rules'] )
+                ? $field['conditions']['rules']
+                : array();
+
+            foreach ( $rules as $rule ) {
+                if ( ! is_array( $rule ) || empty( $rule['field'] ) ) {
+                    continue;
+                }
+                $trigger = (string) $rule['field'];
+                if ( 'payment_method' !== $trigger ) {
+                    $triggers[] = $trigger;
+                }
+            }
+
+            $graph[ (string) $field['key'] ] = array_values( array_unique( $triggers ) );
+        }
+
+        foreach ( array_keys( $graph ) as $start ) {
+            $cycle = self::dfs_condition_cycle( $start, $graph, array( $start ), 0 );
+            if ( ! empty( $cycle ) ) {
+                return $cycle;
+            }
+        }
+
+        return array();
+    }
+
+    /**
+     * Busca em profundidade limitada por um ciclo a partir de um nó.
+     *
+     * @param string              $node Nó atual.
+     * @param array<string, array<int, string>> $graph Mapa campo => triggers.
+     * @param array<int, string>  $path Caminho percorrido.
+     * @param int                 $depth Profundidade atual.
+     * @return array<int, string> Caminho do ciclo ou array vazio.
+     */
+    private static function dfs_condition_cycle( $node, $graph, $path, $depth ) {
+        if ( $depth > self::CONDITION_CYCLE_MAX_DEPTH ) {
+            return array();
+        }
+
+        $neighbors = isset( $graph[ $node ] ) ? $graph[ $node ] : array();
+        foreach ( $neighbors as $next ) {
+            if ( ! isset( $graph[ $next ] ) ) {
+                continue; // Trigger fora da lista é folha (avaliado como vazio).
+            }
+
+            $pos = array_search( $next, $path, true );
+            if ( false !== $pos ) {
+                $cycle   = array_slice( $path, (int) $pos );
+                $cycle[] = $next;
+                return $cycle;
+            }
+
+            $found = self::dfs_condition_cycle( $next, $graph, array_merge( $path, array( $next ) ), $depth + 1 );
+            if ( ! empty( $found ) ) {
+                return $found;
+            }
+        }
+
+        return array();
     }
 
     /**

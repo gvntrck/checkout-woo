@@ -68,8 +68,8 @@ class SettingsSchema {
                 'placeholder' => '',
                 'enabled'     => true,
                 'is_default'  => true,
-                'options'     => "1 : Pessoa Física\n2 : Pessoa Jurídica",
-                'default_option' => '1',
+                'options'     => "pf|Pessoa Física\npj|Pessoa Jurídica",
+                'default_option' => 'pf',
             ],
             [
                 'key'         => 'billing_cpf',
@@ -85,8 +85,8 @@ class SettingsSchema {
                 'conditions'  => [
                     [
                         'field'    => 'billing_persontype',
-                        'operator' => '==',
-                        'value'    => '1',
+                        'operator' => 'equals',
+                        'value'    => 'pf',
                     ],
                 ],
             ],
@@ -104,8 +104,8 @@ class SettingsSchema {
                 'conditions'  => [
                     [
                         'field'    => 'billing_persontype',
-                        'operator' => '==',
-                        'value'    => '2',
+                        'operator' => 'equals',
+                        'value'    => 'pj',
                     ],
                 ],
             ],
@@ -122,8 +122,8 @@ class SettingsSchema {
                 'conditions'  => [
                     [
                         'field'    => 'billing_persontype',
-                        'operator' => '==',
-                        'value'    => '2',
+                        'operator' => 'equals',
+                        'value'    => 'pj',
                     ],
                 ],
             ],
@@ -140,8 +140,8 @@ class SettingsSchema {
                 'conditions'  => [
                     [
                         'field'    => 'billing_persontype',
-                        'operator' => '==',
-                        'value'    => '2',
+                        'operator' => 'equals',
+                        'value'    => 'pj',
                     ],
                 ],
             ],

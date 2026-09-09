@@ -8,6 +8,47 @@ namespace GVN\Checkout\Fields;
 class FieldConditionEvaluator {
 
     /**
+     * @var array<string, string> Aliases legados normalizados para o operador canônico na leitura/escrita.
+     */
+    const OPERATOR_ALIASES = [
+        '=='  => 'equals',
+        'eq'  => 'equals',
+        '!='  => 'not_equals',
+        'neq' => 'not_equals',
+        '>'   => 'greater',
+        '<'   => 'less',
+    ];
+
+    /**
+     * @var array<string> Operadores canônicos aceitos na escrita.
+     */
+    const CANONICAL_OPERATORS = [
+        'equals',
+        'not_equals',
+        'filled',
+        'empty',
+        'contains',
+        'greater',
+        'less',
+    ];
+
+    /**
+     * Normaliza um operador (alias legado ou canônico) para o operador canônico.
+     *
+     * @param string $operator
+     * @return string Operador canônico ou '' quando desconhecido.
+     */
+    public static function normalize_operator(string $operator): string {
+        $normalized = strtolower(trim($operator));
+
+        if (isset(self::OPERATOR_ALIASES[$normalized])) {
+            return self::OPERATOR_ALIASES[$normalized];
+        }
+
+        return in_array($normalized, self::CANONICAL_OPERATORS, true) ? $normalized : '';
+    }
+
+    /**
      * Avalia uma regra individual contra o valor fornecido.
      *
      * @param array<string, mixed> $rule
@@ -15,19 +56,15 @@ class FieldConditionEvaluator {
      * @return bool
      */
     public static function evaluate_rule(array $rule, $field_value): bool {
-        $operator     = strtolower(trim((string) ($rule['operator'] ?? 'equals')));
+        $operator     = self::normalize_operator((string) ($rule['operator'] ?? 'equals'));
         $target_value = (string) ($rule['value'] ?? '');
         $str_val      = is_scalar($field_value) ? (string) $field_value : '';
 
         switch ($operator) {
             case 'equals':
-            case '==':
-            case 'eq':
                 return $str_val === $target_value;
 
             case 'not_equals':
-            case '!=':
-            case 'neq':
                 return $str_val !== $target_value;
 
             case 'filled':
@@ -43,11 +80,9 @@ class FieldConditionEvaluator {
                 return self::contains_case_insensitive($str_val, $target_value);
 
             case 'greater':
-            case '>':
                 return is_numeric($str_val) && is_numeric($target_value) && ((float) $str_val > (float) $target_value);
 
             case 'less':
-            case '<':
                 return is_numeric($str_val) && is_numeric($target_value) && ((float) $str_val < (float) $target_value);
 
             default:

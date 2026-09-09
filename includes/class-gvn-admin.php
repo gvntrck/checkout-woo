@@ -565,7 +565,29 @@ class GVN_Admin {
             </div>
 
             <div id="gvn-fields-list">
-                <?php foreach ( $fields as $field ) : ?>
+                <?php
+                $gvn_all_keys = array();
+                foreach ( $fields as $f ) {
+                    if ( isset( $f['key'] ) ) {
+                        $gvn_all_keys[ $f['key'] ] = ! empty( $f['enabled'] );
+                    }
+                }
+                ?>
+                <?php foreach ( $fields as $field ) :
+                    $gvn_field_rules = isset( $field['conditions']['rules'] ) && is_array( $field['conditions']['rules'] ) ? $field['conditions']['rules'] : array();
+                    $gvn_field_warnings = array();
+                    foreach ( $gvn_field_rules as $gvn_rule ) {
+                        $gvn_trigger = isset( $gvn_rule['field'] ) ? $gvn_rule['field'] : '';
+                        if ( '' === $gvn_trigger || 'payment_method' === $gvn_trigger ) {
+                            continue;
+                        }
+                        if ( ! array_key_exists( $gvn_trigger, $gvn_all_keys ) ) {
+                            $gvn_field_warnings[] = sprintf( __( 'depende de "%s", que não existe na lista', 'gvn-checkout' ), $gvn_trigger );
+                        } elseif ( ! $gvn_all_keys[ $gvn_trigger ] ) {
+                            $gvn_field_warnings[] = sprintf( __( 'o campo "%s" está desativado', 'gvn-checkout' ), $gvn_trigger );
+                        }
+                    }
+                    ?>
                     <div class="gvn-field-row<?php echo empty( $field['enabled'] ) ? ' gvn-field-row--disabled' : ''; ?>" data-key="<?php echo esc_attr( $field['key'] ); ?>" data-default="<?php echo $field['is_default'] ? 'true' : 'false'; ?>" data-woo-default="<?php echo ! empty( $field['is_woo_default'] ) ? 'true' : 'false'; ?>">
                         <div class="gvn-field-row__header">
                             <span class="gvn-field-drag" title="<?php esc_attr_e( 'Arrastar para reordenar', 'gvn-checkout' ); ?>">☰</span>
@@ -573,6 +595,16 @@ class GVN_Admin {
                             <span class="gvn-field-label-display"><?php echo esc_html( $field['label'] ?: '(sem label)' ); ?></span>
                             <?php if ( ! empty( $field['is_woo_default'] ) ) : ?>
                                 <span class="gvn-field-badge gvn-field-badge--woo"><?php esc_html_e( 'Padrão Woo', 'gvn-checkout' ); ?></span>
+                            <?php endif; ?>
+                            <?php if ( ! empty( $gvn_field_rules ) ) : ?>
+                                <span class="gvn-conditions-badge"><?php esc_html_e( 'Condicional', 'gvn-checkout' ); ?></span>
+                            <?php else : ?>
+                                <span class="gvn-conditions-badge" hidden><?php esc_html_e( 'Condicional', 'gvn-checkout' ); ?></span>
+                            <?php endif; ?>
+                            <?php if ( ! empty( $gvn_field_warnings ) ) : ?>
+                                <span class="gvn-conditions-warning" title="<?php echo esc_attr( implode( '; ', $gvn_field_warnings ) ); ?>">⚠</span>
+                            <?php else : ?>
+                                <span class="gvn-conditions-warning" hidden>⚠</span>
                             <?php endif; ?>
                             <span class="gvn-field-width-badge"><?php echo esc_html( $field['width'] ); ?>%</span>
                             <span class="gvn-field-row__actions">
@@ -770,6 +802,15 @@ class GVN_Admin {
 
                 <div class="gvn-help-card">
                     <div class="gvn-help-card__icon">6</div>
+                    <div class="gvn-help-card__body">
+                        <h3><?php esc_html_e( 'Campos condicionais', 'gvn-checkout' ); ?></h3>
+                        <p><?php esc_html_e( 'Na aba Campos do Formulário, cada campo possui uma seção "Condições de exibição". Exemplo: exibir o CNPJ somente quando "Tipo de Pessoa" for "Pessoa Jurídica" (operador "Igual a", valor "pj"). É possível combinar regras com "TODAS (E)" ou "QUALQUER (OU)", usar o método de pagamento como condição e encadear campos (cascata). Campos ocultos não são obrigatórios nem salvos no pedido.', 'gvn-checkout' ); ?></p>
+                        <a href="<?php echo esc_url( $fields_url ); ?>" class="button button-secondary"><?php esc_html_e( 'Configurar Condições', 'gvn-checkout' ); ?></a>
+                    </div>
+                </div>
+
+                <div class="gvn-help-card">
+                    <div class="gvn-help-card__icon">7</div>
                     <div class="gvn-help-card__body">
                         <h3><?php esc_html_e( 'Testar o checkout', 'gvn-checkout' ); ?></h3>
                         <p><?php esc_html_e( 'Adicione um produto ao carrinho e acesse a página de checkout para validar o layout, máscaras (CPF/Celular), autocompletar de CEP e o Order Bump.', 'gvn-checkout' ); ?></p>

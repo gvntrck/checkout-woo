@@ -98,8 +98,7 @@ class FieldConditionEvaluatorTest extends TestCase {
         ]));
     }
 
-    public function test_evaluates_or_logic_conditions(): void {
-        $field = [
+    public function test_evaluates_or_logic_conditions(): void {        $field = [
             'key'        => 'billing_doc',
             'conditions' => [
                 'logic' => 'or',
@@ -127,5 +126,86 @@ class FieldConditionEvaluatorTest extends TestCase {
             'billing_country' => 'US',
             'billing_custom_flag' => '0',
         ]));
+    }
+
+    public function test_normalize_operator_maps_legacy_aliases_to_canonical(): void {
+        $this->assertSame('equals', FieldConditionEvaluator::normalize_operator('=='));
+        $this->assertSame('equals', FieldConditionEvaluator::normalize_operator('eq'));
+        $this->assertSame('equals', FieldConditionEvaluator::normalize_operator('equals'));
+        $this->assertSame('not_equals', FieldConditionEvaluator::normalize_operator('!='));
+        $this->assertSame('not_equals', FieldConditionEvaluator::normalize_operator('neq'));
+        $this->assertSame('greater', FieldConditionEvaluator::normalize_operator('>'));
+        $this->assertSame('less', FieldConditionEvaluator::normalize_operator('<'));
+        $this->assertSame('', FieldConditionEvaluator::normalize_operator('between'));
+        $this->assertSame('', FieldConditionEvaluator::normalize_operator(''));
+    }
+
+    public function test_evaluate_rule_accepts_legacy_aliases(): void {
+        $this->assertTrue(FieldConditionEvaluator::evaluate_rule(['field' => 'a', 'operator' => 'eq', 'value' => 'x'], 'x'));
+        $this->assertTrue(FieldConditionEvaluator::evaluate_rule(['field' => 'a', 'operator' => 'neq', 'value' => 'x'], 'y'));
+        $this->assertTrue(FieldConditionEvaluator::evaluate_rule(['field' => 'a', 'operator' => '>', 'value' => '18'], '25'));
+        $this->assertTrue(FieldConditionEvaluator::evaluate_rule(['field' => 'a', 'operator' => '<', 'value' => '18'], '15'));
+        $this->assertFalse(FieldConditionEvaluator::evaluate_rule(['field' => 'a', 'operator' => 'between', 'value' => 'x'], 'x'));
+    }
+
+    public function test_evaluates_legacy_numeric_rule_list_as_and(): void {
+        $field = [
+            'key'        => 'billing_ie',
+            'conditions' => [
+                ['field' => 'billing_persontype', 'operator' => 'equals', 'value' => 'pj'],
+                ['field' => 'billing_has_ie', 'operator' => 'equals', 'value' => 'yes'],
+            ],
+        ];
+
+        $this->assertTrue(FieldConditionEvaluator::is_field_visible($field, [
+            'billing_persontype' => 'pj',
+            'billing_has_ie'     => 'yes',
+        ]));
+        $this->assertFalse(FieldConditionEvaluator::is_field_visible($field, [
+            'billing_persontype' => 'pj',
+            'billing_has_ie'     => 'no',
+        ]));
+    }
+
+    public function test_rules_without_trigger_field_are_ignored(): void {
+        $field = [
+            'key'        => 'billing_extra',
+            'conditions' => [
+                'logic' => 'and',
+                'rules' => [
+                    ['operator' => 'equals', 'value' => 'x'],
+                    ['field' => '', 'operator' => 'equals', 'value' => 'x'],
+                ],
+            ],
+        ];
+
+        // Nenhuma regra válida restante -> sempre visível.
+        $this->assertTrue(FieldConditionEvaluator::is_field_visible($field, []));
+        $this->assertTrue(FieldConditionEvaluator::is_field_visible($field, ['other' => 'x']));
+    }
+
+    public function test_missing_trigger_is_evaluated_as_empty_string(): void {
+        $field = [
+            'key'        => 'billing_cnpj',
+            'conditions' => [
+                'logic' => 'and',
+                'rules' => [
+                    ['field' => 'billing_persontype', 'operator' => 'equals', 'value' => 'pj'],
+                ],
+            ],
+        ];
+
+        $this->assertFalse(FieldConditionEvaluator::is_field_visible($field, []));
+
+        $empty_rule_field = [
+            'key'        => 'billing_notes',
+            'conditions' => [
+                'logic' => 'and',
+                'rules' => [
+                    ['field' => 'billing_persontype', 'operator' => 'empty'],
+                ],
+            ],
+        ];
+        $this->assertTrue(FieldConditionEvaluator::is_field_visible($empty_rule_field, []));
     }
 }

@@ -24,6 +24,7 @@
             this.bindGatewayRequirements();
             this.initSortable();
             this.interceptWooFormSubmit();
+            this.refreshAllConditionFieldOptions(null);
         },
 
         bindEvents: function () {
@@ -46,7 +47,7 @@
                 if ($row.data('default') === true || $row.data('default') === 'true') {
                     if (!confirm('Este é um campo padrão. Deseja realmente removê-lo?')) return;
                 }
-                $row.slideUp(200, function () { $(this).remove(); self.updatePositions(); });
+                $row.slideUp(200, function () { $(this).remove(); self.updatePositions(); self.refreshAllConditionFieldOptions(null); });
             });
 
             this.$list.on('click', '.gvn-field-toggle', function () {
@@ -120,13 +121,41 @@
 
             // Condições: show/hide valor conforme operador
             this.$list.on('change', '.gvn-rule-operator', function () {
-                var $value = $(this).closest('.gvn-condition-rule').find('.gvn-rule-value');
+                var $rule = $(this).closest('.gvn-condition-rule');
                 var op = $(this).val();
+                var $value = $rule.find('.gvn-rule-value');
                 if (op === 'filled' || op === 'empty') {
                     $value.hide().val('');
                 } else {
                     $value.show();
+                    // Ao voltar a exigir valor, oferece o select inteligente se houver opções.
+                    self.renderRuleValueControl($rule, $rule.find('.gvn-rule-field').val(), $value.val() || '');
                 }
+                var $row = $(this).closest('.gvn-field-row');
+                self.updateConditionBadges($row);
+            });
+
+            // Condições: trocar trigger re-renderiza o controle de valor (select inteligente)
+            this.$list.on('change', '.gvn-rule-field', function () {
+                var $rule = $(this).closest('.gvn-condition-rule');
+                self.renderRuleValueControl($rule, $(this).val(), '');
+                var $row = $(this).closest('.gvn-field-row');
+                self.updateConditionBadges($row);
+            });
+
+            // Renomear chave: sincroniza data-key e atualiza triggers dependentes
+            this.$list.on('input change', '.gvn-field-key-input', function () {
+                var $row = $(this).closest('.gvn-field-row');
+                $row.attr('data-key', $(this).val());
+                self.refreshAllConditionFieldOptions($row);
+            });
+
+            // Ativar/desativar ou mudar tipo/opções do trigger: atualiza avisos e selects
+            this.$list.on('change', '.gvn-field-enabled, .gvn-field-type-select', function () {
+                self.refreshAllConditionFieldOptions($(this).closest('.gvn-field-row'));
+            });
+            this.$list.on('input change', '.gvn-field-options-input', function () {
+                self.refreshAllConditionFieldOptions($(this).closest('.gvn-field-row'));
             });
         },
 
@@ -175,6 +204,7 @@
             $row.find('.gvn-field-row__body').show();
             $row.find('.gvn-field-label-input').focus();
             this.updatePositions();
+            this.refreshAllConditionFieldOptions($row);
         },
 
         buildFieldRow: function (field) {
@@ -197,6 +227,8 @@
                 '    <span class="gvn-field-pos-label">#' + pos + '</span>' +
                 '    <span class="gvn-field-label-display">' + this.escHtml(labelDisplay) + '</span>' +
                 (isWooDefault === 'true' ? '    <span class="gvn-field-badge gvn-field-badge--woo">Padrão Woo</span>' : '') +
+                '    <span class="gvn-conditions-badge" hidden>Condicional</span>' +
+                '    <span class="gvn-conditions-warning" hidden title="">⚠</span>' +
                 '    <span class="gvn-field-width-badge">' + this.escHtml(field.width) + '%</span>' +
                 '    <span class="gvn-field-row__actions">' +
                 '      <label class="gvn-field-enabled-label"><input type="checkbox" class="gvn-field-enabled" ' + enabledChecked + ' /> Ativo</label>' +
@@ -316,7 +348,11 @@
                 },
                 success: function (response) {
                     if (response.success) {
-                        self.$status.html('<span style="color:#16a34a;">✓ ' + response.data.message + '</span>').show().delay(3000).fadeOut();
+                        var msg = '<span style="color:#16a34a;">✓ ' + response.data.message + '</span>';
+                        if (response.data.warnings && response.data.warnings.length) {
+                            msg += '<br><span style="color:#b45309;">⚠ ' + response.data.warnings.length + ' aviso(s) nas condições: ' + self.escHtml(response.data.warnings.join(' ')) + '</span>';
+                        }
+                        self.$status.html(msg).show().delay(6000).fadeOut();
                         if (typeof callback === 'function') {
                             callback(true);
                         }
@@ -460,6 +496,7 @@
 
             if (added > 0) {
                 this.updatePositions();
+                this.refreshAllConditionFieldOptions(null);
             }
 
             return added;
@@ -531,6 +568,197 @@
             });
 
             return html;
+        },
+
+        /**
+         * Converte texto de opções (uma por linha, valor|Rótulo) em [{value, label}].
+         */
+        parseConditionOptionsText: function (optionsText) {
+            var result = [];
+            var lines = String(optionsText || '').split('\n');
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (!line) continue;
+                var value, label;
+                if (line.indexOf('|') !== -1) {
+                    var parts = line.split('|');
+                    value = parts[0].trim();
+                    label = parts.slice(1).join('|').trim();
+                } else if (line.indexOf(' : ') !== -1) {
+                    var legacy = line.split(' : ');
+                    value = legacy[0].trim();
+                    label = legacy.slice(1).join(' : ').trim();
+                } else {
+                    value = line.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-_]/g, '');
+                    label = line;
+                }
+                if (value && label) {
+                    result.push({ value: value, label: label });
+                }
+            }
+            return result;
+        },
+
+        /**
+         * Gateways conhecidos (para trigger payment_method) via relatório localizado.
+         */
+        getConditionGatewayOptions: function () {
+            var result = [];
+            var params = (typeof gvn_admin_params !== 'undefined' && gvn_admin_params) || {};
+            var report = params.gateway_requirements || {};
+            var gateways = report.gateways || [];
+            var seen = {};
+            for (var i = 0; i < gateways.length; i++) {
+                var id = String(gateways[i].id || '');
+                if (!id || seen[id]) continue;
+                seen[id] = true;
+                result.push({ value: id, label: String(gateways[i].title || id) });
+            }
+            return result;
+        },
+
+        /**
+         * Metadados do trigger para value-select inteligente e avisos.
+         */
+        getTriggerInfo: function (triggerKey, $excludeRow) {
+            var info = { found: false, type: 'text', enabled: true, conditional: false, options: [], label: triggerKey };
+
+            if (!triggerKey) return info;
+            if (triggerKey === 'payment_method') {
+                info.found = true;
+                info.type = 'payment_method';
+                info.options = this.getConditionGatewayOptions();
+                info.label = 'Método de pagamento';
+                return info;
+            }
+
+            var self = this;
+            this.$list.find('.gvn-field-row').each(function () {
+                var $row = $(this);
+                if ($excludeRow && $row.is($excludeRow)) return;
+                if ($row.find('.gvn-field-key-input').val() !== triggerKey) return;
+
+                info.found = true;
+                info.type = $row.find('.gvn-field-type-select').val() || 'text';
+                info.enabled = $row.find('.gvn-field-enabled').is(':checked');
+                info.label = $row.find('.gvn-field-label-input').val() || triggerKey;
+                info.conditional = $row.find('.gvn-condition-rule').length > 0;
+                if (info.type === 'select') {
+                    info.options = self.parseConditionOptionsText($row.find('.gvn-field-options-input').val());
+                }
+            });
+
+            return info;
+        },
+
+        /**
+         * Troca o controle de valor da regra entre texto e select conforme o trigger.
+         * Preserva o valor atual (como opção "personalizada" se fora da lista).
+         */
+        renderRuleValueControl: function ($rule, triggerKey, currentValue) {
+            var $row = $rule.closest('.gvn-field-row');
+            var operator = $rule.find('.gvn-rule-operator').val();
+            var info = this.getTriggerInfo(triggerKey, $row);
+            var options = [];
+
+            if (info.type === 'select' || info.type === 'payment_method') {
+                options = info.options;
+            }
+
+            var $old = $rule.find('.gvn-rule-value');
+            var val = (currentValue !== undefined && currentValue !== null) ? String(currentValue) : String($old.val() || '');
+
+            if (!options.length) {
+                if (!$old.is('input')) {
+                    var $input = $('<input type="text" class="gvn-rule-value" placeholder="Valor" />');
+                    $input.val(val);
+                    $old.replaceWith($input);
+                    $old = $input;
+                }
+            } else {
+                var html = '<select class="gvn-rule-value"><option value="">-- Valor --</option>';
+                var hasCurrent = (val === '');
+                for (var i = 0; i < options.length; i++) {
+                    var selected = (options[i].value === val) ? ' selected' : '';
+                    if (selected) hasCurrent = true;
+                    html += '<option value="' + this.escAttr(options[i].value) + '"' + selected + '>' + this.escHtml(options[i].label) + '</option>';
+                }
+                if (!hasCurrent) {
+                    html += '<option value="' + this.escAttr(val) + '" selected>' + this.escHtml(val) + ' (personalizado)</option>';
+                }
+                html += '</select>';
+                var $select = $(html);
+                $old.replaceWith($select);
+                $old = $select;
+            }
+
+            if (operator === 'filled' || operator === 'empty') {
+                $old.hide().val('');
+            } else {
+                $old.show();
+            }
+
+            return $old;
+        },
+
+        /**
+         * Reconstroi as options de trigger de todas as regras, re-renderiza os
+         * controles de valor e atualiza badges. $skipRow (opcional) é apenas
+         * revalidado nos badges (evita roubar foco durante digitação).
+         */
+        refreshAllConditionFieldOptions: function ($skipRow) {
+            var self = this;
+            if (!this.$list) return;
+
+            this.$list.find('.gvn-field-row').each(function () {
+                var $row = $(this);
+                var currentKey = $row.find('.gvn-field-key-input').val();
+
+                $row.find('.gvn-condition-rule').each(function () {
+                    var $rule = $(this);
+                    var $fieldSelect = $rule.find('.gvn-rule-field');
+                    var selected = $fieldSelect.val();
+                    $fieldSelect.html('<option value="">-- Campo --</option>' + self.getFieldOptionsForConditions(currentKey, selected));
+                    if ($row.is($skipRow)) return;
+                    self.renderRuleValueControl($rule, $fieldSelect.val(), $rule.find('.gvn-rule-value').val());
+                });
+
+                self.updateConditionBadges($row);
+            });
+        },
+
+        /**
+         * Badge "Condicional" + aviso ⚠ (trigger inexistente/desativado) no header da linha.
+         */
+        updateConditionBadges: function ($row) {
+            var self = this;
+            var $badge = $row.find('.gvn-conditions-badge');
+            var $warning = $row.find('.gvn-conditions-warning');
+            var ruleCount = $row.find('.gvn-condition-rule').length;
+            var problems = [];
+
+            $row.find('.gvn-condition-rule').each(function () {
+                var trigger = $(this).find('.gvn-rule-field').val();
+                if (!trigger) return;
+                var info = self.getTriggerInfo(trigger, $row);
+                if (!info.found) {
+                    problems.push('depende de "' + trigger + '", que não existe na lista');
+                } else if (!info.enabled) {
+                    problems.push('o campo "' + trigger + '" está desativado');
+                }
+            });
+
+            if (ruleCount > 0) {
+                $badge.prop('hidden', false);
+            } else {
+                $badge.prop('hidden', true);
+            }
+
+            if (problems.length) {
+                $warning.prop('hidden', false).attr('title', problems.join('; '));
+            } else {
+                $warning.prop('hidden', true).removeAttr('title');
+            }
         },
 
         bindGatewayRequirements: function () {
@@ -920,6 +1148,7 @@
             $rules.append($rule);
             $rule.slideDown(150);
             $logic.slideDown(150);
+            this.updateConditionBadges($row);
         },
 
         /**
@@ -935,6 +1164,7 @@
                         if ($rules.find('.gvn-condition-rule').length === 0) {
                             $row.find('.gvn-conditions-logic').slideUp(150);
                         }
+                        GVNAdminFields.updateConditionBadges($row);
                     });
                 }
             });

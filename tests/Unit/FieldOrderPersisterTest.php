@@ -151,4 +151,56 @@ class FieldOrderPersisterTest extends TestCase {
         $this->assertEquals('', $order->get_meta('_billing_first_name'));
         $this->assertEquals('', $order->get_meta('_order_comments'));
     }
+
+    public function test_persists_visible_conditional_field_when_condition_is_met(): void {
+        $order = new MockWcOrder();
+
+        $fields = [
+            [
+                'key'      => 'billing_persontype',
+                'type'     => 'select',
+                'enabled'  => true,
+            ],
+            [
+                'key'        => 'billing_cnpj',
+                'type'       => 'text',
+                'enabled'    => true,
+                'conditions' => [
+                    'logic' => 'and',
+                    'rules' => [
+                        ['field' => 'billing_persontype', 'operator' => 'equals', 'value' => 'pj'],
+                    ],
+                ],
+            ],
+        ];
+
+        $persisted = FieldOrderPersister::persist($order, $fields, [
+            'billing_persontype' => 'pj',
+            'billing_cnpj'       => '11.222.333/0001-99',
+        ]);
+
+        $this->assertEquals('11.222.333/0001-99', $order->get_meta('_billing_cnpj'));
+        $this->assertArrayHasKey('_billing_cnpj', $persisted);
+    }
+
+    public function test_visible_select_with_unknown_option_is_sanitized_to_empty(): void {
+        $order = new MockWcOrder();
+
+        $fields = [
+            [
+                'key'      => 'billing_persontype',
+                'type'     => 'select',
+                'enabled'  => true,
+                'options'  => "pf|Pessoa Física\npj|Pessoa Jurídica",
+            ],
+        ];
+
+        $persisted = FieldOrderPersister::persist($order, $fields, [
+            'billing_persontype' => 'valor-forjado',
+        ]);
+
+        $this->assertEquals('', $order->get_meta('_billing_persontype'));
+        $this->assertArrayHasKey('_billing_persontype', $persisted);
+        $this->assertSame('', $persisted['_billing_persontype']);
+    }
 }

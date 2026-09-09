@@ -138,7 +138,34 @@ Cada entrada do array pode conter as seguintes chaves:
 | `is_woo_default` | Booleano | Identifica campo nativo importado do WooCommerce. |
 | `options` | Uma opção por linha, `valor|Rótulo` ou somente `Rótulo` | Usado principalmente por `select`. |
 | `default_option` | Valor existente em `options` ou vazio | Seleção inicial; valores inexistentes são descartados ao salvar. |
-| `conditions` | `{ logic: 'and'|'or', rules: [] }` | Regras de exibição; operadores atuais: `equals`, `not_equals`, `filled`, `empty`, `contains`, `greater`, `less`. |
+| `conditions` | `{ logic: 'and'|'or', rules: [{ field, operator, value }] }` | Regras de exibição (ver "Campos condicionais" abaixo). |
+
+### Campos condicionais
+
+Um campo pode ser exibido ou ocultado conforme o valor de outro campo (incluindo o
+método de pagamento). A avaliação é idêntica em 3 camadas: JavaScript em tempo real,
+validação server-side (`FieldValidator`) e persistência (`FieldOrderPersister`).
+
+- Formato: `{ logic: 'and'|'or', rules: [...] }`. `and` = TODAS as regras verdadeiras;
+  `or` = QUALQUER regra verdadeira. Sem regras = sempre visível.
+- Trigger `field`: chave de outro campo da lista ou `payment_method` (ex.: `boleto`, `pix`).
+  A auto-referência (campo dependendo de si mesmo) é rejeitada ao salvar; ciclos
+  (`A→B→A`, diretos ou indiretos) também bloqueiam o salvamento.
+- Operadores: `equals` (igual a), `not_equals` (diferente de), `filled` (preenchido),
+  `empty` (vazio), `contains` (contém, case-insensitive), `greater`/`less` (comparação
+  numérica; valores não numéricos nunca atendem). Aliases legados (`==`, `!=`, `eq`,
+  `neq`, `>`, `<`) são aceitos na leitura e normalizados para o canônico ao salvar.
+- `filled`/`empty` ignoram `value`. Operador desconhecido nunca exibe o campo.
+- Limites: até 10 regras por campo; sem grupos aninhados (só um nível + `and`/`or`).
+- `required` vale somente quando o campo está visível: campo oculto nunca é exigido e
+  nunca é persistido (valor forjado no POST é descartado e o meta residual é removido).
+- Precedência de gateway: um requisito **confirmado** do método de pagamento selecionado
+  (via `GatewayRequirementsResolver`) força a exibição e a validação do campo, mesmo que a
+  condição visual seja falsa.
+- Avisos não-bloqueantes no salvamento: trigger inexistente (avaliado como vazio), trigger
+  desativado, cascata (trigger que também é condicional) e valor fora das opções do `select`.
+- Exemplo canônico: `billing_cnpj` visível se `{ logic: 'and', rules: [{ field: 'billing_persontype', operator: 'equals', value: 'pj' }] }`.
+- Sem JavaScript todos os campos são exibidos e o servidor decide (progressive enhancement).
 
 Os campos default cadastrados no código são: `billing_first_name`, `billing_last_name`, `billing_persontype`, `billing_cpf`, `billing_rg`, `billing_cnpj`, `billing_ie`, `billing_phone`, `billing_cellphone`, `billing_email`, `billing_birthdate`, `billing_gender`, `billing_number`, `billing_neighborhood`, `shipping_number`, `shipping_neighborhood` e `order_comments`. Por default, ficam habilitados `billing_first_name`, `billing_last_name`, `billing_cpf`, `billing_phone`, `billing_email` e `order_comments`; os demais podem ser habilitados pelo gerenciador.
 

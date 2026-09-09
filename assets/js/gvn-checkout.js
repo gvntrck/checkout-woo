@@ -156,13 +156,7 @@
         },
 
         refreshConditionalFields: function () {
-            var $container = $('.gvn-fields-dynamic');
-            if (!$container.length) return;
-
-            var $conditionalFields = $container.find('.gvn-field--conditional');
-            if (!$conditionalFields.length) return;
-
-            this.evaluateAllConditions($container, $conditionalFields);
+            this.evaluateAllConditionalFields();
         },
 
         /* ============================
@@ -231,54 +225,86 @@
            Campos Condicionais (E/OU)
            ============================ */
 
+        _conditionalEvaluating: false,
+        _conditionalScheduled: false,
+        _conditionalMaxPasses: 5,
+
         bindConditionalFields: function () {
             var self = this;
-            var $container = $('.gvn-fields-dynamic');
-            if (!$container.length) return;
-
-            var $conditionalFields = $container.find('.gvn-field--conditional');
-            if (!$conditionalFields.length) return;
-
-            // Avalia todas as condições ao mudar qualquer campo.
-            // Reavalia em cascata (até 3 níveis) para suportar condições
-            // que dependem de outros campos condicionais.
-            $container.on('input change', '.gvn-field__input', function () {
-                self.evaluateAllConditions($container, $conditionalFields);
-                // Segunda passagem para propagar mudanças de visibilidade.
-                self.evaluateAllConditions($container, $conditionalFields);
+            // Delegado no document: sobrevive ao re-render de fragmentos do Woo (updated_checkout),
+            // que pode substituir o conteúdo de .gvn-fields-dynamic.
+            $(document).on('input change', '.gvn-fields-dynamic .gvn-field__input', function () {
+                self.scheduleConditionalRefresh();
             });
 
-            // Avalia no carregamento inicial.
-            this.evaluateAllConditions($container, $conditionalFields);
-            this.evaluateAllConditions($container, $conditionalFields);
+            // Estado inicial (sem pré-ocultar no PHP: sem JS todos ficam visíveis).
+            this.evaluateAllConditionalFields();
+        },
+
+        scheduleConditionalRefresh: function () {
+            if (this._conditionalScheduled) return;
+            this._conditionalScheduled = true;
+
+            var self = this;
+            setTimeout(function () {
+                self._conditionalScheduled = false;
+                self.evaluateAllConditionalFields();
+            }, 0);
+        },
+
+        evaluateAllConditionalFields: function () {
+            if (this._conditionalEvaluating) return;
+            this._conditionalEvaluating = true;
+
+            try {
+                var $container = $('.gvn-fields-dynamic');
+                if (!$container.length) return;
+
+                var $conditionalFields = $container.find('.gvn-field--conditional');
+                if (!$conditionalFields.length) return;
+
+                this.evaluateAllConditions($container, $conditionalFields);
+            } finally {
+                this._conditionalEvaluating = false;
+            }
         },
 
         evaluateAllConditions: function ($container, $conditionalFields) {
             var self = this;
+            var changed = true;
+            var passes = 0;
 
-            $conditionalFields.each(function () {
-                var $field = $(this);
-                var conditions = $field.data('conditions');
+            // Loop até convergir (cascata A→B→C): cada passagem lê o DOM ao vivo,
+            // então valores limpos por hideConditionalField já valem na próxima.
+            // Ciclos são impedidos no save (server-side); o teto evita travamento.
+            while (changed && passes < self._conditionalMaxPasses) {
+                changed = false;
+                passes++;
 
-                if (!conditions || !conditions.rules || conditions.rules.length === 0) return;
+                $conditionalFields.each(function () {
+                    var $field = $(this);
+                    var conditions = $field.data('conditions');
 
-                // Requisitos confirmados pelo gateway selecionado têm
-                // precedência sobre a condição visual configurada no editor.
-                if (self.isGatewayRequiredField($field.data('field-key'))) {
-                    self.showConditionalField($field);
-                    return;
-                }
+                    if (!conditions || !conditions.rules || conditions.rules.length === 0) return;
 
-                var logic = conditions.logic || 'and';
-                var rules = conditions.rules;
-                var visible = self.evaluateRules(rules, logic, $container);
+                    // Requisitos confirmados pelo gateway selecionado têm
+                    // precedência sobre a condição visual configurada no editor.
+                    if (self.isGatewayRequiredField($field.data('field-key'))) {
+                        if (self.showConditionalField($field)) changed = true;
+                        return;
+                    }
 
-                if (visible) {
-                    self.showConditionalField($field);
-                } else {
-                    self.hideConditionalField($field);
-                }
-            });
+                    var logic = conditions.logic || 'and';
+                    var rules = conditions.rules;
+                    var visible = self.evaluateRules(rules, logic, $container);
+
+                    if (visible) {
+                        if (self.showConditionalField($field)) changed = true;
+                    } else {
+                        if (self.hideConditionalField($field)) changed = true;
+                    }
+                });
+            }
         },
 
         isGatewayRequiredField: function (fieldKey) {
@@ -376,6 +402,11 @@
             var $input = $wrapper.find('input, select, textarea').first();
             if (!$input.length) return '';
 
+            if ($input.is(':radio')) {
+                var $checked = $wrapper.find('input:checked').first();
+                return $checked.length ? ($checked.val() || '') : '';
+            }
+
             if ($input.is(':checkbox')) {
                 return $input.is(':checked') ? $input.val() : '';
             }
@@ -386,30 +417,42 @@
         showConditionalField: function ($field) {
             if ($field.hasClass('gvn-field--conditional-hidden')) {
                 $field.removeClass('gvn-field--conditional-hidden');
+                $field.attr('aria-hidden', 'false');
+                $field.find('input, select, textarea').removeAttr('tabindex');
                 $field.slideDown(200);
 
                 // Restaurar required se configurado
                 if ($field.data('required') === 1 || $field.data('required') === '1') {
                     $field.find('input, select, textarea').first().prop('required', true);
                 }
+                return true;
             }
+            return false;
         },
 
         hideConditionalField: function ($field) {
             if (!$field.hasClass('gvn-field--conditional-hidden')) {
                 $field.addClass('gvn-field--conditional-hidden');
+                $field.attr('aria-hidden', 'true');
                 $field.slideUp(200);
 
-                // Remover required e limpar valor para não ser enviado no submit.
-                var $input = $field.find('input, select, textarea').first();
-                $input.prop('required', false);
-                if ($input.is(':checkbox') || $input.is(':radio')) {
-                    $input.prop('checked', false);
-                } else {
-                    $input.val('');
-                }
-                $input.trigger('change');
+                // Remover required, limpar valor e tirar do fluxo de tabulação.
+                // Sem trigger('change') aqui: a reavaliação dos dependentes acontece
+                // na próxima passagem do loop de convergência (leitura ao vivo do DOM),
+                // evitando cascata exponencial de eventos.
+                var $inputs = $field.find('input, select, textarea');
+                $inputs.prop('required', false).attr('tabindex', '-1');
+                $inputs.each(function () {
+                    var $input = $(this);
+                    if ($input.is(':checkbox') || $input.is(':radio')) {
+                        $input.prop('checked', false);
+                    } else {
+                        $input.val('');
+                    }
+                });
+                return true;
             }
+            return false;
         },
 
         /* ============================

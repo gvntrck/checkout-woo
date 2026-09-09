@@ -77,7 +77,7 @@ Este inventário registra o comportamento observado no código canônico antes d
 * `gvn_checkout_order_bump_cta_text`: texto da chamada para ação; default `Sim! Quero adicionar ao meu pedido`.
 * `gvn_checkout_order_bump_price`: preço decimal textual ou vazio; vazio/valor não positivo usa o preço padrão do produto.
 * `gvn_checkout_thankyou_*`: títulos, mensagens e CTAs personalizáveis dos estados de sucesso, falha e pedido não encontrado, além dos cards e ações da página de confirmação.
-* `gvn_checkout_fields`: array de campos com `key`, `label`, `type`, `required`, `width`, `position`, `placeholder`, `enabled`, `mask`, `is_default`, `is_woo_default`, `options`, `default_option` e `conditions`.
+* `gvn_checkout_fields`: array de campos com `key`, `label`, `type`, `required`, `width`, `position`, `placeholder`, `enabled`, `mask`, `is_default`, `is_woo_default`, `options`, `default_option` e `conditions` (`{ logic: 'and'|'or', rules: [{ field, operator, value }] }`; operadores `equals`, `not_equals`, `filled`, `empty`, `contains`, `greater`, `less`; trigger pode ser outro campo ou `payment_method`; `required` vale só quando visível; auto-referência e ciclos bloqueiam o salvamento; até 10 regras por campo; requisito confirmado do gateway selecionado força exibição/validação).
 * `gvn_checkout_default_fields_config`: opção legada de campos brasileiros, usada somente pela migração administrativa e removida depois do processamento.
 
 A opção `woocommerce_enable_guest_checkout` é do WooCommerce e é lida para decidir se convidados podem finalizar a compra. Ela não pertence ao namespace GVN.

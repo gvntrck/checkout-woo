@@ -33,6 +33,12 @@ class FieldValidator {
                 continue;
             }
 
+            // Chaves duplicadas (mesmo destino, exibição alternada): se a primeira
+            // ocorrência já registrou erro, não repete a notice para a mesma chave.
+            if (isset($validation_errors[$key])) {
+                continue;
+            }
+
             // 1. Avalia visibilidade efetiva no servidor
             $is_visible = FieldConditionEvaluator::is_field_visible($field, $posted_data);
 

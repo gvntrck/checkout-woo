@@ -71,6 +71,47 @@ class CheckoutHooksTest extends TestCase {
         }
     }
 
+    public function test_duplicate_keys_render_unique_ids_with_same_name(): void {
+        global $wp_mock_options;
+        $wp_mock_options[\GVN_Custom_Fields::OPTION_KEY] = [
+            [
+                'key' => 'billing_first_name',
+                'label' => 'Nome do aluno',
+                'type' => 'text',
+                'required' => true,
+                'width' => '100',
+                'position' => 1,
+                'placeholder' => '',
+                'enabled' => true,
+                'mask' => '',
+                'is_default' => false,
+                'conditions' => ['logic' => 'and', 'rules' => [['field' => 'gvn_para_quem', 'operator' => 'equals', 'value' => 'mim']]],
+            ],
+            [
+                'key' => 'billing_first_name',
+                'label' => 'Nome do comprador',
+                'type' => 'text',
+                'required' => true,
+                'width' => '100',
+                'position' => 2,
+                'placeholder' => '',
+                'enabled' => true,
+                'mask' => '',
+                'is_default' => false,
+                'conditions' => ['logic' => 'and', 'rules' => [['field' => 'gvn_para_quem', 'operator' => 'equals', 'value' => 'outra']]],
+            ],
+        ];
+
+        $html = $this->renderCheckoutTemplate();
+
+        // Mesmo destino (name igual), ids únicos, rótulos próprios.
+        $this->assertSame(2, substr_count($html, 'name="billing_first_name"'));
+        $this->assertStringContainsString('id="billing_first_name"', $html);
+        $this->assertStringContainsString('id="billing_first_name--2"', $html);
+        $this->assertStringContainsString('Nome do aluno', $html);
+        $this->assertStringContainsString('Nome do comprador', $html);
+    }
+
     public function test_terms_and_conditions_checkbox_rendered_when_configured() {
         global $wp_mock_options;
         $wp_mock_options['woocommerce_terms_page_id'] = 42;

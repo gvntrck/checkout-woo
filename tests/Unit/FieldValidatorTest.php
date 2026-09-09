@@ -120,6 +120,32 @@ class FieldValidatorTest extends TestCase {
         $this->assertTrue($errors->has_errors());
     }
 
+    public function test_duplicate_keys_emit_single_error_for_same_destination(): void {
+        $fields = [
+            [
+                'key'      => 'billing_first_name',
+                'label'    => 'Nome do aluno',
+                'type'     => 'text',
+                'required' => true,
+                'enabled'  => true,
+            ],
+            [
+                'key'      => 'billing_first_name',
+                'label'    => 'Nome do comprador',
+                'type'     => 'text',
+                'required' => true,
+                'enabled'  => true,
+            ],
+        ];
+
+        $errors = new WP_Error();
+        $validation_errors = FieldValidator::validate($fields, ['billing_first_name' => ''], $errors);
+
+        $this->assertCount(1, $validation_errors);
+        $this->assertArrayHasKey('billing_first_name', $validation_errors);
+        $this->assertCount(1, $errors->get_error_messages('gvn_billing_first_name_required'));
+    }
+
     public function test_validates_email_format_when_provided(): void {
         $fields = [
             [

@@ -367,7 +367,12 @@
                 return $payment.length ? ($payment.val() || '') : '';
             }
 
-            var $wrapper = $container.find('.gvn-field[data-field-key="' + fieldKey + '"]');
+            // Com chaves duplicadas (mesmo destino, exibição alternada via condição),
+            // a leitura prefere a ocorrência visível; a oculta está desabilitada e vazia.
+            var $wrapper = $container.find('.gvn-field[data-field-key="' + fieldKey + '"]:not(.gvn-field--conditional-hidden)');
+            if (!$wrapper.length) {
+                $wrapper = $container.find('.gvn-field[data-field-key="' + fieldKey + '"]');
+            }
             if (!$wrapper.length) {
                 var $externalInput = $('input[name="' + fieldKey + '"], select[name="' + fieldKey + '"], textarea[name="' + fieldKey + '"]').first();
                 return $externalInput.length ? ($externalInput.val() || '') : '';
@@ -388,9 +393,11 @@
                 $field.removeClass('gvn-field--conditional-hidden');
                 $field.slideDown(200);
 
-                // Restaurar required se configurado
+                // Reabilita o envio e restaura o required se configurado.
+                var $shownInput = $field.find('input, select, textarea').first();
+                $shownInput.prop('disabled', false);
                 if ($field.data('required') === 1 || $field.data('required') === '1') {
-                    $field.find('input, select, textarea').first().prop('required', true);
+                    $shownInput.prop('required', true);
                 }
             }
         },
@@ -400,9 +407,11 @@
                 $field.addClass('gvn-field--conditional-hidden');
                 $field.slideUp(200);
 
-                // Remover required e limpar valor para não ser enviado no submit.
+                // Desabilita para não ser enviado no submit (suporte a chaves
+                // duplicadas: só a ocorrência visível chega ao servidor),
+                // remove o required e limpa o valor residual.
                 var $input = $field.find('input, select, textarea').first();
-                $input.prop('required', false);
+                $input.prop('required', false).prop('disabled', true);
                 if ($input.is(':checkbox') || $input.is(':radio')) {
                     $input.prop('checked', false);
                 } else {
@@ -464,13 +473,14 @@
                 if (String(triggerValue) === String(requiredValue)) {
                     // Mostrar
                     $field.slideDown(200);
+                    $input.prop('disabled', false);
                     if (origRequired) {
                         $input.prop('required', true);
                     }
                 } else {
-                    // Ocultar
+                    // Ocultar (desabilita para não ser enviado no submit)
                     $field.slideUp(200);
-                    $input.prop('required', false).val('');
+                    $input.prop('required', false).prop('disabled', true).val('');
                 }
             });
         },

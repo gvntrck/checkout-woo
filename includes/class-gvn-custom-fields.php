@@ -431,16 +431,17 @@ class GVN_Custom_Fields {
         $valid_widths = array( '25', '33', '50', '75', '100' );
 
         $sanitized    = array();
-        $seen_keys    = array();
 
         foreach ( $fields as $index => $field ) {
             $key = FieldSecurityPolicy::sanitize_field_key( isset( $field['key'] ) ? $field['key'] : '' );
 
-            // Pula campos sem chave válida, duplicados ou que colidam com chaves reservadas do pedido.
-            if ( '' === $key || isset( $seen_keys[ $key ] ) || FieldSecurityPolicy::is_reserved_key( $key ) ) {
+            // Pula campos sem chave válida ou que colidam com chaves reservadas do pedido.
+            // Chaves duplicadas são permitidas: cada ocorrência pode ter label/condições
+            // próprios e apenas uma fica visível por vez (o front desabilita as ocultas,
+            // então só a visível é enviada e persistida).
+            if ( '' === $key || FieldSecurityPolicy::is_reserved_key( $key ) ) {
                 continue;
             }
-            $seen_keys[ $key ] = true;
 
             $type = isset( $field['type'] ) ? sanitize_text_field( $field['type'] ) : 'text';
             if ( ! FieldSecurityPolicy::is_valid_type( $type ) ) {
@@ -566,8 +567,18 @@ class GVN_Custom_Fields {
             '100' => array( 'form-row-wide' ),
         );
 
+        $registered_keys = array();
+
         foreach ( $fields as $field ) {
             $key            = $field['key'];
+            // Chaves duplicadas (mesmo destino, rótulos/condições alternativos) são
+            // registradas uma única vez no WooCommerce — a primeira ocorrência vence.
+            // O template GVN renderiza todas as ocorrências e garante via condições
+            // que apenas uma fica habilitada por vez.
+            if ( isset( $registered_keys[ $key ] ) ) {
+                continue;
+            }
+            $registered_keys[ $key ] = true;
             $is_conditional = self::has_conditions( $field );
             $required       = $is_conditional ? false : ! empty( $field['required'] );
             $width          = isset( $field['width'] ) ? $field['width'] : '100';

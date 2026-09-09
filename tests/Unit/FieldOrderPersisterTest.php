@@ -123,6 +123,49 @@ class FieldOrderPersisterTest extends TestCase {
         $this->assertEquals('', $order->get_meta('_status'));
     }
 
+    public function test_duplicate_keys_visible_occurrence_wins_regardless_of_order(): void {
+        $order = new MockWcOrder();
+
+        $fields = [
+            [
+                'key'        => 'gvn_nome',
+                'label'      => 'Nome do aluno',
+                'type'       => 'text',
+                'enabled'    => true,
+                'conditions' => [
+                    'logic' => 'and',
+                    'rules' => [
+                        ['field' => 'gvn_para_quem', 'operator' => 'equals', 'value' => 'mim'],
+                    ],
+                ],
+            ],
+            [
+                'key'        => 'gvn_nome',
+                'label'      => 'Nome do comprador',
+                'type'       => 'text',
+                'enabled'    => true,
+                'conditions' => [
+                    'logic' => 'and',
+                    'rules' => [
+                        ['field' => 'gvn_para_quem', 'operator' => 'equals', 'value' => 'outra'],
+                    ],
+                ],
+            ],
+        ];
+
+        // A ocorrência oculta vem DEPOIS da visível: a exclusão dela não pode
+        // apagar o valor persistido pela ocorrência visível.
+        $posted_data = [
+            'gvn_para_quem' => 'mim',
+            'gvn_nome'      => 'Ana Aluna',
+        ];
+
+        $persisted = FieldOrderPersister::persist($order, $fields, $posted_data);
+
+        $this->assertEquals('Ana Aluna', $order->get_meta('_gvn_nome'));
+        $this->assertArrayHasKey('_gvn_nome', $persisted);
+    }
+
     public function test_does_not_duplicate_native_woo_fields_as_custom_meta(): void {
         $order = new MockWcOrder();
 

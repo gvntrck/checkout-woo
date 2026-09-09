@@ -33,20 +33,35 @@ class FieldOrderPersister {
             $raw_key  = (string) ($field['key'] ?? '');
             $key      = FieldSecurityPolicy::sanitize_field_key($raw_key);
             $meta_key = '_' . $key;
-            $type     = (string) ($field['type'] ?? 'text');
 
-            // 1. Avalia se o campo está efetivamente visível no momento do submit
-            $is_visible = FieldConditionEvaluator::is_field_visible($field, $posted_data);
-
-            if (!$is_visible) {
-                // Remove qualquer valor residual no pedido caso o campo tenha ficado oculto
+            // 1. Remove valores residuais dos campos ocultos por condição.
+            // Passada separada: com chaves duplicadas (mesmo destino, exibição
+            // alternada), a exclusão nunca pode acontecer depois da persistência
+            // da ocorrência visível.
+            if (!FieldConditionEvaluator::is_field_visible($field, $posted_data)) {
                 if (method_exists($order, 'delete_meta_data')) {
                     $order->delete_meta_data($meta_key);
                 }
                 continue;
             }
+        }
 
-            // 2. Se visível e enviado, sanitiza e persiste
+        foreach ($fields as $field) {
+            if (!FieldSecurityPolicy::is_persistable_custom_field($field)) {
+                continue;
+            }
+
+            $raw_key  = (string) ($field['key'] ?? '');
+            $key      = FieldSecurityPolicy::sanitize_field_key($raw_key);
+            $meta_key = '_' . $key;
+            $type     = (string) ($field['type'] ?? 'text');
+
+            // 2. Se visível e enviado, sanitiza e persiste (a última ocorrência
+            // visível vence em caso de duplicadas visíveis por erro de config).
+            if (!FieldConditionEvaluator::is_field_visible($field, $posted_data)) {
+                continue;
+            }
+
             if (array_key_exists($key, $posted_data)) {
                 $sanitized_value = FieldSanitizer::sanitize($type, $posted_data[$key], $field);
 

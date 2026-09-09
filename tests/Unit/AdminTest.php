@@ -247,6 +247,60 @@ class AdminTest extends TestCase {
         $this->assertTrue($data['data']['fields'][0]['required']);
     }
 
+    public function test_ajax_save_fields_keeps_duplicate_keys_with_own_conditions(): void {
+        $_POST['nonce'] = 'mock_nonce';
+        $_POST['fields'] = json_encode([
+            [
+                'key' => 'billing_first_name',
+                'label' => 'Nome do aluno',
+                'type' => 'text',
+                'required' => true,
+                'width' => '100',
+                'enabled' => true,
+                'conditions' => [
+                    'logic' => 'and',
+                    'rules' => [
+                        ['field' => 'gvn_para_quem', 'operator' => 'equals', 'value' => 'mim'],
+                    ],
+                ],
+            ],
+            [
+                'key' => 'billing_first_name',
+                'label' => 'Nome do comprador',
+                'type' => 'text',
+                'required' => true,
+                'width' => '100',
+                'enabled' => true,
+                'conditions' => [
+                    'logic' => 'and',
+                    'rules' => [
+                        ['field' => 'gvn_para_quem', 'operator' => 'equals', 'value' => 'outra'],
+                    ],
+                ],
+            ],
+        ]);
+
+        $custom_fields = GVN_Custom_Fields::get_instance();
+
+        ob_start();
+        $custom_fields->ajax_save_fields();
+        $output = ob_get_clean();
+
+        $data = json_decode($output, true);
+        $this->assertTrue($data['success']);
+        $this->assertCount(2, $data['data']['fields']);
+        $this->assertEquals('Nome do aluno', $data['data']['fields'][0]['label']);
+        $this->assertEquals('Nome do comprador', $data['data']['fields'][1]['label']);
+        $this->assertEquals('mim', $data['data']['fields'][0]['conditions']['rules'][0]['value']);
+        $this->assertEquals('outra', $data['data']['fields'][1]['conditions']['rules'][0]['value']);
+
+        // O registro no Woo acontece uma única vez por chave (a 1ª vence).
+        $checkout_fields = $custom_fields->register_custom_fields_with_woo([
+            'billing' => [], 'shipping' => [], 'account' => [], 'order' => [],
+        ]);
+        $this->assertArrayHasKey('billing_first_name', $checkout_fields['billing']);
+    }
+
     public function test_add_plugin_links(): void {
         $admin = GVN_Admin::get_instance();
         $links = $admin->add_plugin_links(['<a href="#">Desativar</a>']);

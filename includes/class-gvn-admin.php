@@ -88,9 +88,41 @@ class GVN_Admin {
                 $this->render_help_page();
                 break;
             default:
+                // TEMP DEBUG [DEBUG-gvn1] — diagnóstico do seletor de layouts. Remover após concluir.
+                $this->render_layout_debug_box();
                 woocommerce_admin_fields( $this->get_settings() );
                 break;
         }
+    }
+
+    /**
+     * TEMP DEBUG [DEBUG-gvn1] — expõe por que o seletor lista só o clássico. Remover após concluir.
+     */
+    private function render_layout_debug_box() {
+        $reg_file  = GVN_CHECKOUT_PLUGIN_DIR . 'src/Checkout/Layouts/LayoutRegistry.php';
+        $has_class = class_exists( 'GVN\Checkout\Layouts\LayoutRegistry' );
+        $ids       = '-';
+        $split_tpl = '-';
+        $split_ok  = '-';
+
+        if ( $has_class ) {
+            $ids       = implode( ',', \GVN\Checkout\Layouts\LayoutRegistry::get_ids() );
+            $split_tpl = \GVN\Checkout\Layouts\LayoutRegistry::get_template( 'split' );
+            $split_ok  = is_readable( $split_tpl ) ? 'yes' : 'NO';
+        }
+        ?>
+        <div class="notice notice-warning" style="margin:15px 0;">
+            <p><strong>[DEBUG-gvn1]</strong>
+                <?php echo esc_html( 'php=' . PHP_VERSION ); ?> |
+                <?php echo esc_html( 'vendor=' . ( file_exists( GVN_CHECKOUT_PLUGIN_DIR . 'vendor/autoload.php' ) ? 'yes' : 'no' ) ); ?> |
+                <?php echo esc_html( 'regfile=' . ( is_readable( $reg_file ) ? 'yes' : 'NO' ) ); ?> |
+                <?php echo esc_html( 'class=' . ( $has_class ? 'yes' : 'NO' ) ); ?> |
+                <?php echo esc_html( 'layouts=' . $ids ); ?> |
+                <?php echo esc_html( 'splittpl=' . $split_tpl ); ?> |
+                <?php echo esc_html( 'splitok=' . $split_ok ); ?>
+            </p>
+        </div>
+        <?php
     }
 
     /**

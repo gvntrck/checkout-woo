@@ -14,7 +14,7 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$OutputDir = (Join-Path (Get-Location) 'dist'),
+    [string]$OutputDir = '',
     [string]$ZipName = 'gvn-checkout.zip',
     [string]$SevenZipPath = ''
 )
@@ -43,6 +43,10 @@ function Find-SevenZip {
 }
 
 $PluginSlug = 'gvn-checkout'
+$PluginRoot  = Split-Path -Parent $PSScriptRoot
+if ([string]::IsNullOrWhiteSpace($OutputDir)) {
+    $OutputDir = Join-Path $PluginRoot 'dist'
+}
 $BuildRoot  = Join-Path ([System.IO.Path]::GetTempPath()) "$PluginSlug-build"
 $Stage      = Join-Path $BuildRoot $PluginSlug
 $ZipPath    = Join-Path $OutputDir $ZipName
@@ -79,8 +83,9 @@ if (!(Test-Path -LiteralPath $OutputDir)) {
 New-Item -ItemType Directory -Path $Stage | Out-Null
 
 foreach ($path in $RuntimePaths) {
-    if (Test-Path -LiteralPath $path) {
-        Copy-Item -LiteralPath $path -Destination $Stage -Recurse -Force
+    $source = Join-Path $PluginRoot $path
+    if (Test-Path -LiteralPath $source) {
+        Copy-Item -LiteralPath $source -Destination $Stage -Recurse -Force
     } else {
         Write-Warning "Ignorado (ausente): $path"
     }
@@ -95,6 +100,11 @@ $junk = Get-ChildItem -LiteralPath $Stage -Recurse -Force -File | Where-Object {
 }
 if ($junk) {
     $junk | Remove-Item -Force
+}
+
+$stagedFiles = @(Get-ChildItem -LiteralPath $Stage -Recurse -Force -File)
+if ($stagedFiles.Count -eq 0) {
+    throw "Nada para empacotar: nenhum arquivo de runtime encontrado em '$PluginRoot'. Abortando em vez de gerar um zip vazio."
 }
 
 if (Test-Path -LiteralPath $ZipPath) {

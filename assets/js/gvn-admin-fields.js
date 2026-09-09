@@ -24,6 +24,7 @@
             this.bindGatewayRequirements();
             this.initSortable();
             this.interceptWooFormSubmit();
+            this.syncAllConditionalBadges();
         },
 
         bindEvents: function () {
@@ -104,17 +105,20 @@
                 $rules.append($rule);
                 $rule.slideDown(150);
                 $logic.slideDown(150);
+                self.updateConditionalBadge($row);
             });
 
             // Condições: remover regra
             this.$list.on('click', '.gvn-rule-remove', function () {
                 var $rule = $(this).closest('.gvn-condition-rule');
+                var $row = $(this).closest('.gvn-field-row');
                 var $section = $rule.closest('.gvn-conditions-section');
                 $rule.slideUp(150, function () {
                     $(this).remove();
                     if ($section.find('.gvn-condition-rule').length === 0) {
                         $section.find('.gvn-conditions-logic').slideUp(150);
                     }
+                    self.updateConditionalBadge($row);
                 });
             });
 
@@ -147,6 +151,38 @@
             this.$list.find('.gvn-field-row').each(function (index) {
                 $(this).find('.gvn-field-position').val(index + 1);
                 $(this).find('.gvn-field-pos-label').text('#' + (index + 1));
+            });
+        },
+
+        updateConditionalBadge: function ($row) {
+            if (!$row || !$row.length) return;
+            var count = $row.find('.gvn-condition-rule').length;
+            var $header = $row.find('.gvn-field-row__header');
+            var $badge = $header.find('.gvn-field-badge--conditional');
+            if (count > 0) {
+                var label = count > 1 ? 'Condicional (' + count + ')' : 'Condicional';
+                var title = count + ' regra(s) de exibição';
+                if (!$badge.length) {
+                    $badge = $('<span class="gvn-field-badge gvn-field-badge--conditional"></span>');
+                    var $width = $header.find('.gvn-field-width-badge');
+                    if ($width.length) {
+                        $width.before($badge);
+                    } else {
+                        $header.append($badge);
+                    }
+                }
+                $badge.text(label).attr('title', title).show();
+                $row.addClass('gvn-field-row--has-conditions');
+            } else {
+                $badge.remove();
+                $row.removeClass('gvn-field-row--has-conditions');
+            }
+        },
+
+        syncAllConditionalBadges: function () {
+            var self = this;
+            this.$list.find('.gvn-field-row').each(function () {
+                self.updateConditionalBadge($(this));
             });
         },
 
@@ -189,14 +225,19 @@
             var disabledClass = field.enabled ? '' : ' gvn-field-row--disabled';
             var keyReadonly = field.is_default ? 'readonly' : '';
             var labelDisplay = field.label || '(novo campo)';
+            var condRules = (field.conditions && field.conditions.rules) ? field.conditions.rules : [];
+            var hasConditions = condRules.length > 0;
+            var condBadge = hasConditions ? '    <span class="gvn-field-badge gvn-field-badge--conditional" title="' + condRules.length + ' regra(s) de exibição">Condicional' + (condRules.length > 1 ? ' (' + condRules.length + ')' : '') + '</span>' : '';
+            var condRowClass = hasConditions ? ' gvn-field-row--has-conditions' : '';
 
             return '' +
-                '<div class="gvn-field-row' + disabledClass + '" data-key="' + this.escAttr(field.key) + '" data-default="' + isDefault + '" data-woo-default="' + isWooDefault + '">' +
+                '<div class="gvn-field-row' + disabledClass + condRowClass + '" data-key="' + this.escAttr(field.key) + '" data-default="' + isDefault + '" data-woo-default="' + isWooDefault + '">' +
                 '  <div class="gvn-field-row__header">' +
                 '    <span class="gvn-field-drag" title="Arrastar para reordenar">☰</span>' +
                 '    <span class="gvn-field-pos-label">#' + pos + '</span>' +
                 '    <span class="gvn-field-label-display">' + this.escHtml(labelDisplay) + '</span>' +
                 (isWooDefault === 'true' ? '    <span class="gvn-field-badge gvn-field-badge--woo">Padrão Woo</span>' : '') +
+                condBadge +
                 '    <span class="gvn-field-width-badge">' + this.escHtml(field.width) + '%</span>' +
                 '    <span class="gvn-field-row__actions">' +
                 '      <label class="gvn-field-enabled-label"><input type="checkbox" class="gvn-field-enabled" ' + enabledChecked + ' /> Ativo</label>' +
@@ -789,7 +830,20 @@
 
         /**
          * Gera as options HTML do select de valor padrão.
+         * O slugify precisa espelhar o PHP (sanitize_title): remove acentos,
+         * minúsculas, espaços viram hífen. Também aceita " : " como separador,
+         * igual ao parse_select_options() do backend.
          */
+        slugifyOptionLabel: function (label) {
+            var slug = String(label || '');
+            if (slug.normalize) {
+                slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            }
+            slug = slug.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-_]/g, '');
+            slug = slug.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+            return slug;
+        },
+
         getDefaultOptionSelect: function (optionsText, selected) {
             var html = '<option value=""' + ('' === selected ? ' selected' : '') + '>-- Nenhuma opção pré-selecionada --</option>';
             var lines = (optionsText || '').split('\n');
@@ -801,8 +855,12 @@
                     var parts = line.split('|');
                     value = parts[0].trim();
                     label = parts.slice(1).join('|').trim();
+                } else if (line.indexOf(' : ') !== -1) {
+                    var colonParts = line.split(' : ');
+                    value = colonParts[0].trim();
+                    label = colonParts.slice(1).join(' : ').trim();
                 } else {
-                    value = line.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-_]/g, '');
+                    value = this.slugifyOptionLabel(line);
                     label = line;
                 }
                 if (value && label) {
@@ -902,7 +960,10 @@
                 }
             });
 
-            if (alreadyExists) return;
+            if (alreadyExists) {
+                this.updateConditionalBadge($row);
+                return;
+            }
 
             // Gerar options do select de campos excluindo o campo atual
             var currentKey = $row.find('.gvn-field-key-input').val();
@@ -917,15 +978,20 @@
                 '</div>';
 
             var $rule = $(html).hide();
+            var selfRef = this;
             $rules.append($rule);
-            $rule.slideDown(150);
+            $rule.slideDown(150, function () {
+                selfRef.updateConditionalBadge($row);
+            });
             $logic.slideDown(150);
+            this.updateConditionalBadge($row);
         },
 
         /**
          * Remove todas as condições referentes a billing_persontype de um campo.
          */
         removePersonTypeConditions: function ($row) {
+            var selfRef = this;
             var $rules = $row.find('.gvn-conditions-rules');
             $rules.find('.gvn-condition-rule').each(function () {
                 var rField = $(this).find('.gvn-rule-field').val();
@@ -935,9 +1001,11 @@
                         if ($rules.find('.gvn-condition-rule').length === 0) {
                             $row.find('.gvn-conditions-logic').slideUp(150);
                         }
+                        selfRef.updateConditionalBadge($row);
                     });
                 }
             });
+            selfRef.updateConditionalBadge($row);
         }
     };
 

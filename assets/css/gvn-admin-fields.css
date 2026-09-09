@@ -665,6 +665,16 @@
     border: 1px solid #c4b5fd;
 }
 
+.gvn-field-badge--conditional {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+.gvn-field-row--has-conditions > .gvn-field-row__header .gvn-field-label-display {
+    font-weight: 600;
+}
+
 .gvn-conditions-logic {
     margin-bottom: 10px;
 }

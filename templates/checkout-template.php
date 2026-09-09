@@ -147,7 +147,10 @@ if ( $bump_product && $cart ) {
                                             $f_options_raw  = isset( $gvn_field['options'] ) ? $gvn_field['options'] : '';
                                             $f_options      = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::parse_select_options( $f_options_raw ) : array();
                                             $f_default_opt  = isset( $gvn_field['default_option'] ) ? $gvn_field['default_option'] : '';
-                                            $f_select_value = '' !== $f_raw_value ? $f_raw_value : $f_default_opt;
+                                            if ( '' !== $f_default_opt && ! isset( $f_options[ $f_default_opt ] ) ) {
+                                                $f_default_opt = '';
+                                            }
+                                            $f_select_value = ( null !== $f_raw_value && '' !== $f_raw_value ) ? $f_raw_value : $f_default_opt;
                                         ?>
                                             <select class="gvn-field__input gvn-field__select" name="<?php echo $f_key; ?>" id="<?php echo $f_key; ?>" <?php echo $f_required ? 'required' : ''; ?>>
                                                 <option value=""><?php echo $f_placeholder ? esc_html( $f_placeholder ) : '-- ' . esc_html__( 'Selecione', 'gvn-checkout' ) . ' --'; ?></option>

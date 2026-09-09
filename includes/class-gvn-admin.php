@@ -565,14 +565,21 @@ class GVN_Admin {
             </div>
 
             <div id="gvn-fields-list">
-                <?php foreach ( $fields as $field ) : ?>
-                    <div class="gvn-field-row<?php echo empty( $field['enabled'] ) ? ' gvn-field-row--disabled' : ''; ?>" data-key="<?php echo esc_attr( $field['key'] ); ?>" data-default="<?php echo $field['is_default'] ? 'true' : 'false'; ?>" data-woo-default="<?php echo ! empty( $field['is_woo_default'] ) ? 'true' : 'false'; ?>">
+                <?php foreach ( $fields as $field ) :
+                    $field_cond_rules = isset( $field['conditions']['rules'] ) && is_array( $field['conditions']['rules'] ) ? $field['conditions']['rules'] : array();
+                    $field_has_conditions = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::has_conditions( $field ) : ! empty( $field_cond_rules );
+                    $field_cond_count = count( $field_cond_rules );
+                ?>
+                    <div class="gvn-field-row<?php echo empty( $field['enabled'] ) ? ' gvn-field-row--disabled' : ''; ?><?php echo $field_has_conditions ? ' gvn-field-row--has-conditions' : ''; ?>" data-key="<?php echo esc_attr( $field['key'] ); ?>" data-default="<?php echo $field['is_default'] ? 'true' : 'false'; ?>" data-woo-default="<?php echo ! empty( $field['is_woo_default'] ) ? 'true' : 'false'; ?>">
                         <div class="gvn-field-row__header">
                             <span class="gvn-field-drag" title="<?php esc_attr_e( 'Arrastar para reordenar', 'gvn-checkout' ); ?>">☰</span>
                             <span class="gvn-field-pos-label">#<?php echo esc_html( $field['position'] ); ?></span>
                             <span class="gvn-field-label-display"><?php echo esc_html( $field['label'] ?: '(sem label)' ); ?></span>
                             <?php if ( ! empty( $field['is_woo_default'] ) ) : ?>
                                 <span class="gvn-field-badge gvn-field-badge--woo"><?php esc_html_e( 'Padrão Woo', 'gvn-checkout' ); ?></span>
+                            <?php endif; ?>
+                            <?php if ( $field_has_conditions ) : ?>
+                                <span class="gvn-field-badge gvn-field-badge--conditional" title="<?php echo esc_attr( sprintf( __( '%d regra(s) de exibição', 'gvn-checkout' ), $field_cond_count ) ); ?>"><?php esc_html_e( 'Condicional', 'gvn-checkout' ); ?><?php echo $field_cond_count > 1 ? ' (' . esc_html( $field_cond_count ) . ')' : ''; ?></span>
                             <?php endif; ?>
                             <span class="gvn-field-width-badge"><?php echo esc_html( $field['width'] ); ?>%</span>
                             <span class="gvn-field-row__actions">

@@ -88,76 +88,9 @@ class GVN_Admin {
                 $this->render_help_page();
                 break;
             default:
-                // TEMP DEBUG [DEBUG-gvn1] — diagnóstico do seletor de layouts. Remover após concluir.
-                $this->render_layout_debug_box();
                 woocommerce_admin_fields( $this->get_settings() );
                 break;
         }
-    }
-
-    /**
-     * TEMP DEBUG [DEBUG-gvn1] — expõe por que o seletor lista só o clássico. Remover após concluir.
-     */
-    private function render_layout_debug_box() {
-        $reg_file  = GVN_CHECKOUT_PLUGIN_DIR . 'src/Checkout/Layouts/LayoutRegistry.php';
-        $has_class = class_exists( 'GVN\Checkout\Layouts\LayoutRegistry' );
-        $ids       = '-';
-        $split_tpl = '-';
-        $split_ok  = '-';
-
-        if ( $has_class ) {
-            $ids       = implode( ',', \GVN\Checkout\Layouts\LayoutRegistry::get_ids() );
-            $split_tpl = \GVN\Checkout\Layouts\LayoutRegistry::get_template( 'split' );
-            $split_ok  = is_readable( $split_tpl ) ? 'yes' : 'NO';
-        }
-
-        $reg_size = is_readable( $reg_file ) ? (string) filesize( $reg_file ) : '-';
-        $reg_md5  = ( is_readable( $reg_file ) && function_exists( 'md5_file' ) ) ? substr( (string) md5_file( $reg_file ), 0, 12 ) : '-';
-
-        // TEMP DEBUG [DEBUG-gvn1] — se o arquivo está íntegro mas a classe não carrega,
-        // tenta invalidar opcode obsoleto e checa de novo no mesmo request.
-        $inv     = '-';
-        $class2  = '-';
-        $layouts2 = '-';
-        if ( ! $has_class && is_readable( $reg_file ) && function_exists( 'opcache_invalidate' ) ) {
-            $inv = opcache_invalidate( $reg_file, true ) ? 'yes' : 'NO';
-            clearstatcache( true, $reg_file );
-            $class2 = class_exists( 'GVN\Checkout\Layouts\LayoutRegistry' ) ? 'yes' : 'NO';
-            if ( 'yes' === $class2 ) {
-                $layouts2 = implode( ',', \GVN\Checkout\Layouts\LayoutRegistry::get_ids() );
-            }
-        }
-
-        // TEMP DEBUG [DEBUG-gvn1] — require explícito + estado da cadeia de autoload.
-        $loaders = function_exists( 'spl_autoload_functions' ) ? count( (array) spl_autoload_functions() ) : '-';
-        $class3  = '-';
-        if ( 'NO' === $class2 && is_readable( $reg_file ) ) {
-            require_once $reg_file;
-            $class3 = class_exists( 'GVN\Checkout\Layouts\LayoutRegistry', false ) ? 'yes' : 'NO';
-            if ( 'yes' === $class3 ) {
-                $layouts2 = implode( ',', \GVN\Checkout\Layouts\LayoutRegistry::get_ids() );
-            }
-        }
-        ?>
-        <div class="notice notice-warning" style="margin:15px 0;">
-            <p><strong>[DEBUG-gvn1]</strong>
-                <?php echo esc_html( 'php=' . PHP_VERSION ); ?> |
-                <?php echo esc_html( 'vendor=' . ( file_exists( GVN_CHECKOUT_PLUGIN_DIR . 'vendor/autoload.php' ) ? 'yes' : 'no' ) ); ?> |
-                <?php echo esc_html( 'regfile=' . ( is_readable( $reg_file ) ? 'yes' : 'NO' ) ); ?> |
-                <?php echo esc_html( 'regsize=' . $reg_size ); ?> |
-                <?php echo esc_html( 'regmd5=' . $reg_md5 ); ?> |
-                <?php echo esc_html( 'class=' . ( $has_class ? 'yes' : 'NO' ) ); ?> |
-                <?php echo esc_html( 'layouts=' . $ids ); ?> |
-                <?php echo esc_html( 'splittpl=' . $split_tpl ); ?> |
-                <?php echo esc_html( 'splitok=' . $split_ok ); ?> |
-                <?php echo esc_html( 'inv=' . $inv ); ?> |
-                <?php echo esc_html( 'class2=' . $class2 ); ?> |
-                <?php echo esc_html( 'layouts2=' . $layouts2 ); ?> |
-                <?php echo esc_html( 'loaders=' . $loaders ); ?> |
-                <?php echo esc_html( 'class3=' . $class3 ); ?>
-            </p>
-        </div>
-        <?php
     }
 
     /**

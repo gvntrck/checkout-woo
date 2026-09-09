@@ -50,6 +50,18 @@ if (file_exists(GVN_CHECKOUT_PLUGIN_DIR . 'vendor/autoload.php')) {
     });
 }
 
+// Registro de layouts: require explícito e protegido.
+// O autoload PSR-4 acima basta em instalações limpas, mas cadeias de autoload
+// de terceiros podem impedir seu acionamento (observado em produção); sem a
+// classe, o admin cai para "só clássico" e o render ignora o layout configurado.
+if ( ! class_exists( 'GVN\\Checkout\\Layouts\\LayoutRegistry' ) ) {
+    $gvn_layout_registry_file = GVN_CHECKOUT_PLUGIN_DIR . 'src/Checkout/Layouts/LayoutRegistry.php';
+    if ( is_readable( $gvn_layout_registry_file ) ) {
+        require_once $gvn_layout_registry_file;
+    }
+    unset( $gvn_layout_registry_file );
+}
+
 // Declaração precoce de compatibilidade com WooCommerce HPOS e Blocks
 add_action('before_woocommerce_init', ['\\GVN\\Checkout\\Plugin', 'declare_woocommerce_compatibility']);
 

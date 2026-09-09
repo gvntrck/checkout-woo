@@ -110,12 +110,17 @@ class GVN_Admin {
             $split_tpl = \GVN\Checkout\Layouts\LayoutRegistry::get_template( 'split' );
             $split_ok  = is_readable( $split_tpl ) ? 'yes' : 'NO';
         }
+
+        $reg_size = is_readable( $reg_file ) ? (string) filesize( $reg_file ) : '-';
+        $reg_md5  = ( is_readable( $reg_file ) && function_exists( 'md5_file' ) ) ? substr( (string) md5_file( $reg_file ), 0, 12 ) : '-';
         ?>
         <div class="notice notice-warning" style="margin:15px 0;">
             <p><strong>[DEBUG-gvn1]</strong>
                 <?php echo esc_html( 'php=' . PHP_VERSION ); ?> |
                 <?php echo esc_html( 'vendor=' . ( file_exists( GVN_CHECKOUT_PLUGIN_DIR . 'vendor/autoload.php' ) ? 'yes' : 'no' ) ); ?> |
                 <?php echo esc_html( 'regfile=' . ( is_readable( $reg_file ) ? 'yes' : 'NO' ) ); ?> |
+                <?php echo esc_html( 'regsize=' . $reg_size ); ?> |
+                <?php echo esc_html( 'regmd5=' . $reg_md5 ); ?> |
                 <?php echo esc_html( 'class=' . ( $has_class ? 'yes' : 'NO' ) ); ?> |
                 <?php echo esc_html( 'layouts=' . $ids ); ?> |
                 <?php echo esc_html( 'splittpl=' . $split_tpl ); ?> |

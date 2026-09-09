@@ -113,6 +113,20 @@ class GVN_Admin {
 
         $reg_size = is_readable( $reg_file ) ? (string) filesize( $reg_file ) : '-';
         $reg_md5  = ( is_readable( $reg_file ) && function_exists( 'md5_file' ) ) ? substr( (string) md5_file( $reg_file ), 0, 12 ) : '-';
+
+        // TEMP DEBUG [DEBUG-gvn1] — se o arquivo está íntegro mas a classe não carrega,
+        // tenta invalidar opcode obsoleto e checa de novo no mesmo request.
+        $inv     = '-';
+        $class2  = '-';
+        $layouts2 = '-';
+        if ( ! $has_class && is_readable( $reg_file ) && function_exists( 'opcache_invalidate' ) ) {
+            $inv = opcache_invalidate( $reg_file, true ) ? 'yes' : 'NO';
+            clearstatcache( true, $reg_file );
+            $class2 = class_exists( 'GVN\Checkout\Layouts\LayoutRegistry' ) ? 'yes' : 'NO';
+            if ( 'yes' === $class2 ) {
+                $layouts2 = implode( ',', \GVN\Checkout\Layouts\LayoutRegistry::get_ids() );
+            }
+        }
         ?>
         <div class="notice notice-warning" style="margin:15px 0;">
             <p><strong>[DEBUG-gvn1]</strong>
@@ -124,7 +138,10 @@ class GVN_Admin {
                 <?php echo esc_html( 'class=' . ( $has_class ? 'yes' : 'NO' ) ); ?> |
                 <?php echo esc_html( 'layouts=' . $ids ); ?> |
                 <?php echo esc_html( 'splittpl=' . $split_tpl ); ?> |
-                <?php echo esc_html( 'splitok=' . $split_ok ); ?>
+                <?php echo esc_html( 'splitok=' . $split_ok ); ?> |
+                <?php echo esc_html( 'inv=' . $inv ); ?> |
+                <?php echo esc_html( 'class2=' . $class2 ); ?> |
+                <?php echo esc_html( 'layouts2=' . $layouts2 ); ?>
             </p>
         </div>
         <?php

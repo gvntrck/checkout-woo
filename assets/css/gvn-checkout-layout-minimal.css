@@ -1,0 +1,339 @@
+/**
+ * GVN Checkout - Layout "Minimalista" (SaaS claro: seções numeradas + resumo sticky).
+ *
+ * CSS exclusivo e autocontido: tudo escopado sob .gvn-layout-minimal para
+ * nunca vazar para os demais layouts. Não depende de Tailwind/CDN.
+ *
+ * @version 1.15.0
+ */
+
+.gvn-checkout.gvn-layout-minimal {
+    max-width: 100%;
+    margin: 0;
+    padding: 0 0 3rem;
+    background: #fafafa;
+}
+
+/* ============ Header mínimo ============ */
+
+.gvn-minimal__header {
+    background: #ffffff;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.gvn-minimal__header-inner {
+    max-width: 68rem;
+    margin: 0 auto;
+    min-height: 4rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.gvn-minimal__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.gvn-minimal__logo {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    background: #059669;
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.gvn-minimal__brand-name {
+    font-weight: 700;
+    font-size: 1.125rem;
+    letter-spacing: -0.01em;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gvn-minimal__secure {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+/* ============ Estrutura ============ */
+
+.gvn-minimal__form {
+    margin: 0;
+}
+
+.gvn-minimal__grid {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: 2rem 1rem 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "summary"
+        "main"
+        "pay";
+    gap: 2rem;
+    align-items: start;
+}
+
+.gvn-minimal__main { grid-area: main; min-width: 0; }
+.gvn-minimal__summary { grid-area: summary; min-width: 0; }
+.gvn-minimal__pay { grid-area: pay; min-width: 0; }
+
+.gvn-minimal__card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.875rem;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
+}
+
+.gvn-minimal__card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #0f172a;
+    margin: 0 0 1.5rem;
+}
+
+.gvn-minimal__step {
+    color: #94a3b8;
+    font-weight: 400;
+    margin-right: 0.25rem;
+}
+
+.gvn-minimal__card-sub {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: -1rem 0 1.5rem;
+}
+
+/* ============ Campos ============ */
+
+.gvn-layout-minimal .gvn-field__input {
+    min-height: 3rem;
+    border-radius: 0.625rem;
+    border-color: #e2e8f0;
+}
+
+.gvn-layout-minimal .gvn-field__input:focus {
+    border-color: #059669;
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+    outline: none;
+}
+
+.gvn-layout-minimal .gvn-field__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* ============ Abas de pagamento ============ */
+
+.gvn-layout-minimal .gvn-minimal__tabs {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 0.625rem;
+    background: rgba(241, 245, 249, 0.9);
+    border: 0;
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+    box-shadow: none;
+    overflow-x: auto;
+}
+
+.gvn-layout-minimal .gvn-minimal__tabs .gvn-gateway {
+    border: 0;
+    border-radius: 0.375rem;
+    box-shadow: none;
+    background: transparent;
+    padding: 0.625rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #475569;
+    margin: 0;
+}
+
+.gvn-layout-minimal .gvn-minimal__tabs .gvn-gateway:hover {
+    color: #0f172a;
+}
+
+.gvn-layout-minimal .gvn-minimal__tabs .gvn-gateway--active {
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 600;
+    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.gvn-layout-minimal .gvn-gateway__radio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.gvn-layout-minimal .gvn-gateway__name {
+    font-size: 0.8125rem;
+}
+
+.gvn-layout-minimal .gvn-gateways__content {
+    margin-top: 1rem;
+}
+
+.gvn-layout-minimal .gvn-gateway-fields {
+    border: 0;
+    background: transparent;
+    padding: 0.25rem 0 0;
+    box-shadow: none;
+}
+
+/* ============ Resumo ============ */
+
+.gvn-layout-minimal .gvn-order-items {
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.gvn-layout-minimal .gvn-order-totals {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.875rem;
+}
+
+.gvn-layout-minimal .gvn-order-totals__total-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.gvn-minimal__coupon {
+    padding: 1rem 0 1.5rem;
+}
+
+.gvn-minimal__coupon-link {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: 0.75rem;
+    color: #64748b;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+.gvn-minimal__coupon-link:hover {
+    color: #0f172a;
+}
+
+.gvn-layout-minimal .gvn-coupon__form-inner {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.gvn-layout-minimal .gvn-coupon__form-inner .gvn-field__input {
+    min-height: 2.25rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.gvn-layout-minimal .gvn-coupon__btn {
+    min-height: 2.25rem;
+    background: #0f172a;
+    font-size: 0.75rem;
+}
+
+.gvn-layout-minimal .gvn-minimal__submit {
+    margin-top: 0;
+}
+
+.gvn-layout-minimal .gvn-minimal__cta {
+    width: 100%;
+    min-height: 3.5rem;
+    background: #059669;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 1rem;
+    border: 0;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s ease-in-out;
+}
+
+.gvn-layout-minimal .gvn-minimal__cta:hover {
+    background: #047857;
+}
+
+.gvn-minimal__trust {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin: 1rem 0 0;
+}
+
+/* Bump e termos herdam a base; apenas respiro. */
+.gvn-layout-minimal .gvn-minimal__bump {
+    margin-top: 1.25rem;
+}
+
+.gvn-layout-minimal .gvn-terms-wrapper {
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+}
+
+/* Avisos do Woo dentro do minimal. */
+.gvn-layout-minimal .woocommerce-error,
+.gvn-layout-minimal .woocommerce-message,
+.gvn-layout-minimal .woocommerce-info {
+    max-width: 68rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ============ Desktop ============ */
+
+@media (min-width: 1024px) {
+    .gvn-minimal__grid {
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        grid-template-areas:
+            "main summary"
+            "pay summary";
+        gap: 2rem 3rem;
+        padding-top: 3rem;
+    }
+
+    .gvn-minimal__card {
+        padding: 2rem;
+    }
+
+    .gvn-minimal__summary {
+        position: sticky;
+        top: 2rem;
+    }
+}

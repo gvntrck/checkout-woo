@@ -28,12 +28,16 @@ class LayoutRegistryTest extends TestCase {
 
         $this->assertArrayHasKey('classic', $all);
         $this->assertArrayHasKey('split', $all);
+        $this->assertArrayHasKey('minimal', $all);
+        $this->assertArrayHasKey('corporate', $all);
         $this->assertSame('classic', LayoutRegistry::DEFAULT_LAYOUT);
     }
 
     public function test_resolve_returns_valid_slug_and_falls_back_to_default(): void {
         $this->assertSame('classic', LayoutRegistry::resolve('classic'));
         $this->assertSame('split', LayoutRegistry::resolve('split'));
+        $this->assertSame('minimal', LayoutRegistry::resolve('minimal'));
+        $this->assertSame('corporate', LayoutRegistry::resolve('corporate'));
         $this->assertSame('classic', LayoutRegistry::resolve('nao-existe'));
         $this->assertSame('classic', LayoutRegistry::resolve(''));
         $this->assertSame('classic', LayoutRegistry::resolve(null));
@@ -101,11 +105,26 @@ class LayoutRegistryTest extends TestCase {
     }
 
     public function test_split_template_keeps_canonical_hooks_and_js_contract(): void {
+        $this->assertLayoutTemplateContract('split');
+    }
+
+    public function test_minimal_template_keeps_canonical_hooks_and_js_contract(): void {
+        $this->assertLayoutTemplateContract('minimal');
+    }
+
+    public function test_corporate_template_keeps_canonical_hooks_and_js_contract(): void {
+        $this->assertLayoutTemplateContract('corporate');
+    }
+
+    /**
+     * Renderiza um template de layout e valida hooks canônicos + contrato com o JS.
+     */
+    private function assertLayoutTemplateContract(string $slug): void {
         global $checkout;
         $checkout = \WC()->checkout();
 
         ob_start();
-        include GVN_CHECKOUT_PLUGIN_DIR . 'templates/checkout/layout-split.php';
+        include GVN_CHECKOUT_PLUGIN_DIR . 'templates/checkout/layout-' . $slug . '.php';
         $html = ob_get_clean();
 
         $this->assertNotEmpty($html);
@@ -124,13 +143,13 @@ class LayoutRegistryTest extends TestCase {
             'woocommerce_review_order_after_submit',
             'woocommerce_after_checkout_form',
         ] as $hook) {
-            $this->assertSame(1, did_action($hook), "Hook '{$hook}' deve disparar exatamente 1 vez no split.");
+            $this->assertSame(1, did_action($hook), "Hook '{$hook}' deve disparar exatamente 1 vez no {$slug}.");
         }
 
         // Contrato com o JS/fragments.
         foreach ([
             'id="gvn-checkout"',
-            'data-layout="split"',
+            'data-layout="' . $slug . '"',
             'name="checkout"',
             'id="customer_details"',
             'id="gvn-order-items"',
@@ -147,7 +166,7 @@ class LayoutRegistryTest extends TestCase {
             'name="woocommerce_checkout_place_order"',
             'name="woocommerce-process-checkout-nonce"',
         ] as $needle) {
-            $this->assertStringContainsString($needle, $html, "Split deve conter '{$needle}'.");
+            $this->assertStringContainsString($needle, $html, "Layout {$slug} deve conter '{$needle}'.");
         }
     }
 }

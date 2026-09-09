@@ -2,7 +2,7 @@
 
 Este plugin suporta múltiplos modelos visuais de checkout selecionáveis
 (Configurações > GVN Checkout > Layout do Checkout, ou por página com
-`[gvn-checkout layout="{slug}"]`). Nativos hoje: `classic` e `split`.
+`[gvn-checkout layout="{slug}"]`). Nativos hoje: `classic`, `split`, `minimal` e `corporate`.
 
 ## Passo a passo (3 passos)
 

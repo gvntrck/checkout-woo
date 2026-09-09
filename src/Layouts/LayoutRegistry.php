@@ -57,6 +57,18 @@ final class LayoutRegistry {
                 'css'      => 'assets/css/gvn-checkout-layout-split.css',
                 'js'       => null,
             ),
+            'minimal' => array(
+                'label'    => __( 'Minimalista (claro)', 'gvn-checkout' ),
+                'template' => $base . 'templates/checkout/layout-minimal.php',
+                'css'      => 'assets/css/gvn-checkout-layout-minimal.css',
+                'js'       => null,
+            ),
+            'corporate' => array(
+                'label'    => __( 'Corporativo (institucional)', 'gvn-checkout' ),
+                'template' => $base . 'templates/checkout/layout-corporate.php',
+                'css'      => 'assets/css/gvn-checkout-layout-corporate.css',
+                'js'       => null,
+            ),
         );
     }
 

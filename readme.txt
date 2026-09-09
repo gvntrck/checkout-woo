@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.13.48
+Stable tag: 1.14.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -119,6 +119,10 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.14.0 =
+* Adiciona layouts de checkout selecionáveis: Clássico (padrão) e Dividido (resumo lateral escuro + formulário claro), via Configurações > GVN Checkout > Layout ou shortcode [gvn-checkout layout="split"].
+* Novos filtros gvn_checkout_layouts, gvn_checkout_layout e gvn_checkout_template_path, com override pelo tema, para futuros modelos.
 
 = 1.13.48 =
 * Corrige a identificação do plugin no diagnóstico de gateways: ignora o `plugin_id` genérico do WooCommerce (`woocommerce_`) e detecta o plugin real pelo arquivo da classe, evitando agrupar métodos de plugins diferentes.

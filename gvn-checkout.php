@@ -22,6 +22,32 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
+require 'plugin-update-checker/plugin-update-checker.php';
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
+$myUpdateChecker = PucFactory::buildUpdateChecker(
+	'https://github.com/gvntrck/checkout-woo',
+	__FILE__,
+	'checkout-woo'
+);
+
+//Set the branch that contains the stable release.
+$myUpdateChecker->setBranch('stable-branch-name');
+
+//Optional: If you're using a private repository, specify the access token like this:
+$myUpdateChecker->setAuthentication('your-token-here');
+
+
+
+
+
+
+
+
+
+
+
 // Constantes essenciais do plugin
 define('GVN_CHECKOUT_VERSION', '1.15.1');
 define('GVN_CHECKOUT_PLUGIN_DIR', plugin_dir_path(__FILE__));

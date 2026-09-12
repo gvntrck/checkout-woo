@@ -33,7 +33,6 @@ class GVN_Custom_Fields {
 
     private function __construct() {
         add_action( 'wp_ajax_gvn_save_fields', array( $this, 'ajax_save_fields' ) );
-        add_action( 'woocommerce_checkout_process', array( $this, 'validate_custom_fields_process' ) );
         add_action( 'woocommerce_after_checkout_validation', array( $this, 'validate_custom_fields_after' ), 10, 2 );
         add_action( 'woocommerce_checkout_create_order', array( $this, 'persist_custom_fields_on_order_create' ), 10, 2 );
         add_action( 'woocommerce_checkout_update_order_meta', array( $this, 'save_custom_fields_to_order' ), 10, 1 );
@@ -647,15 +646,6 @@ class GVN_Custom_Fields {
         $posted = ! empty( $_POST ) ? wp_unslash( $_POST ) : array();
         $merged = array_merge( (array) $data, (array) $posted );
         FieldValidator::validate( $fields, $merged, $errors );
-    }
-
-    /**
-     * Validação auxiliar em woocommerce_checkout_process.
-     */
-    public function validate_custom_fields_process() {
-        $fields = self::get_enabled_fields();
-        $posted = ! empty( $_POST ) ? wp_unslash( $_POST ) : array();
-        FieldValidator::validate( $fields, $posted, null );
     }
 
     /**

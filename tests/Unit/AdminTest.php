@@ -370,4 +370,29 @@ class AdminTest extends TestCase {
             'O estilo gvn-admin-fields-css deve ser enfileirado quando o usuário está na aba gvn_checkout das configurações do WooCommerce'
         );
     }
+
+    public function test_custom_fields_validation_uses_only_after_checkout_validation_hook(): void {
+        global $wp_mock_filters;
+
+        $original_filters = $wp_mock_filters;
+        $property = new \ReflectionProperty(GVN_Custom_Fields::class, 'instance');
+        $property->setAccessible(true);
+        $original_instance = $property->getValue();
+
+        try {
+            $wp_mock_filters = [];
+            $property->setValue(null, null);
+            $instance = GVN_Custom_Fields::get_instance();
+
+            $this->assertArrayNotHasKey('woocommerce_checkout_process', $wp_mock_filters);
+            $this->assertArrayHasKey('woocommerce_after_checkout_validation', $wp_mock_filters);
+
+            $callbacks = $wp_mock_filters['woocommerce_after_checkout_validation'][10];
+            $this->assertNotEmpty($callbacks);
+            $this->assertSame([$instance, 'validate_custom_fields_after'], $callbacks[0]['function']);
+        } finally {
+            $property->setValue(null, $original_instance);
+            $wp_mock_filters = $original_filters;
+        }
+    }
 }

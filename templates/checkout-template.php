@@ -382,14 +382,16 @@ if ( $bump_product && $cart ) {
                                 </div>
                                 <div class="gvn-coupon__message" id="gvn-coupon-message"></div>
 
-                                <?php if ( $cart ) : ?>
-                                    <?php foreach ( $cart->get_applied_coupons() as $coupon_code ) : ?>
-                                        <div class="gvn-coupon__applied">
-                                            <span><?php esc_html_e( 'Cupom:', 'gvn-checkout' ); ?> <strong><?php echo esc_html( $coupon_code ); ?></strong></span>
-                                            <button type="button" class="gvn-coupon__remove" data-coupon="<?php echo esc_attr( $coupon_code ); ?>"><?php esc_html_e( 'Remover', 'gvn-checkout' ); ?></button>
-                                        </div>
-                                <?php endforeach; ?>
-                                <?php endif; ?>
+                                <div id="gvn-coupon-applied-list">
+                                    <?php if ( $cart ) : ?>
+                                        <?php foreach ( $cart->get_applied_coupons() as $coupon_code ) : ?>
+                                            <div class="gvn-coupon__applied">
+                                                <span><?php esc_html_e( 'Cupom:', 'gvn-checkout' ); ?> <strong><?php echo esc_html( $coupon_code ); ?></strong></span>
+                                                <button type="button" class="gvn-coupon__remove" data-coupon="<?php echo esc_attr( $coupon_code ); ?>"><?php esc_html_e( 'Remover', 'gvn-checkout' ); ?></button>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         <?php endif; ?>
 
@@ -407,8 +409,17 @@ if ( $bump_product && $cart ) {
                                         'card'   => '<svg class="gvn-gateway__icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>',
                                     );
 
-                                    $first = true;
+                                    $gvn_chosen_gateway = '';
+                                    if ( function_exists( 'WC' ) && WC() && isset( WC()->session ) && WC()->session ) {
+                                        $gvn_chosen_gateway = (string) WC()->session->get( 'chosen_payment_method', '' );
+                                    }
+                                    if ( ! isset( $available_gateways[ $gvn_chosen_gateway ] ) && ! empty( $available_gateways ) ) {
+                                        $gvn_gateway_ids    = array_keys( $available_gateways );
+                                        $gvn_chosen_gateway = (string) reset( $gvn_gateway_ids );
+                                    }
+
                                     foreach ( $available_gateways as $gateway_id => $gateway ) :
+                                        $is_selected = ( $gateway_id === $gvn_chosen_gateway );
                                         $icon_key   = 'card';
                                         $extra_info = '';
                                         $is_recommended = false;
@@ -427,8 +438,8 @@ if ( $bump_product && $cart ) {
 
                                         $icon_svg = isset( $gateway_icons[ $icon_key ] ) ? $gateway_icons[ $icon_key ] : $gateway_icons['card'];
                                     ?>
-                                        <div class="gvn-gateway <?php echo $first ? 'gvn-gateway--active' : ''; ?>" data-gateway="<?php echo esc_attr( $gateway_id ); ?>">
-                                            <input type="radio" name="payment_method" id="payment_method_<?php echo esc_attr( $gateway_id ); ?>" value="<?php echo esc_attr( $gateway_id ); ?>" <?php checked( $first, true ); ?> class="gvn-gateway__radio" />
+                                        <div class="gvn-gateway <?php echo $is_selected ? 'gvn-gateway--active' : ''; ?>" data-gateway="<?php echo esc_attr( $gateway_id ); ?>">
+                                            <input type="radio" name="payment_method" id="payment_method_<?php echo esc_attr( $gateway_id ); ?>" value="<?php echo esc_attr( $gateway_id ); ?>" <?php checked( $is_selected ); ?> class="gvn-gateway__radio" />
                                             <div class="gvn-gateway__icon <?php echo $is_recommended ? 'gvn-gateway__icon--recommended' : 'gvn-gateway__icon--default'; ?>">
                                                 <?php echo $icon_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                                             </div>
@@ -445,7 +456,6 @@ if ( $bump_product && $cart ) {
                                             </div>
                                         </div>
                                     <?php
-                                        $first = false;
                                     endforeach;
                                     ?>
                                 </div>

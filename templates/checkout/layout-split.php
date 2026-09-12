@@ -326,14 +326,16 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                             </div>
                             <div class="gvn-coupon__message" id="gvn-coupon-message"></div>
 
-                            <?php if ( $cart ) : ?>
-                                <?php foreach ( $cart->get_applied_coupons() as $coupon_code ) : ?>
-                                    <div class="gvn-coupon__applied">
-                                        <span><?php esc_html_e( 'Cupom:', 'gvn-checkout' ); ?> <strong><?php echo esc_html( $coupon_code ); ?></strong></span>
-                                        <button type="button" class="gvn-coupon__remove" data-coupon="<?php echo esc_attr( $coupon_code ); ?>"><?php esc_html_e( 'Remover', 'gvn-checkout' ); ?></button>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                            <div id="gvn-coupon-applied-list">
+                                <?php if ( $cart ) : ?>
+                                    <?php foreach ( $cart->get_applied_coupons() as $coupon_code ) : ?>
+                                        <div class="gvn-coupon__applied">
+                                            <span><?php esc_html_e( 'Cupom:', 'gvn-checkout' ); ?> <strong><?php echo esc_html( $coupon_code ); ?></strong></span>
+                                            <button type="button" class="gvn-coupon__remove" data-coupon="<?php echo esc_attr( $coupon_code ); ?>"><?php esc_html_e( 'Remover', 'gvn-checkout' ); ?></button>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -357,8 +359,17 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                         <?php if ( ! empty( $available_gateways ) ) : ?>
                             <div class="gvn-gateways__list">
                                 <?php
-                                $first = true;
+                                $gvn_chosen_gateway = '';
+                                if ( function_exists( 'WC' ) && WC() && isset( WC()->session ) && WC()->session ) {
+                                    $gvn_chosen_gateway = (string) WC()->session->get( 'chosen_payment_method', '' );
+                                }
+                                if ( ! isset( $available_gateways[ $gvn_chosen_gateway ] ) && ! empty( $available_gateways ) ) {
+                                    $gvn_gateway_ids    = array_keys( $available_gateways );
+                                    $gvn_chosen_gateway = (string) reset( $gvn_gateway_ids );
+                                }
+
                                 foreach ( $available_gateways as $gateway_id => $gateway ) :
+                                    $is_selected = ( $gateway_id === $gvn_chosen_gateway );
                                     $extra_info = '';
                                     $is_recommended = false;
 
@@ -371,8 +382,8 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                                         $extra_info = __( 'Parcelamento disponível', 'gvn-checkout' );
                                     }
                                 ?>
-                                    <div class="gvn-gateway <?php echo $first ? 'gvn-gateway--active' : ''; ?>" data-gateway="<?php echo esc_attr( $gateway_id ); ?>">
-                                        <input type="radio" name="payment_method" id="payment_method_<?php echo esc_attr( $gateway_id ); ?>" value="<?php echo esc_attr( $gateway_id ); ?>" <?php checked( $first, true ); ?> class="gvn-gateway__radio" />
+                                    <div class="gvn-gateway <?php echo $is_selected ? 'gvn-gateway--active' : ''; ?>" data-gateway="<?php echo esc_attr( $gateway_id ); ?>">
+                                        <input type="radio" name="payment_method" id="payment_method_<?php echo esc_attr( $gateway_id ); ?>" value="<?php echo esc_attr( $gateway_id ); ?>" <?php checked( $is_selected ); ?> class="gvn-gateway__radio" />
                                         <div class="gvn-gateway__info">
                                             <div class="gvn-gateway__name-row">
                                                 <span class="gvn-gateway__name"><?php echo esc_html( $gateway->get_title() ); ?></span>
@@ -386,7 +397,6 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                                         </div>
                                     </div>
                                 <?php
-                                    $first = false;
                                 endforeach;
                                 ?>
                             </div>

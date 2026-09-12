@@ -368,6 +368,11 @@ class GVN_Checkout {
         $fragments['#gvn-order-totals'] = $this->render_order_totals_fragment();
         $fragments['#payment']          = $this->render_payment_methods_fragment();
 
+        // Exclusivos do layout split / cupom: só existem no DOM quando o layout
+        // correspondente está ativo; replaceWith em seletor ausente é no-op.
+        $fragments['#gvn-split-headline-total'] = $this->render_split_headline_fragment();
+        $fragments['#gvn-coupon-applied-list']  = $this->render_applied_coupons_fragment();
+
         return $fragments;
     }
 
@@ -431,6 +436,41 @@ class GVN_Checkout {
                 <span class="gvn-order-totals__total-label"><?php esc_html_e( 'Total', 'gvn-checkout' ); ?></span>
                 <span class="gvn-order-totals__total-value" id="gvn-total"><?php echo wp_kses_post( $cart->get_total() ); ?></span>
             </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Fragmento do preço de destaque do layout split (mantém o total sincronizado
+     * com cupons e order bump).
+     *
+     * @return string
+     */
+    private function render_split_headline_fragment() {
+        $cart = WC()->cart;
+        return '<p class="gvn-split__plan-price" id="gvn-split-headline-total">' . ( $cart ? $cart->get_total() : '' ) . '</p>';
+    }
+
+    /**
+     * Fragmento da lista de cupons aplicados (chips com botão de remoção).
+     *
+     * @return string
+     */
+    private function render_applied_coupons_fragment() {
+        $cart = WC()->cart;
+
+        ob_start();
+        ?>
+        <div id="gvn-coupon-applied-list">
+            <?php if ( $cart ) : ?>
+                <?php foreach ( $cart->get_applied_coupons() as $coupon_code ) : ?>
+                    <div class="gvn-coupon__applied">
+                        <span><?php esc_html_e( 'Cupom:', 'gvn-checkout' ); ?> <strong><?php echo esc_html( $coupon_code ); ?></strong></span>
+                        <button type="button" class="gvn-coupon__remove" data-coupon="<?php echo esc_attr( $coupon_code ); ?>"><?php esc_html_e( 'Remover', 'gvn-checkout' ); ?></button>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
         <?php
         return ob_get_clean();

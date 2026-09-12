@@ -209,6 +209,7 @@
                         }
                         if (response.data && response.data.total) {
                             $('#gvn-total').html(response.data.total);
+                            $('#gvn-split-headline-total').html(response.data.total);
                         }
                     } else {
                         $checkbox.prop('checked', action !== 'add');
@@ -525,7 +526,10 @@
                     return val;
                 },
                 rg: function (val) {
-                    val = val.replace(/\D/g, '').substring(0, 9);
+                    // RG pode terminar em X (dígito verificador). Preserva o X final.
+                    var hasX = /x/i.test(val);
+                    val = val.replace(/\D/g, '').substring(0, hasX ? 8 : 9);
+                    if (hasX && val.length === 8) return val.replace(/(\d{2})(\d{3})(\d{3})/, '$1.$2.$3') + '-X';
                     if (val.length > 8) return val.replace(/(\d{2})(\d{3})(\d{3})(\d{1})/, '$1.$2.$3-$4');
                     if (val.length > 5) return val.replace(/(\d{2})(\d{3})(\d{1,3})/, '$1.$2.$3');
                     if (val.length > 2) return val.replace(/(\d{2})(\d{1,3})/, '$1.$2');

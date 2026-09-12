@@ -6,6 +6,7 @@ namespace GVN\Checkout\Lifecycle;
 
 use GVN\Checkout\Settings\SettingsRepository;
 use GVN\Checkout\Settings\SettingsSchema;
+use GVN\Checkout\Support\Features;
 
 /**
  * Gerenciador de desinstalação segura do plugin GVN Checkout.
@@ -28,6 +29,13 @@ final class Uninstaller
             'gvn_checkout_version',
             'gvn_checkout_migrated_from_legacy',
             'gvn_checkout_migration_in_progress',
+            'gvn_checkout_migration_lock',
+            'gvn_checkout_migration_state',
+            Features::FLAG_NEW_SETTINGS_SCHEMA,
+            Features::FLAG_CANONICAL_FIELD_MANAGER,
+            Features::FLAG_STRICT_ADDRESS_VALIDATION,
+            Features::FLAG_CUSTOM_THANK_YOU_OVERRIDE,
+            Features::FLAG_DIAGNOSTIC_MODE,
         ];
 
         foreach (array_keys(SettingsSchema::get_defaults()) as $setting_key) {

@@ -3,7 +3,7 @@
  * Template de confirmação de pedido (Thank You) do GVN Checkout.
  *
  * @package GVN_Checkout
- * @version 1.13.42
+ * @version 1.15.4
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -142,7 +142,7 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
                     $gateway_output = ob_get_clean();
                     if ( ! empty( trim( $gateway_output ) ) ) :
                 ?>
-                    <div class="gvn-thankyou__payment-instructions">
+                    <div class="gvn-thankyou__payment-instructions" id="gvn-payment-instructions">
                         <div class="gvn-card">
                             <div class="gvn-card__header"><?php echo esc_html( $thankyou_texts['thankyou_payment_title'] ); ?></div>
                             <div class="gvn-card__body">
@@ -150,6 +150,15 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
                             </div>
                         </div>
                     </div>
+                    <script>
+                    (function(){
+                        var el = document.getElementById('gvn-payment-instructions');
+                        if (!el) return;
+                        var scroll = function(){ el.scrollIntoView({behavior:'smooth', block:'start'}); };
+                        if (document.readyState === 'complete') { scroll(); }
+                        else { window.addEventListener('load', scroll); }
+                    })();
+                    </script>
                 <?php
                     endif;
                 endif;

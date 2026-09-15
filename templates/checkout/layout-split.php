@@ -122,7 +122,7 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                     ?>
                     <div class="gvn-fields-dynamic">
                         <?php if ( count( $gvn_steps ) > 1 ) : ?>
-                            <div class="gvn-checkout-steps" data-gvn-steps="<?php echo esc_attr( wp_json_encode( $gvn_steps ) ); ?>" data-back="<?php esc_attr_e( 'Voltar', 'gvn-checkout' ); ?>" data-next="<?php esc_attr_e( 'Avançar', 'gvn-checkout' ); ?>" data-finish="<?php esc_attr_e( 'Concluir dados', 'gvn-checkout' ); ?>" data-step-label="<?php esc_attr_e( 'Etapa', 'gvn-checkout' ); ?>" data-of="<?php esc_attr_e( 'de', 'gvn-checkout' ); ?>"></div>
+                            <div class="gvn-checkout-steps" data-gvn-steps="<?php echo esc_attr( wp_json_encode( $gvn_steps ) ); ?>" data-back="<?php esc_attr_e( 'Voltar', 'gvn-checkout' ); ?>" data-next="<?php esc_attr_e( 'Avançar', 'gvn-checkout' ); ?>" data-finish="<?php esc_attr_e( 'Ir para pagamento', 'gvn-checkout' ); ?>" data-step-label="<?php esc_attr_e( 'Etapa', 'gvn-checkout' ); ?>" data-of="<?php esc_attr_e( 'de', 'gvn-checkout' ); ?>"></div>
                         <?php endif; ?>
                         <?php
                         // Contador por chave: ocorrências duplicadas da mesma key ganham
@@ -353,7 +353,7 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
             </aside><!-- .gvn-split__summary -->
 
             <!-- Coluna principal (continuação): pagamento -->
-            <div class="gvn-split__pay">
+            <div class="gvn-split__pay" data-gvn-payment-panel>
                 <div class="gvn-split__panel gvn-split__panel--pay">
                     <div class="gvn-split__section-label"><?php esc_html_e( 'Forma de pagamento', 'gvn-checkout' ); ?></div>
 

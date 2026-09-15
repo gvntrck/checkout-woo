@@ -26,6 +26,8 @@
                 var labels = { back: $nav.data('back'), next: $nav.data('next'), finish: $nav.data('finish'), step: $nav.data('step-label'), of: $nav.data('of') };
                 if (steps.length < 2 || !$fields.length) return;
                 var active = 0;
+                var $payment = $('[data-gvn-payment-panel]');
+                $payment.addClass('gvn-payment-pending');
                 function visibleSteps() {
                     return $.grep(steps, function (step) {
                         return $fields.filter('[data-gvn-step="' + step.id + '"]').filter(function () { return !$(this).hasClass('gvn-field--conditional-hidden'); }).length;
@@ -43,6 +45,9 @@
                     $nav.find('.gvn-checkout-steps__count').text(labels.step + ' ' + (active + 1) + ' ' + labels.of + ' ' + available.length);
                     $controls.find('.gvn-checkout-steps__back').prop('disabled', active === 0);
                     $controls.find('.gvn-checkout-steps__next').text(active === available.length - 1 ? labels.finish : labels.next);
+                    if (active < available.length - 1) {
+                        $payment.addClass('gvn-payment-pending');
+                    }
                     if (focus) $fields.filter('[data-gvn-step="' + step.id + '"]').find('input,select,textarea').filter(':visible').first().focus();
                 }
                 function revealInvalidField(field) {
@@ -61,6 +66,14 @@
                 $controls.on('click', '.gvn-checkout-steps__next', function () {
                     var invalid = $fields.filter(':not(.gvn-step-hidden)').find('input,select,textarea').filter(function () { return !this.disabled && !this.checkValidity(); }).first();
                     if (invalid.length) { invalid[0].reportValidity(); invalid.focus(); return; }
+                    if (active === visibleSteps().length - 1) {
+                        $payment.removeClass('gvn-payment-pending');
+                        if ($payment.length) {
+                            $payment[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            $payment.find('input[name="payment_method"]:checked').focus();
+                        }
+                        return;
+                    }
                     show(active + 1, true);
                 });
                 $nav.closest('form')[0].addEventListener('submit', function (event) {

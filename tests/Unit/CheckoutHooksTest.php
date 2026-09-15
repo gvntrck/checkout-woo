@@ -112,6 +112,25 @@ class CheckoutHooksTest extends TestCase {
         $this->assertStringContainsString('Nome do comprador', $html);
     }
 
+    public function test_payment_panel_is_marked_for_multistep_navigation(): void {
+        global $wp_mock_options;
+        $wp_mock_options['gvn_checkout_field_steps'] = array(
+            array(
+                'id'    => 'dados-pessoais',
+                'title' => 'Dados pessoais',
+            ),
+            array(
+                'id'    => 'dados-atletas',
+                'title' => 'Dados atletas',
+            ),
+        );
+
+        $html = $this->renderCheckoutTemplate();
+
+        $this->assertStringContainsString('data-gvn-payment-panel', $html);
+        $this->assertStringContainsString('data-finish="Ir para pagamento"', $html);
+    }
+
     public function test_terms_and_conditions_checkbox_rendered_when_configured() {
         global $wp_mock_options;
         $wp_mock_options['woocommerce_terms_page_id'] = 42;

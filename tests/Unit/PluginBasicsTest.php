@@ -32,6 +32,14 @@ class PluginBasicsTest extends TestCase {
         $this->assertStringContainsString("\$nav.closest('.gvn-fields-dynamic').after(\$controls)", $script);
     }
 
+    public function test_multistep_reveals_payment_only_after_last_step() {
+        $script = file_get_contents(GVN_CHECKOUT_PLUGIN_DIR . 'assets/js/gvn-checkout.js');
+
+        $this->assertStringContainsString("[data-gvn-payment-panel]", $script);
+        $this->assertStringContainsString("\$payment.addClass('gvn-payment-pending')", $script);
+        $this->assertStringContainsString("\$payment.removeClass('gvn-payment-pending')", $script);
+    }
+
     public function test_fixture_options_are_valid_json() {
         $fixtures_dir = GVN_CHECKOUT_PLUGIN_DIR . 'tests/fixtures/options/';
         $files = glob($fixtures_dir . '*.json');

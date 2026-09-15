@@ -325,6 +325,10 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
     display: none !important;
 }
 
+.gvn-payment-pending {
+    display: none !important;
+}
+
 @media (max-width: 480px) {
     .gvn-checkout-steps {
         align-items: flex-start;

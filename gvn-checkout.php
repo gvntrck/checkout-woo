@@ -49,7 +49,7 @@ $myUpdateChecker->setBranch('main');
 
 
 // Constantes essenciais do plugin
-define('GVN_CHECKOUT_VERSION', '1.15.3');
+define('GVN_CHECKOUT_VERSION', '1.15.5');
 define('GVN_CHECKOUT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GVN_CHECKOUT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('GVN_CHECKOUT_PLUGIN_BASENAME', plugin_basename(__FILE__));

@@ -41,8 +41,8 @@
                     });
                     $nav.find('.gvn-checkout-steps__title').text(step.title);
                     $nav.find('.gvn-checkout-steps__count').text(labels.step + ' ' + (active + 1) + ' ' + labels.of + ' ' + available.length);
-                    $nav.find('.gvn-checkout-steps__back').prop('disabled', active === 0);
-                    $nav.find('.gvn-checkout-steps__next').text(active === available.length - 1 ? labels.finish : labels.next);
+                    $controls.find('.gvn-checkout-steps__back').prop('disabled', active === 0);
+                    $controls.find('.gvn-checkout-steps__next').text(active === available.length - 1 ? labels.finish : labels.next);
                     if (focus) $fields.filter('[data-gvn-step="' + step.id + '"]').find('input,select,textarea').filter(':visible').first().focus();
                 }
                 function revealInvalidField(field) {
@@ -54,9 +54,11 @@
                     field.focus();
                     field.reportValidity();
                 }
-                $nav.html('<div><strong class="gvn-checkout-steps__title"></strong><span class="gvn-checkout-steps__count"></span></div><div><button type="button" class="gvn-checkout-steps__back">' + labels.back + '</button><button type="button" class="gvn-checkout-steps__next">' + labels.next + '</button></div>');
-                $nav.on('click', '.gvn-checkout-steps__back', function () { show(active - 1, true); });
-                $nav.on('click', '.gvn-checkout-steps__next', function () {
+                var $controls = $('<div class="gvn-checkout-step-actions"><button type="button" class="gvn-checkout-steps__back">' + labels.back + '</button><button type="button" class="gvn-checkout-steps__next">' + labels.next + '</button></div>');
+                $nav.html('<div><strong class="gvn-checkout-steps__title"></strong><span class="gvn-checkout-steps__count"></span></div>');
+                $nav.closest('.gvn-fields-dynamic').after($controls);
+                $controls.on('click', '.gvn-checkout-steps__back', function () { show(active - 1, true); });
+                $controls.on('click', '.gvn-checkout-steps__next', function () {
                     var invalid = $fields.filter(':not(.gvn-step-hidden)').find('input,select,textarea').filter(function () { return !this.disabled && !this.checkValidity(); }).first();
                     if (invalid.length) { invalid[0].reportValidity(); invalid.focus(); return; }
                     show(active + 1, true);

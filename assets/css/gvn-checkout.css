@@ -308,10 +308,17 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
     color: #64748b;
 }
 
-.gvn-checkout-steps button {
+.gvn-checkout-step-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    width: 100%;
+    margin-top: 24px;
+}
+
+.gvn-checkout-step-actions button {
     min-height: 44px;
     padding: 0 16px;
-    margin-left: 8px;
 }
 
 .gvn-step-hidden {
@@ -324,8 +331,8 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
         flex-direction: column;
     }
 
-    .gvn-checkout-steps button {
-        margin-left: 0;
+    .gvn-checkout-step-actions button {
+        flex: 1;
     }
 }
 

@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.15.5
+Stable tag: 1.15.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,9 @@ A finalização do pedido usa a action e o nonce nativos do WooCommerce; o plugi
 * Não foi encontrada opção de versão de schema, estado de migração, marcador de origem do pedido, user meta ou cookie próprio no baseline.
 
 == Changelog ==
+
+= 1.15.6 =
+* Corrige o cache-buster dos assets do checkout para carregar a versão atualizada.
 
 = 1.15.0 =
 * Permite chaves (key) duplicadas com exibição alternada por condição (ex.: "Nome do aluno" / "Nome do comprador" no mesmo destino), com ids únicos no front e envio somente do campo visível.

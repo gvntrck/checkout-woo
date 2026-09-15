@@ -18,6 +18,14 @@ class PluginBasicsTest extends TestCase {
         $this->assertStringNotContainsString("toggleClass('gvn-step-hidden', function", $script);
     }
 
+    public function test_multistep_validates_hidden_fields_before_woocommerce_submit() {
+        $script = file_get_contents(GVN_CHECKOUT_PLUGIN_DIR . 'assets/js/gvn-checkout.js');
+
+        $this->assertStringContainsString("addEventListener('submit'", $script);
+        $this->assertStringContainsString('event.stopImmediatePropagation()', $script);
+        $this->assertStringContainsString('revealInvalidField(invalid[0])', $script);
+    }
+
     public function test_fixture_options_are_valid_json() {
         $fixtures_dir = GVN_CHECKOUT_PLUGIN_DIR . 'tests/fixtures/options/';
         $files = glob($fixtures_dir . '*.json');

@@ -21,7 +21,6 @@
         },
 
         bindSteps: function () {
-            var self = this;
             $('.gvn-checkout-steps').each(function () {
                 var $nav = $(this), steps = $nav.data('gvn-steps') || [], $fields = $nav.siblings('.gvn-field[data-gvn-step]');
                 var labels = { back: $nav.data('back'), next: $nav.data('next'), finish: $nav.data('finish'), step: $nav.data('step-label'), of: $nav.data('of') };
@@ -46,6 +45,15 @@
                     $nav.find('.gvn-checkout-steps__next').text(active === available.length - 1 ? labels.finish : labels.next);
                     if (focus) $fields.filter('[data-gvn-step="' + step.id + '"]').find('input,select,textarea').filter(':visible').first().focus();
                 }
+                function revealInvalidField(field) {
+                    var $field = $(field).closest('.gvn-field[data-gvn-step]');
+                    var available = visibleSteps();
+                    var index = $.map(available, function (step, i) { return step.id === $field.data('gvn-step') ? i : null; })[0];
+                    if (index === undefined) return;
+                    show(index, false);
+                    field.focus();
+                    field.reportValidity();
+                }
                 $nav.html('<div><strong class="gvn-checkout-steps__title"></strong><span class="gvn-checkout-steps__count"></span></div><div><button type="button" class="gvn-checkout-steps__back">' + labels.back + '</button><button type="button" class="gvn-checkout-steps__next">' + labels.next + '</button></div>');
                 $nav.on('click', '.gvn-checkout-steps__back', function () { show(active - 1, true); });
                 $nav.on('click', '.gvn-checkout-steps__next', function () {
@@ -53,11 +61,14 @@
                     if (invalid.length) { invalid[0].reportValidity(); invalid.focus(); return; }
                     show(active + 1, true);
                 });
-                $nav.closest('form')[0].addEventListener('invalid', function (event) {
-                    var $field = $(event.target).closest('.gvn-field[data-gvn-step]');
-                    if (!$field.length) return;
-                    var available = visibleSteps(), index = $.map(available, function (step, i) { return step.id === $field.data('gvn-step') ? i : null; })[0];
-                    if (index !== undefined) show(index, false);
+                $nav.closest('form')[0].addEventListener('submit', function (event) {
+                    var invalid = $fields.find('input,select,textarea').filter(function () {
+                        return !this.disabled && !this.checkValidity();
+                    }).first();
+                    if (!invalid.length) return;
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    revealInvalidField(invalid[0]);
                 }, true);
                 $(document.body).on('updated_checkout', function () { show(active, false); });
                 show(0, false);

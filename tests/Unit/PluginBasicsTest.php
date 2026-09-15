@@ -11,6 +11,13 @@ class PluginBasicsTest extends TestCase {
         $this->assertNotEmpty(GVN_CHECKOUT_VERSION);
     }
 
+    public function test_multistep_visibility_uses_boolean_toggle_class_state() {
+        $script = file_get_contents(GVN_CHECKOUT_PLUGIN_DIR . 'assets/js/gvn-checkout.js');
+
+        $this->assertStringContainsString("toggleClass('gvn-step-hidden', $(this).data('gvn-step') !== step.id)", $script);
+        $this->assertStringNotContainsString("toggleClass('gvn-step-hidden', function", $script);
+    }
+
     public function test_fixture_options_are_valid_json() {
         $fixtures_dir = GVN_CHECKOUT_PLUGIN_DIR . 'tests/fixtures/options/';
         $files = glob($fixtures_dir . '*.json');

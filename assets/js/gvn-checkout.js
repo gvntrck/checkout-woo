@@ -37,7 +37,9 @@
                     if (!available.length) return;
                     active = Math.max(0, Math.min(index, available.length - 1));
                     var step = available[active];
-                    $fields.toggleClass('gvn-step-hidden', function () { return $(this).data('gvn-step') !== step.id; });
+                    $fields.each(function () {
+                        $(this).toggleClass('gvn-step-hidden', $(this).data('gvn-step') !== step.id);
+                    });
                     $nav.find('.gvn-checkout-steps__title').text(step.title);
                     $nav.find('.gvn-checkout-steps__count').text(labels.step + ' ' + (active + 1) + ' ' + labels.of + ' ' + available.length);
                     $nav.find('.gvn-checkout-steps__back').prop('disabled', active === 0);

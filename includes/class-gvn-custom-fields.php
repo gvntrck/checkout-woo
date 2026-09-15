@@ -23,6 +23,8 @@ class GVN_Custom_Fields {
     private static $instance = null;
 
     const OPTION_KEY = 'gvn_checkout_fields';
+    const STEPS_OPTION_KEY = 'gvn_checkout_field_steps';
+    const DEFAULT_STEP_ID = 'dados-pessoais';
 
     public static function get_instance() {
         if ( null === self::$instance ) {
@@ -357,15 +359,21 @@ class GVN_Custom_Fields {
             'options'        => '',
             'default_option' => '',
             'conditions'     => array( 'logic' => 'and', 'rules' => array() ),
+            'step_id'        => self::DEFAULT_STEP_ID,
         );
 
         $normalized = array();
+        $step_ids   = array_column( self::get_steps(), 'id' );
         foreach ( $fields as $field ) {
             if ( ! is_array( $field ) || empty( $field['key'] ) ) {
                 continue;
             }
             $field = array_merge( $defaults, $field );
             $field['conditions'] = self::sanitize_conditions( $field['conditions'] );
+            $field['step_id'] = self::sanitize_step_id( $field['step_id'] );
+            if ( ! in_array( $field['step_id'], $step_ids, true ) ) {
+                $field['step_id'] = $step_ids[0];
+            }
             $normalized[] = $field;
         }
 
@@ -397,6 +405,40 @@ class GVN_Custom_Fields {
         return $normalized;
     }
 
+    /** Retorna etapas válidas, com fallback para instalações antigas. */
+    public static function get_steps() {
+        $steps = get_option( self::STEPS_OPTION_KEY, array() );
+        return self::sanitize_steps( $steps );
+    }
+
+    public static function sanitize_step_id( $id ) {
+        $id = sanitize_key( (string) $id );
+        return '' === $id ? self::DEFAULT_STEP_ID : substr( $id, 0, 64 );
+    }
+
+    public static function sanitize_steps( $steps ) {
+        $sanitized = array();
+        if ( is_array( $steps ) ) {
+            foreach ( $steps as $step ) {
+                if ( ! is_array( $step ) ) {
+                    continue;
+                }
+                $id = self::sanitize_step_id( isset( $step['id'] ) ? $step['id'] : '' );
+                if ( isset( $sanitized[ $id ] ) ) {
+                    continue;
+                }
+                $sanitized[ $id ] = array(
+                    'id'    => $id,
+                    'title' => sanitize_text_field( isset( $step['title'] ) ? $step['title'] : '' ),
+                );
+            }
+        }
+        if ( empty( $sanitized ) ) {
+            $sanitized[ self::DEFAULT_STEP_ID ] = array( 'id' => self::DEFAULT_STEP_ID, 'title' => __( 'Dados pessoais', 'gvn-checkout' ) );
+        }
+        return array_values( $sanitized );
+    }
+
     /**
      * Retorna apenas os campos habilitados e ordenados.
      */
@@ -418,9 +460,11 @@ class GVN_Custom_Fields {
         }
 
         $raw_fields = isset( $_POST['fields'] ) ? wp_unslash( $_POST['fields'] ) : '';
+        $raw_steps  = isset( $_POST['steps'] ) ? wp_unslash( $_POST['steps'] ) : '';
         $fields     = json_decode( $raw_fields, true );
+        $steps      = '' === $raw_steps ? array() : json_decode( $raw_steps, true );
 
-        if ( ! is_array( $fields ) ) {
+        if ( ! is_array( $fields ) || ! is_array( $steps ) ) {
             wp_send_json_error( array( 'message' => __( 'Dados inválidos.', 'gvn-checkout' ) ) );
             return;
         }
@@ -429,7 +473,9 @@ class GVN_Custom_Fields {
         $valid_masks = array_keys( self::get_available_masks() );
         $valid_widths = array( '25', '33', '50', '75', '100' );
 
-        $sanitized    = array();
+        $sanitized_steps = self::sanitize_steps( $steps );
+        $step_ids        = array_column( $sanitized_steps, 'id' );
+        $sanitized       = array();
 
         foreach ( $fields as $index => $field ) {
             $key = FieldSecurityPolicy::sanitize_field_key( isset( $field['key'] ) ? $field['key'] : '' );
@@ -457,6 +503,7 @@ class GVN_Custom_Fields {
                 $default_option = '';
             }
 
+            $step_id = self::sanitize_step_id( isset( $field['step_id'] ) ? $field['step_id'] : '' );
             $sanitized[] = array(
                 'key'            => $key,
                 'label'          => sanitize_text_field( isset( $field['label'] ) ? $field['label'] : '' ),
@@ -472,10 +519,12 @@ class GVN_Custom_Fields {
                 'options'        => sanitize_textarea_field( $options_raw ),
                 'default_option' => $default_option,
                 'conditions'     => self::sanitize_conditions( isset( $field['conditions'] ) ? $field['conditions'] : array() ),
+                'step_id'        => in_array( $step_id, $step_ids, true ) ? $step_id : $step_ids[0],
             );
         }
 
         update_option( self::OPTION_KEY, $sanitized );
+        update_option( self::STEPS_OPTION_KEY, $sanitized_steps );
 
         if ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ) {
             \GVN\Checkout\Settings\SettingsRepository::flush_cache();

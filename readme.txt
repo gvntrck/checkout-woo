@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 7.0
 WC tested up to: 9.0
-Stable tag: 1.15.0
+Stable tag: 1.15.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,6 +17,8 @@ Checkout personalizado e otimizado para WooCommerce com layout moderno, order bu
 O GVN Checkout for WooCommerce substitui a interface tradicional de checkout por um fluxo em uma única tela, responsivo e com foco em conversão.
 
 **Recursos:**
+
+* Campos podem ser organizados em etapas dentro de “Seus Dados”, com validação antes de avançar.
 
 * Layout responsivo e moderno com design premium
 * Header configurável (textos e cores)

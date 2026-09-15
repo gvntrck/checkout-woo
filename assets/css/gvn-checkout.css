@@ -292,6 +292,43 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
     width: 100%;
 }
 
+.gvn-checkout-steps {
+    flex: 0 0 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.gvn-checkout-steps__count {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.gvn-checkout-steps button {
+    min-height: 44px;
+    padding: 0 16px;
+    margin-left: 8px;
+}
+
+.gvn-step-hidden {
+    display: none !important;
+}
+
+@media (max-width: 480px) {
+    .gvn-checkout-steps {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .gvn-checkout-steps button {
+        margin-left: 0;
+    }
+}
+
 .gvn-fields-divider {
     flex: 0 0 100%;
     display: flex;

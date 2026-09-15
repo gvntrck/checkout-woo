@@ -19,6 +19,7 @@
             this.$list = $('#gvn-fields-list');
             this.$addBtn = $('#gvn-add-field');
             this.$status = $('#gvn-fields-status');
+            this.$steps = $('#gvn-field-steps');
 
             this.bindEvents();
             this.bindGatewayRequirements();
@@ -32,6 +33,17 @@
 
             this.$addBtn.on('click', function () {
                 self.addField();
+            });
+
+            $('#gvn-add-step').on('click', function () {
+                var id = 'etapa-' + Date.now();
+                self.$steps.find('.gvn-field-steps__list').append('<div class="gvn-field-step" data-step-id="' + id + '"><span class="gvn-field-drag">☰</span><input type="text" class="gvn-step-title" value="Nova etapa" /><input type="hidden" class="gvn-step-id" value="' + id + '" /><button type="button" class="button-link gvn-step-remove">Excluir</button></div>');
+                self.refreshStepSelects();
+            });
+            this.$steps.on('click', '.gvn-step-remove', function () {
+                var $step = $(this).closest('.gvn-field-step');
+                if (self.$steps.find('.gvn-field-step').length === 1 || self.$list.find('.gvn-field-step-select').filter(function () { return $(this).val() === $step.data('step-id'); }).length) return;
+                $step.remove(); self.refreshStepSelects();
             });
 
             $('#gvn-import-woo-fields').on('click', function() {
@@ -145,6 +157,19 @@
                     self.updatePositions();
                 }
             });
+            this.$steps.find('.gvn-field-steps__list').sortable({ handle: '.gvn-field-drag', axis: 'y' });
+        },
+
+        refreshStepSelects: function () {
+            var steps = this.getSteps(), html = '';
+            $.each(steps, function (_, step) { html += '<option value="' + step.id + '">' + $('<div>').text(step.title).html() + '</option>'; });
+            this.$list.find('.gvn-field-step-select').each(function () { var value = $(this).val(); $(this).html(html).val(value); });
+        },
+
+        getSteps: function () {
+            var steps = [];
+            this.$steps.find('.gvn-field-step').each(function () { steps.push({ id: $(this).find('.gvn-step-id').val(), title: $(this).find('.gvn-step-title').val() }); });
+            return steps;
         },
 
         updatePositions: function () {
@@ -217,6 +242,8 @@
             var types = this.getTypeOptions(field.type);
             var widths = this.getWidthOptions(field.width);
             var masks = this.getMaskOptions(field.mask);
+            var steps = this.getSteps(), stepOptions = '';
+            $.each(steps, function (_, step) { stepOptions += '<option value="' + step.id + '"' + (step.id === field.step_id ? ' selected' : '') + '>' + $('<div>').text(step.title).html() + '</option>'; });
             var pos = field.position || 1;
             var isDefault = field.is_default ? 'true' : 'false';
             var isWooDefault = field.is_woo_default ? 'true' : 'false';
@@ -274,6 +301,7 @@
                 '        <label>Placeholder</label>' +
                 '        <input type="text" class="gvn-field-placeholder-input" value="' + this.escAttr(field.placeholder) + '" />' +
                 '      </div>' +
+                '      <div class="gvn-field-col"><label>Etapa</label><select class="gvn-field-step-select">' + stepOptions + '</select></div>' +
                 '      <div class="gvn-field-col gvn-field-col--options" style="' + (field.type !== 'select' ? 'display:none;' : '') + 'grid-column: 1 / -1;">' +
                 '        <label>Opções (uma por linha, formato: <code>valor|Rótulo</code> ou apenas <code>Rótulo</code>)</label>' +
                 '        <textarea class="gvn-field-options-input" rows="4" placeholder="opcao1|Opção 1&#10;opcao2|Opção 2">' + this.escHtml(field.options || '') + '</textarea>' +
@@ -344,6 +372,7 @@
                     options: $row.find('.gvn-field-options-input').val() || '',
                     default_option: $row.find('.gvn-field-default-option-select').val() || '',
                     conditions: self.collectConditions($row)
+                    ,step_id: $row.find('.gvn-field-step-select').val()
                 });
             });
 
@@ -354,6 +383,7 @@
                     action: 'gvn_save_fields',
                     nonce: gvn_admin_params.nonce,
                     fields: JSON.stringify(fields)
+                    ,steps: JSON.stringify(this.getSteps())
                 },
                 success: function (response) {
                     if (response.success) {

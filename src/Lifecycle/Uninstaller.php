@@ -24,6 +24,7 @@ final class Uninstaller
         $keys = [
             SettingsRepository::OPTION_SETTINGS,
             SettingsRepository::OPTION_FIELDS,
+            'gvn_checkout_field_steps',
             SettingsRepository::OPTION_SCHEMA_VERSION,
             'gvn_checkout_default_fields_config',
             'gvn_checkout_version',

@@ -102,6 +102,7 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                     <?php do_action( 'woocommerce_before_checkout_billing_form', $checkout ); ?>
 
                     <?php $gvn_fields = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_enabled_fields() : array(); ?>
+                    <?php $gvn_steps = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_steps() : array(); ?>
                     <?php
                     $gvn_field_groups = array(
                         array(
@@ -120,6 +121,9 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                     }
                     ?>
                     <div class="gvn-fields-dynamic">
+                        <?php if ( count( $gvn_steps ) > 1 ) : ?>
+                            <div class="gvn-checkout-steps" data-gvn-steps="<?php echo esc_attr( wp_json_encode( $gvn_steps ) ); ?>" data-back="<?php esc_attr_e( 'Voltar', 'gvn-checkout' ); ?>" data-next="<?php esc_attr_e( 'Avançar', 'gvn-checkout' ); ?>" data-finish="<?php esc_attr_e( 'Concluir dados', 'gvn-checkout' ); ?>" data-step-label="<?php esc_attr_e( 'Etapa', 'gvn-checkout' ); ?>" data-of="<?php esc_attr_e( 'de', 'gvn-checkout' ); ?>"></div>
+                        <?php endif; ?>
                         <?php
                         // Contador por chave: ocorrências duplicadas da mesma key ganham
                         // id único (name permanece igual). A 1ª mantém o id original.
@@ -151,7 +155,7 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                                     $has_conditions = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::has_conditions( $gvn_field ) : false;
                                     $f_orig_required = $f_required;
                                 ?>
-                                <div class="gvn-field <?php echo esc_attr( $width_class ); ?><?php echo $has_conditions ? ' gvn-field--conditional' : ''; ?>" data-field-key="<?php echo $f_key; ?>" data-mask="<?php echo esc_attr( $f_mask ); ?>"<?php if ( $has_conditions ) : ?> data-conditions="<?php echo esc_attr( wp_json_encode( $f_conditions ) ); ?>" data-required="<?php echo $f_orig_required ? '1' : '0'; ?>"<?php endif; ?>>
+                                <div class="gvn-field <?php echo esc_attr( $width_class ); ?><?php echo $has_conditions ? ' gvn-field--conditional' : ''; ?>" data-gvn-step="<?php echo esc_attr( isset( $gvn_field['step_id'] ) ? $gvn_field['step_id'] : 'dados-pessoais' ); ?>" data-field-key="<?php echo $f_key; ?>" data-mask="<?php echo esc_attr( $f_mask ); ?>"<?php if ( $has_conditions ) : ?> data-conditions="<?php echo esc_attr( wp_json_encode( $f_conditions ) ); ?>" data-required="<?php echo $f_orig_required ? '1' : '0'; ?>"<?php endif; ?>>
                                     <label class="gvn-field__label" for="<?php echo $f_id_attr; ?>">
                                         <?php echo $f_label; ?>
                                         <?php if ( $f_required ) : ?><span class="gvn-field__required">*</span><?php endif; ?>

@@ -762,6 +762,28 @@
 
 /* Sortable placeholder */
 
+.gvn-field-steps {
+    margin: 16px 0;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #dcdcde;
+}
+
+.gvn-field-steps__list {
+    margin: 10px 0;
+}
+
+.gvn-field-step {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 6px 0;
+}
+
+.gvn-field-step .gvn-step-title {
+    min-width: 240px;
+}
+
 .gvn-field-placeholder {
     background: #e8f0fe;
     border: 2px dashed #2271b1;

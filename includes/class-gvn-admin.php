@@ -539,6 +539,7 @@ class GVN_Admin {
      */
     private function render_fields_manager() {
         $fields = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_fields() : array();
+        $steps  = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_steps() : array();
         ?>
         <div id="gvn-fields-manager">
             <h2><?php esc_html_e( 'Campos do Formulário', 'gvn-checkout' ); ?></h2>
@@ -550,6 +551,22 @@ class GVN_Admin {
                 <button type="button" class="button button-secondary" id="gvn-import-br-fields" title="<?php esc_attr_e( 'Adiciona campos brasileiros (CPF, CNPJ, RG, etc.) à lista', 'gvn-checkout' ); ?>"><?php esc_html_e( '🇧🇷 Importar Campos Brasileiros', 'gvn-checkout' ); ?></button>
                 <button type="button" class="button button-secondary" id="gvn-open-gateway-requirements" aria-haspopup="dialog" aria-controls="gvn-gateway-requirements-modal"><?php esc_html_e( '🔎 Requisitos dos gateways', 'gvn-checkout' ); ?></button>
                 <span id="gvn-fields-status" style="display:none;"></span>
+            </div>
+
+            <div id="gvn-field-steps" class="gvn-field-steps">
+                <strong><?php esc_html_e( 'Etapas', 'gvn-checkout' ); ?></strong>
+                <span class="description"><?php esc_html_e( 'Use uma etapa para manter o checkout atual.', 'gvn-checkout' ); ?></span>
+                <div class="gvn-field-steps__list">
+                    <?php foreach ( $steps as $step ) : ?>
+                        <div class="gvn-field-step" data-step-id="<?php echo esc_attr( $step['id'] ); ?>">
+                            <span class="gvn-field-drag">☰</span>
+                            <input type="text" class="gvn-step-title" value="<?php echo esc_attr( $step['title'] ); ?>" />
+                            <input type="hidden" class="gvn-step-id" value="<?php echo esc_attr( $step['id'] ); ?>" />
+                            <button type="button" class="button-link gvn-step-remove"><?php esc_html_e( 'Excluir', 'gvn-checkout' ); ?></button>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <button type="button" class="button button-secondary" id="gvn-add-step"><?php esc_html_e( '+ Adicionar etapa', 'gvn-checkout' ); ?></button>
             </div>
 
             <div id="gvn-gateway-requirements-modal" class="gvn-gateway-modal" role="dialog" aria-modal="true" aria-labelledby="gvn-gateway-requirements-title" aria-hidden="true" hidden>
@@ -615,6 +632,14 @@ class GVN_Admin {
                                     <select class="gvn-field-width-select">
                                         <?php foreach ( array( '25' => '25%', '33' => '33%', '50' => '50%', '75' => '75%', '100' => '100%' ) as $w_key => $w_label ) : ?>
                                             <option value="<?php echo esc_attr( $w_key ); ?>" <?php selected( $field['width'], $w_key ); ?>><?php echo esc_html( $w_label ); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="gvn-field-col">
+                                    <label><?php esc_html_e( 'Etapa', 'gvn-checkout' ); ?></label>
+                                    <select class="gvn-field-step-select">
+                                        <?php foreach ( $steps as $step ) : ?>
+                                            <option value="<?php echo esc_attr( $step['id'] ); ?>" <?php selected( isset( $field['step_id'] ) ? $field['step_id'] : '', $step['id'] ); ?>><?php echo esc_html( $step['title'] ); ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>

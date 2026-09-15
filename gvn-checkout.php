@@ -3,7 +3,7 @@
  * Plugin Name: GVN Checkout for WooCommerce
  * Plugin URI: https://github.com/gvntrck/checkout-woo
  * Description: Checkout personalizado e otimizado para WooCommerce com layout moderno, order bump e configurações avançadas.
- * Version: 1.15.4
+ * Version: 1.15.5
  * Author: GVN Track
  * Author URI: https://projetoalfa.org
  * License: GPL-2.0+

@@ -62,6 +62,23 @@ class AdminTest extends TestCase {
         $this->assertNotContains('gvn-hidden-field', $checkoutFields['billing']['billing_city']['class']);
     }
 
+    public function test_steps_fallback_and_field_step_normalization(): void {
+        global $wp_mock_options;
+        $wp_mock_options[GVN_Custom_Fields::OPTION_KEY] = [[
+            'key' => 'billing_first_name',
+            'label' => 'Nome',
+            'enabled' => true,
+            'step_id' => 'Etapa inválida!',
+        ]];
+
+        $steps = GVN_Custom_Fields::get_steps();
+        $fields = GVN_Custom_Fields::get_fields();
+
+        $this->assertSame('dados-pessoais', $steps[0]['id']);
+        $this->assertSame('dados-pessoais', $fields[0]['step_id']);
+        $this->assertSame('etapainvlida', GVN_Custom_Fields::sanitize_step_id('Etapa inválida!'));
+    }
+
     public function test_legacy_direct_conditions_are_normalized_before_woocommerce_registration(): void {
         global $wp_mock_options;
         $wp_mock_options[GVN_Custom_Fields::OPTION_KEY] = SettingsSchema::get_default_fields();

@@ -25,6 +25,7 @@ class UninstallerTest extends TestCase {
 
         $this->assertContains('gvn_checkout_settings', $keys);
         $this->assertContains('gvn_checkout_fields', $keys);
+        $this->assertContains('gvn_checkout_field_steps', $keys);
         $this->assertContains('gvn_checkout_header_text', $keys);
         $this->assertContains('gvn_checkout_order_bump_enabled', $keys);
         $this->assertContains('gvn_checkout_order_bump_price', $keys);

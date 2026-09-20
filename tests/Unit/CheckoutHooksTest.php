@@ -139,6 +139,26 @@ class CheckoutHooksTest extends TestCase {
         $this->assertArrayNotHasKey('#payment', $fragments);
     }
 
+    public function test_remove_coupon_returns_error_when_coupon_was_not_applied(): void {
+        global $mock_woocommerce_instance;
+
+        $mock_woocommerce_instance = new \Mock_WooCommerce();
+        $mock_woocommerce_instance->cart = new class extends \Mock_WC_Cart {
+            public function remove_coupon($coupon_code) {
+                return false;
+            }
+        };
+        $_POST['coupon_code'] = 'nao-aplicado';
+
+        ob_start();
+        \GVN_Checkout::get_instance()->ajax_remove_coupon();
+        $response = ob_get_clean();
+        unset($_POST['coupon_code']);
+
+        $this->assertJson($response);
+        $this->assertFalse(json_decode($response, true)['success']);
+    }
+
     public function test_terms_and_conditions_checkbox_rendered_when_configured() {
         global $wp_mock_options;
         $wp_mock_options['woocommerce_terms_page_id'] = 42;

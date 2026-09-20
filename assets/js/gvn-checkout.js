@@ -180,8 +180,10 @@
                     nonce: gvn_checkout_params.nonce,
                     coupon_code: couponCode
                 },
-                success: function () {
-                    $(document.body).trigger('update_checkout');
+                success: function (response) {
+                    if (response.success) {
+                        $(document.body).trigger('update_checkout');
+                    }
                 }
             });
         },

@@ -342,7 +342,10 @@ class GVN_Checkout {
             wp_send_json_error( array( 'message' => __( 'Informe o código do cupom.', 'gvn-checkout' ) ) );
         }
 
-        WC()->cart->remove_coupon( $coupon_code );
+        if ( ! WC()->cart->remove_coupon( $coupon_code ) ) {
+            return wp_send_json_error( array( 'message' => __( 'Cupom não encontrado no carrinho.', 'gvn-checkout' ) ) );
+        }
+
         WC()->cart->calculate_totals();
 
         wp_send_json_success( array(

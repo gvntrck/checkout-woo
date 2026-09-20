@@ -131,6 +131,14 @@ class CheckoutHooksTest extends TestCase {
         $this->assertStringContainsString('data-finish="Ir para pagamento"', $html);
     }
 
+    public function test_checkout_fragments_do_not_replace_payment_gateway_fields(): void {
+        $fragments = \GVN_Checkout::get_instance()->refresh_checkout_fragments([]);
+
+        $this->assertArrayHasKey('#gvn-order-items', $fragments);
+        $this->assertArrayHasKey('#gvn-order-totals', $fragments);
+        $this->assertArrayNotHasKey('#payment', $fragments);
+    }
+
     public function test_terms_and_conditions_checkbox_rendered_when_configured() {
         global $wp_mock_options;
         $wp_mock_options['woocommerce_terms_page_id'] = 42;

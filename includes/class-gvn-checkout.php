@@ -366,7 +366,6 @@ class GVN_Checkout {
 
         $fragments['#gvn-order-items']  = $this->render_order_items_fragment();
         $fragments['#gvn-order-totals'] = $this->render_order_totals_fragment();
-        $fragments['#payment']          = $this->render_payment_methods_fragment();
 
         // Exclusivos do layout split / cupom: só existem no DOM quando o layout
         // correspondente está ativo; replaceWith em seletor ausente é no-op.

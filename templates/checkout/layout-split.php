@@ -470,10 +470,16 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                         /**
                          * Terms and conditions hook.
                          *
-                         * @hooked wc_checkout_privacy_policy_text - 20
                          * @hooked wc_terms_and_conditions_page_content - 30
                          */
+                        $privacy_policy_hook_priority = has_action( 'woocommerce_checkout_terms_and_conditions', 'wc_checkout_privacy_policy_text' );
+                        if ( false !== $privacy_policy_hook_priority ) {
+                            remove_action( 'woocommerce_checkout_terms_and_conditions', 'wc_checkout_privacy_policy_text', $privacy_policy_hook_priority );
+                        }
                         do_action( 'woocommerce_checkout_terms_and_conditions' );
+                        if ( false !== $privacy_policy_hook_priority ) {
+                            add_action( 'woocommerce_checkout_terms_and_conditions', 'wc_checkout_privacy_policy_text', $privacy_policy_hook_priority );
+                        }
                         ?>
 
                         <?php if ( function_exists( 'wc_terms_and_conditions_checkbox_enabled' ) && wc_terms_and_conditions_checkbox_enabled() ) : ?>
@@ -484,14 +490,11 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                                 </label>
                                 <input type="hidden" name="terms-field" value="1" />
                             </p>
-                        <?php elseif ( ! has_action( 'woocommerce_checkout_terms_and_conditions' ) ) : ?>
-                            <?php if ( function_exists( 'wc_checkout_privacy_policy_text' ) && wc_checkout_privacy_policy_text() ) : ?>
-                            <?php wc_checkout_privacy_policy_text(); ?>
-                        <?php elseif ( function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) : ?>
+                        <?php endif; ?>
+                        <?php if ( function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) : ?>
                             <p class="gvn-privacy">
                                     <?php echo wp_kses_post( $privacy_policy_text ); ?>
                             </p>
-                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
 

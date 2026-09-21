@@ -1103,12 +1103,35 @@
         }
     };
 
+    var GVNPrivacyPolicyEditor = {
+        init: function () {
+            var editorId = 'gvn_checkout_privacy_policy_text';
+            var $textarea = $('#' + editorId);
+            if (!$textarea.length || typeof window.tinymce === 'undefined') return;
+
+            var bindEditor = function (editor) {
+                if (!editor || editor.id !== editorId || editor.gvnPrivacyPolicyBound) return;
+                editor.gvnPrivacyPolicyBound = true;
+                editor.on('change input undo redo', function () {
+                    editor.save();
+                    $textarea.trigger('change');
+                });
+            };
+
+            bindEditor(window.tinymce.get(editorId));
+            window.tinymce.on('AddEditor', function (event) {
+                bindEditor(event.editor);
+            });
+        }
+    };
+
     /* ===================================================
      *  Inicialização
      * =================================================== */
     $(document).ready(function () {
         GVNAdminFields.init();
         GVNTextPlaceholders.init();
+        GVNPrivacyPolicyEditor.init();
     });
 
 })(jQuery);

@@ -31,6 +31,10 @@ $bump_product      = $bump_enabled && $bump_product_id && function_exists( 'wc_g
 $available_gateways = ( function_exists( 'WC' ) && WC()->payment_gateways() ) ? WC()->payment_gateways()->get_available_payment_gateways() : array();
 $cart               = ( function_exists( 'WC' ) ) ? WC()->cart : null;
 
+if ( false === strpos( $privacy_policy_text, 'gvn-privacy__link' ) && function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) {
+    $privacy_policy_text = rtrim( $privacy_policy_text ) . ' <a href="' . esc_url( get_privacy_policy_url() ) . '" class="gvn-privacy__link" target="_blank">' . esc_html__( 'política de privacidade', 'gvn-checkout' ) . '</a>.';
+}
+
 if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
     $header_text       = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $header_text, $cart );
     $header_badge_text = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $header_badge_text, $cart );
@@ -516,7 +520,6 @@ if ( $bump_product && $cart ) {
                                 <?php elseif ( function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) : ?>
                                     <p class="gvn-privacy">
                                         <?php echo wp_kses_post( $privacy_policy_text ); ?>
-                                        <a href="<?php echo esc_url( get_privacy_policy_url() ); ?>" class="gvn-privacy__link" target="_blank"><?php esc_html_e( 'política de privacidade', 'gvn-checkout' ); ?></a>.
                                     </p>
                                 <?php endif; ?>
                             <?php endif; ?>

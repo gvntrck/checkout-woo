@@ -124,6 +124,10 @@ class GVN_Admin {
     public function render_wysiwyg_field( $value ) {
         $id      = isset( $value['id'] ) ? (string) $value['id'] : '';
         $content = get_option( $id, isset( $value['default'] ) ? $value['default'] : '' );
+
+        if ( 'gvn_checkout_privacy_policy_text' === $id && false === strpos( $content, 'gvn-privacy__link' ) && function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) {
+            $content = rtrim( $content ) . ' <a href="' . esc_url( get_privacy_policy_url() ) . '" class="gvn-privacy__link" target="_blank">' . esc_html__( 'política de privacidade', 'gvn-checkout' ) . '</a>.';
+        }
         ?>
         <tr valign="top">
             <th scope="row" class="titledesc"><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( isset( $value['title'] ) ? $value['title'] : '' ); ?></label></th>

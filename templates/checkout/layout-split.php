@@ -46,6 +46,10 @@ $available_gateways = ( function_exists( 'WC' ) && WC()->payment_gateways() ) ? 
 $cart               = ( function_exists( 'WC' ) ) ? WC()->cart : null;
 $shop_url           = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '';
 
+if ( false === strpos( $privacy_policy_text, 'gvn-privacy__link' ) && function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) {
+    $privacy_policy_text = rtrim( $privacy_policy_text ) . ' <a href="' . esc_url( get_privacy_policy_url() ) . '" class="gvn-privacy__link" target="_blank">' . esc_html__( 'política de privacidade', 'gvn-checkout' ) . '</a>.';
+}
+
 if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
     $header_text       = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $header_text, $cart );
     $header_badge_text = \GVN\Checkout\Checkout\TextPlaceholderResolver::resolve( (string) $header_badge_text, $cart );
@@ -486,7 +490,6 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                         <?php elseif ( function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) : ?>
                             <p class="gvn-privacy">
                                     <?php echo wp_kses_post( $privacy_policy_text ); ?>
-                                <a href="<?php echo esc_url( get_privacy_policy_url() ); ?>" class="gvn-privacy__link" target="_blank"><?php esc_html_e( 'política de privacidade', 'gvn-checkout' ); ?></a>.
                             </p>
                             <?php endif; ?>
                         <?php endif; ?>

@@ -4,6 +4,9 @@
 Plugin de checkout customizado (shortcode `[gvn-checkout]`), PHP 7.4+, WooCommerce 7+.
 Layout clássico canônico em `templates/checkout-template.php` — não mudar visual/comportamento dele sem motivo forte (há testes travando hooks e output).
 
+## Versão
+- Toda alteração funcional deve incrementar versão patch em `gvn-checkout.php`: cabeçalho `Version` e constante `GVN_CHECKOUT_VERSION` devem ficar iguais.
+
 ## Layouts de checkout (seletor)
 - Registro central: `src/Layouts/LayoutRegistry.php` (slugs `classic`, `split`).
 - Novo layout = copiar `templates/checkout/layout-split.php` para `templates/checkout/layout-{slug}.php` + registrar (nativo ou via filtro `gvn_checkout_layouts`) + CSS/JS em `assets/`. Guia completo em `docs/adding-checkout-layout.md`.

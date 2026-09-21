@@ -522,9 +522,9 @@ if ( $bump_product && $cart ) {
                                 </p>
                             <?php endif; ?>
                             <?php if ( '' !== trim( wp_strip_all_tags( $privacy_policy_text ) ) ) : ?>
-                                <p class="gvn-privacy">
-                                    <?php echo wp_kses_post( $privacy_policy_text ); ?>
-                                </p>
+					<div class="gvn-privacy">
+						<?php echo wp_kses_post( $privacy_policy_text ); ?>
+					</div>
                             <?php endif; ?>
                         </div>
 

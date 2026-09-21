@@ -945,8 +945,12 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
     flex-shrink: 0;
 }
 
-.gvn-privacy {
+.gvn-privacy,
+.gvn-privacy p {
     font-size: calc(11.52px * var(--gvn-font-scale, 1));
+}
+
+.gvn-privacy {
     color: #64748b;
     text-align: center;
     line-height: 1.5;

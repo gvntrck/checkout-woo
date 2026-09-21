@@ -27,6 +27,12 @@ class SettingsSchema {
             'primary_color'           => '#0066d4',
             'button_color'            => '#ff8a22',
             'button_text'             => 'Finalizar pedido',
+            'typography_preset'       => 'normal',
+            'font_size_body'          => '',
+            'font_size_label'         => '',
+            'font_size_section_title' => '',
+            'font_size_page_title'    => '',
+            'font_size_price'         => '',
             'coupon_enabled'          => 'yes',
             'order_bump_enabled'      => 'no',
             'order_bump_product_id'   => 0,
@@ -250,6 +256,21 @@ class SettingsSchema {
                     return \GVN\Checkout\Layouts\LayoutRegistry::resolve( $slug );
                 }
                 return $slug;
+
+            case 'typography_preset':
+                $preset = sanitize_key( (string) $value );
+                return in_array( $preset, array( 'compact', 'normal', 'large' ), true ) ? $preset : $fallback;
+
+            case 'font_size_body':
+            case 'font_size_label':
+            case 'font_size_section_title':
+            case 'font_size_page_title':
+            case 'font_size_price':
+                if ( '' === trim( (string) $value ) ) {
+                    return '';
+                }
+                $size = (float) str_replace( ',', '.', (string) $value );
+                return ( $size >= 10 && $size <= 48 ) ? (string) $size : $fallback;
 
             case 'order_bump_price':
                 if (empty($value)) {

@@ -75,7 +75,7 @@
 }
 
 .gvn-split__brand-name {
-    font-size: 0.875rem;
+    font-size: calc(14px * var(--gvn-font-scale, 1));
     font-weight: 600;
     letter-spacing: 0.02em;
 }
@@ -85,14 +85,14 @@
 }
 
 .gvn-split__plan-label {
-    font-size: 0.875rem;
+    font-size: calc(14px * var(--gvn-font-scale, 1));
     font-weight: 500;
     color: #cbd5e1;
     margin: 0 0 0.25rem;
 }
 
 .gvn-split__plan-price {
-    font-size: 2rem;
+    font-size: calc(32px * var(--gvn-font-scale, 1));
     font-weight: 800;
     letter-spacing: -0.02em;
     margin: 0;
@@ -144,7 +144,7 @@
     align-items: center;
     padding: 0.45rem 0.9rem;
     border-radius: 0.5rem;
-    font-size: 0.75rem;
+    font-size: calc(12px * var(--gvn-font-scale, 1));
     font-weight: 500;
     color: #e2e8f0;
     background: #07365c;
@@ -183,7 +183,7 @@
     gap: 0.5rem;
     margin-top: auto;
     padding-top: 2rem;
-    font-size: 0.75rem;
+    font-size: calc(12px * var(--gvn-font-scale, 1));
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -206,7 +206,7 @@
 }
 
 .gvn-split__heading {
-    font-size: 1.25rem;
+    font-size: calc(20px * var(--gvn-font-scale, 1));
     font-weight: 600;
     letter-spacing: -0.01em;
     color: #0f172a;
@@ -214,13 +214,13 @@
 }
 
 .gvn-split__subheading {
-    font-size: 0.875rem;
+    font-size: calc(14px * var(--gvn-font-scale, 1));
     color: #64748b;
     margin: 0 0 1.5rem;
 }
 
 .gvn-split__section-label {
-    font-size: 0.75rem;
+    font-size: calc(12px * var(--gvn-font-scale, 1));
     font-weight: 600;
     color: #475569;
     margin: 1.5rem 0 0.75rem;
@@ -267,7 +267,7 @@
 }
 
 .gvn-layout-split .gvn-gateway__name {
-    font-size: 0.875rem;
+    font-size: calc(14px * var(--gvn-font-scale, 1));
 }
 
 .gvn-layout-split .gvn-gateway-fields {
@@ -301,7 +301,7 @@
     background: #2ec57d;
     color: #032644;
     font-weight: 600;
-    font-size: 0.9375rem;
+    font-size: calc(15px * var(--gvn-font-scale, 1));
     padding: 0.9rem 1rem;
     border: 0;
     border-radius: 0.5rem;
@@ -353,6 +353,6 @@
     }
 
     .gvn-split__plan-price {
-        font-size: 2.25rem;
+        font-size: calc(36px * var(--gvn-font-scale, 1));
     }
 }

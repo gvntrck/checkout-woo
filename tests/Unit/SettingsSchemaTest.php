@@ -16,6 +16,7 @@ class SettingsSchemaTest extends TestCase {
         $this->assertArrayHasKey('primary_color', $defaults);
         $this->assertArrayHasKey('button_color', $defaults);
         $this->assertArrayHasKey('coupon_enabled', $defaults);
+        $this->assertArrayHasKey('typography_preset', $defaults);
         $this->assertArrayHasKey('order_bump_enabled', $defaults);
         $this->assertArrayHasKey('thankyou_success_title', $defaults);
         $this->assertArrayHasKey('thankyou_shop_button_text', $defaults);
@@ -69,6 +70,14 @@ class SettingsSchemaTest extends TestCase {
     public function test_sanitize_header_visibility_toggle() {
         $this->assertEquals('yes', SettingsSchema::sanitize_setting('header_enabled', true));
         $this->assertEquals('no', SettingsSchema::sanitize_setting('header_enabled', false));
+    }
+
+    public function test_sanitize_typography_settings() {
+        $this->assertEquals('large', SettingsSchema::sanitize_setting('typography_preset', 'large'));
+        $this->assertEquals('normal', SettingsSchema::sanitize_setting('typography_preset', 'invalid'));
+        $this->assertEquals('14.5', SettingsSchema::sanitize_setting('font_size_label', '14,5'));
+        $this->assertEquals('', SettingsSchema::sanitize_setting('font_size_label', '9'));
+        $this->assertEquals('', SettingsSchema::sanitize_setting('font_size_label', '49'));
     }
 
     public function test_sanitize_text_fields_strips_tags() {

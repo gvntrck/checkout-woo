@@ -193,18 +193,26 @@ class GVN_Checkout {
      * Adiciona o CSS inline com as cores configuradas (sanitizadas estritamente).
      */
     private function enqueue_inline_colors() {
-        $primary_color = class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
-            ? \GVN\Checkout\Settings\SettingsRepository::get( 'primary_color', '#0066d4' )
-            : get_option( 'gvn_checkout_primary_color', '#0066d4' );
-        $button_color  = class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
-            ? \GVN\Checkout\Settings\SettingsRepository::get( 'button_color', '#ff8a22' )
-            : get_option( 'gvn_checkout_button_color', '#ff8a22' );
-        $header_bg     = class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
-            ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_bg_color', '#3a4759' )
-            : get_option( 'gvn_checkout_header_bg_color', '#3a4759' );
-        $badge_bg      = class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
-            ? \GVN\Checkout\Settings\SettingsRepository::get( 'badge_bg_color', '#ff8a22' )
-            : get_option( 'gvn_checkout_badge_bg_color', '#ff8a22' );
+        $get_setting = static function ( $key, $default ) {
+            return class_exists( 'GVN\Checkout\Settings\SettingsRepository' )
+                ? \GVN\Checkout\Settings\SettingsRepository::get( $key, $default )
+                : get_option( 'gvn_checkout_' . $key, $default );
+        };
+        $primary_color = $get_setting( 'primary_color', '#0066d4' );
+        $button_color  = $get_setting( 'button_color', '#ff8a22' );
+        $header_bg     = $get_setting( 'header_bg_color', '#3a4759' );
+        $badge_bg      = $get_setting( 'badge_bg_color', '#ff8a22' );
+        $preset        = $get_setting( 'typography_preset', 'normal' );
+
+        $preset_scales = array( 'compact' => 0.875, 'normal' => 1, 'large' => 1.125 );
+        $scale         = isset( $preset_scales[ $preset ] ) ? $preset_scales[ $preset ] : 1;
+        $font_sizes    = array();
+        foreach ( array( 'body', 'label', 'section_title', 'page_title', 'price' ) as $category ) {
+            $size = $get_setting( 'font_size_' . $category, '' );
+            if ( '' !== $size && is_numeric( $size ) && (float) $size >= 10 && (float) $size <= 48 ) {
+                $font_sizes[ $category ] = (float) $size;
+            }
+        }
 
         $primary_color = ( function_exists( 'sanitize_hex_color' ) && sanitize_hex_color( (string) $primary_color ) ) ? sanitize_hex_color( (string) $primary_color ) : '#0066d4';
         $button_color  = ( function_exists( 'sanitize_hex_color' ) && sanitize_hex_color( (string) $button_color ) ) ? sanitize_hex_color( (string) $button_color ) : '#ff8a22';
@@ -212,11 +220,18 @@ class GVN_Checkout {
         $badge_bg      = ( function_exists( 'sanitize_hex_color' ) && sanitize_hex_color( (string) $badge_bg ) ) ? sanitize_hex_color( (string) $badge_bg ) : '#ff8a22';
 
         $custom_css = sprintf(
-            ":root {\n    --gvn-primary: %s;\n    --gvn-button: %s;\n    --gvn-header-bg: %s;\n    --gvn-badge-bg: %s;\n}",
+            ":root {\n    --gvn-primary: %s;\n    --gvn-button: %s;\n    --gvn-header-bg: %s;\n    --gvn-badge-bg: %s;\n}\n.gvn-checkout { --gvn-font-scale: %s; font-size: %spx !important; }\n.gvn-checkout :is(input, select, textarea, button) { font-size: %spx !important; }\n.gvn-checkout :is(label, .gvn-field__label, .gvn-terms-label, .gvn-order-totals__label, .gvn-split__plan-label, .gvn-split__section-label) { font-size: %spx !important; }\n.gvn-checkout :is(.gvn-title__heading, .gvn-title__dot, .gvn-split__plan-price) { font-size: %spx !important; }\n.gvn-checkout :is(.gvn-section__title, .gvn-payment-title, .gvn-order-totals__total-label) { font-size: %spx !important; }\n.gvn-checkout :is(.gvn-order-totals__total, .gvn-order-item__subtotal, .amount, .gvn-split__plan-price) { font-size: %spx !important; }",
             esc_attr( $primary_color ),
             esc_attr( $button_color ),
             esc_attr( $header_bg ),
-            esc_attr( $badge_bg )
+            esc_attr( $badge_bg ),
+            esc_attr( (string) $scale ),
+            esc_attr( (string) ( $font_sizes['body'] ?? 16 * $scale ) ),
+            esc_attr( (string) ( $font_sizes['body'] ?? 16 * $scale ) ),
+            esc_attr( (string) ( $font_sizes['label'] ?? 12 * $scale ) ),
+            esc_attr( (string) ( $font_sizes['page_title'] ?? 32 * $scale ) ),
+            esc_attr( (string) ( $font_sizes['section_title'] ?? 18 * $scale ) ),
+            esc_attr( (string) ( $font_sizes['price'] ?? 20 * $scale ) )
         );
         wp_add_inline_style( 'gvn-checkout-css', $custom_css );
     }

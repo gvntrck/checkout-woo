@@ -62,4 +62,18 @@ class AssetsTest extends TestCase {
         $this->assertStringNotContainsString('evil.com', $inline_css);
         $this->assertStringContainsString('--gvn-button: #ff8a22;', $inline_css);
     }
+
+    public function test_enqueue_assets_applies_typography_preset_and_override(): void {
+        global $post, $wp_mock_inline_styles;
+
+        $post = (object) [ 'post_content' => '[gvn-checkout]' ];
+        update_option('gvn_checkout_typography_preset', 'compact');
+        update_option('gvn_checkout_font_size_label', '13.5');
+
+        GVN_Checkout::get_instance()->enqueue_assets();
+
+        $inline_css = implode("\n", $wp_mock_inline_styles['gvn-checkout-css']);
+        $this->assertStringContainsString('--gvn-font-scale: 0.875;', $inline_css);
+        $this->assertStringContainsString('font-size: 13.5px !important;', $inline_css);
+    }
 }

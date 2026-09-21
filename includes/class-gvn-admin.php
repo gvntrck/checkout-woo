@@ -218,6 +218,70 @@ class GVN_Admin {
                 'id'   => 'gvn_checkout_text_section',
             ),
 
+            // Seção: Tipografia
+            array(
+                'title' => __( 'Tipografia', 'gvn-checkout' ),
+                'type'  => 'title',
+                'desc'  => __( 'Os presets mantêm todas as fontes proporcionais e impedem que o tamanho-base do tema altere o checkout. Preencha ajustes individuais somente quando necessário.', 'gvn-checkout' ),
+                'id'    => 'gvn_checkout_typography_section',
+            ),
+            array(
+                'title'    => __( 'Preset de tamanho', 'gvn-checkout' ),
+                'id'       => 'gvn_checkout_typography_preset',
+                'type'     => 'select',
+                'default'  => 'normal',
+                'options'  => array(
+                    'compact' => __( 'Compacto', 'gvn-checkout' ),
+                    'normal'  => __( 'Normal', 'gvn-checkout' ),
+                    'large'   => __( 'Ampliado', 'gvn-checkout' ),
+                ),
+                'desc_tip' => true,
+            ),
+            array(
+                'title'             => __( 'Texto e campos (px)', 'gvn-checkout' ),
+                'id'                => 'gvn_checkout_font_size_body',
+                'type'              => 'number',
+                'default'           => '',
+                'desc'              => __( 'Opcional. Deixe vazio para usar o preset.', 'gvn-checkout' ),
+                'custom_attributes' => array( 'min' => '10', 'max' => '48', 'step' => '0.5' ),
+            ),
+            array(
+                'title'             => __( 'Labels (px)', 'gvn-checkout' ),
+                'id'                => 'gvn_checkout_font_size_label',
+                'type'              => 'number',
+                'default'           => '',
+                'desc'              => __( 'Opcional. Deixe vazio para usar o preset.', 'gvn-checkout' ),
+                'custom_attributes' => array( 'min' => '10', 'max' => '48', 'step' => '0.5' ),
+            ),
+            array(
+                'title'             => __( 'Títulos de seção (px)', 'gvn-checkout' ),
+                'id'                => 'gvn_checkout_font_size_section_title',
+                'type'              => 'number',
+                'default'           => '',
+                'desc'              => __( 'Opcional. Deixe vazio para usar o preset.', 'gvn-checkout' ),
+                'custom_attributes' => array( 'min' => '10', 'max' => '48', 'step' => '0.5' ),
+            ),
+            array(
+                'title'             => __( 'Título principal (px)', 'gvn-checkout' ),
+                'id'                => 'gvn_checkout_font_size_page_title',
+                'type'              => 'number',
+                'default'           => '',
+                'desc'              => __( 'Opcional. Deixe vazio para usar o preset.', 'gvn-checkout' ),
+                'custom_attributes' => array( 'min' => '10', 'max' => '48', 'step' => '0.5' ),
+            ),
+            array(
+                'title'             => __( 'Preços e totais (px)', 'gvn-checkout' ),
+                'id'                => 'gvn_checkout_font_size_price',
+                'type'              => 'number',
+                'default'           => '',
+                'desc'              => __( 'Opcional. Deixe vazio para usar o preset.', 'gvn-checkout' ),
+                'custom_attributes' => array( 'min' => '10', 'max' => '48', 'step' => '0.5' ),
+            ),
+            array(
+                'type' => 'sectionend',
+                'id'   => 'gvn_checkout_typography_section',
+            ),
+
             // Seção: Opções do Checkout
             array(
                 'title' => __( 'Opções do Checkout', 'gvn-checkout' ),

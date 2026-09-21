@@ -3,7 +3,7 @@
  * Plugin Name: GVN Checkout for WooCommerce
  * Plugin URI: https://github.com/gvntrck/checkout-woo
  * Description: Checkout personalizado e otimizado para WooCommerce com layout moderno, order bump e configurações avançadas.
- * Version: 1.16.3
+ * Version: 1.16.4
  * Author: GVN Track
  * Author URI: https://projetoalfa.org
  * License: GPL-2.0+
@@ -49,7 +49,7 @@ $myUpdateChecker->setBranch('main');
 
 
 // Constantes essenciais do plugin
-define('GVN_CHECKOUT_VERSION', '1.16.3');
+define('GVN_CHECKOUT_VERSION', '1.16.4');
 define('GVN_CHECKOUT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('GVN_CHECKOUT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('GVN_CHECKOUT_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -98,6 +98,7 @@ function gvn_checkout_activate() {
         'primary_color' => '#0066d4',
         'button_color' => '#ff8a22',
         'button_text' => 'Finalizar pedido',
+        'privacy_policy_text' => 'Os seus dados pessoais serão utilizados para processar a sua compra, apoiar a sua experiência em todo este site e para outros fins descritos na nossa',
         'coupon_enabled' => 'yes',
         'order_bump_enabled' => 'no',
         'order_bump_product_id' => '',

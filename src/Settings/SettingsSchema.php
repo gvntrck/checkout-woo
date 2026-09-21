@@ -27,6 +27,7 @@ class SettingsSchema {
             'primary_color'           => '#0066d4',
             'button_color'            => '#ff8a22',
             'button_text'             => 'Finalizar pedido',
+            'privacy_policy_text'     => 'Os seus dados pessoais serão utilizados para processar a sua compra, apoiar a sua experiência em todo este site e para outros fins descritos na nossa',
             'typography_preset'       => 'normal',
             'font_size_body'          => '',
             'font_size_label'         => '',
@@ -304,6 +305,9 @@ class SettingsSchema {
             case 'thankyou_customer_title':
             case 'thankyou_orders_button_text':
             case 'thankyou_shop_button_text':
+            case 'privacy_policy_text':
+                return wp_kses_post((string) $value);
+
             default:
                 return sanitize_text_field((string) $value);
         }

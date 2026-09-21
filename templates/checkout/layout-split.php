@@ -32,6 +32,7 @@ $header_badge_text = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) 
 $title_text        = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'title_text', '' ) : get_option( 'gvn_checkout_title_text', '' );
 $subtitle_text     = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'subtitle_text', '' ) : get_option( 'gvn_checkout_subtitle_text', '' );
 $button_text       = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'button_text', 'Finalizar pedido' ) : get_option( 'gvn_checkout_button_text', 'Finalizar pedido' );
+$privacy_policy_text = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'privacy_policy_text', 'Os seus dados pessoais serão utilizados para processar a sua compra, apoiar a sua experiência em todo este site e para outros fins descritos na nossa' ) : get_option( 'gvn_checkout_privacy_policy_text', 'Os seus dados pessoais serão utilizados para processar a sua compra, apoiar a sua experiência em todo este site e para outros fins descritos na nossa' );
 $coupon_enabled    = 'yes' === ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'coupon_enabled', 'yes' ) : get_option( 'gvn_checkout_coupon_enabled', 'yes' ) );
 $bump_enabled      = 'yes' === ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_enabled', 'no' ) : get_option( 'gvn_checkout_order_bump_enabled', 'no' ) );
 $bump_product_id   = absint( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'order_bump_product_id', 0 ) : get_option( 'gvn_checkout_order_bump_product_id', 0 ) );
@@ -481,12 +482,12 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                             </p>
                         <?php elseif ( ! has_action( 'woocommerce_checkout_terms_and_conditions' ) ) : ?>
                             <?php if ( function_exists( 'wc_checkout_privacy_policy_text' ) && wc_checkout_privacy_policy_text() ) : ?>
-                                <?php wc_checkout_privacy_policy_text(); ?>
-                            <?php elseif ( function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) : ?>
-                                <p class="gvn-privacy">
-                                    <?php esc_html_e( 'Os seus dados pessoais serão utilizados para processar a sua compra, apoiar a sua experiência em todo este site e para outros fins descritos na nossa', 'gvn-checkout' ); ?>
-                                    <a href="<?php echo esc_url( get_privacy_policy_url() ); ?>" class="gvn-privacy__link" target="_blank"><?php esc_html_e( 'política de privacidade', 'gvn-checkout' ); ?></a>.
-                                </p>
+                            <?php wc_checkout_privacy_policy_text(); ?>
+                        <?php elseif ( function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) : ?>
+                            <p class="gvn-privacy">
+                                    <?php echo wp_kses_post( $privacy_policy_text ); ?>
+                                <a href="<?php echo esc_url( get_privacy_policy_url() ); ?>" class="gvn-privacy__link" target="_blank"><?php esc_html_e( 'política de privacidade', 'gvn-checkout' ); ?></a>.
+                            </p>
                             <?php endif; ?>
                         <?php endif; ?>
                     </div>

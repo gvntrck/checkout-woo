@@ -30,6 +30,7 @@ class GVN_Admin {
         add_filter( 'woocommerce_settings_tabs_array', array( $this, 'add_settings_tab' ), 50 );
         add_action( 'woocommerce_settings_tabs_gvn_checkout', array( $this, 'render_settings_page' ) );
         add_action( 'woocommerce_update_options_gvn_checkout', array( $this, 'save_settings' ) );
+        add_action( 'woocommerce_admin_field_gvn_wysiwyg', array( $this, 'render_wysiwyg_field' ) );
         add_filter( 'plugin_action_links_' . GVN_CHECKOUT_PLUGIN_BASENAME, array( $this, 'add_plugin_links' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ) );
     }
@@ -105,10 +106,49 @@ class GVN_Admin {
         if ( 'settings' === $subtab ) {
             woocommerce_update_options( $this->get_settings() );
 
+            if ( isset( $_POST['gvn_checkout_privacy_policy_text'] ) ) {
+                update_option( 'gvn_checkout_privacy_policy_text', wp_kses_post( wp_unslash( $_POST['gvn_checkout_privacy_policy_text'] ) ) );
+            }
+
             if ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ) {
                 SettingsRepository::sync_from_legacy_options();
             }
         }
+    }
+
+    /**
+     * Renderiza campo WYSIWYG simples nas configurações do WooCommerce.
+     *
+     * @param array<string, mixed> $value Configuração do campo.
+     */
+    public function render_wysiwyg_field( $value ) {
+        $id      = isset( $value['id'] ) ? (string) $value['id'] : '';
+        $content = get_option( $id, isset( $value['default'] ) ? $value['default'] : '' );
+        ?>
+        <tr valign="top">
+            <th scope="row" class="titledesc"><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( isset( $value['title'] ) ? $value['title'] : '' ); ?></label></th>
+            <td class="forminp">
+                <?php
+                if ( function_exists( 'wp_editor' ) ) {
+                    wp_editor( wp_kses_post( $content ), $id, array(
+                        'textarea_name' => $id,
+                        'textarea_rows' => 4,
+                        'media_buttons' => false,
+                        'quicktags'     => false,
+                        'wpautop'       => false,
+                    ) );
+                } else {
+                    ?>
+                    <textarea name="<?php echo esc_attr( $id ); ?>" id="<?php echo esc_attr( $id ); ?>" rows="4" class="large-text"><?php echo esc_textarea( $content ); ?></textarea>
+                    <?php
+                }
+                ?>
+                <?php if ( ! empty( $value['desc'] ) ) : ?>
+                    <p class="description"><?php echo esc_html( $value['desc'] ); ?></p>
+                <?php endif; ?>
+            </td>
+        </tr>
+        <?php
     }
 
     /**
@@ -299,6 +339,25 @@ class GVN_Admin {
             array(
                 'type' => 'sectionend',
                 'id'   => 'gvn_checkout_options_section',
+            ),
+
+            // Seção: Política de privacidade
+            array(
+                'title' => __( 'Política de privacidade', 'gvn-checkout' ),
+                'type'  => 'title',
+                'desc'  => __( 'Personalize o texto exibido antes do link para a política de privacidade.', 'gvn-checkout' ),
+                'id'    => 'gvn_checkout_privacy_policy_section',
+            ),
+            array(
+                'title'   => __( 'Texto de privacidade', 'gvn-checkout' ),
+                'desc'    => __( 'O link para a política de privacidade configurada no WordPress é incluído automaticamente.', 'gvn-checkout' ),
+                'id'      => 'gvn_checkout_privacy_policy_text',
+                'type'    => 'gvn_wysiwyg',
+                'default' => 'Os seus dados pessoais serão utilizados para processar a sua compra, apoiar a sua experiência em todo este site e para outros fins descritos na nossa',
+            ),
+            array(
+                'type' => 'sectionend',
+                'id'   => 'gvn_checkout_privacy_policy_section',
             ),
 
             // Seção: Textos da Thank You

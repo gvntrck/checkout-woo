@@ -491,7 +491,7 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                                 <input type="hidden" name="terms-field" value="1" />
                             </p>
                         <?php endif; ?>
-                        <?php if ( function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) : ?>
+                        <?php if ( '' !== trim( wp_strip_all_tags( $privacy_policy_text ) ) ) : ?>
                             <p class="gvn-privacy">
                                     <?php echo wp_kses_post( $privacy_policy_text ); ?>
                             </p>

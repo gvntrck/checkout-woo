@@ -207,7 +207,7 @@ class GVN_Checkout {
         $preset_scales = array( 'compact' => 0.875, 'normal' => 1, 'large' => 1.125 );
         $scale         = isset( $preset_scales[ $preset ] ) ? $preset_scales[ $preset ] : 1;
         $font_sizes    = array();
-        foreach ( array( 'body', 'label', 'section_title', 'page_title', 'price' ) as $category ) {
+        foreach ( array( 'body', 'label', 'section_title', 'page_title', 'price', 'privacy' ) as $category ) {
             $size = $get_setting( 'font_size_' . $category, '' );
             if ( '' !== $size && is_numeric( $size ) && (float) $size >= 10 && (float) $size <= 48 ) {
                 $font_sizes[ $category ] = (float) $size;
@@ -220,12 +220,13 @@ class GVN_Checkout {
         $badge_bg      = ( function_exists( 'sanitize_hex_color' ) && sanitize_hex_color( (string) $badge_bg ) ) ? sanitize_hex_color( (string) $badge_bg ) : '#ff8a22';
 
         $custom_css = sprintf(
-            ":root {\n    --gvn-primary: %s;\n    --gvn-button: %s;\n    --gvn-header-bg: %s;\n    --gvn-badge-bg: %s;\n}\n.gvn-checkout { --gvn-font-scale: %s; font-size: %spx !important; }\n.gvn-checkout :is(input, select, textarea, button) { font-size: %spx !important; }\n.gvn-checkout :is(label, .gvn-field__label, .gvn-terms-label, .gvn-order-totals__label, .gvn-split__plan-label, .gvn-split__section-label) { font-size: %spx !important; }\n.gvn-checkout :is(.gvn-title__heading, .gvn-title__dot, .gvn-split__plan-price) { font-size: %spx !important; }\n.gvn-checkout :is(.gvn-section__title, .gvn-payment-title, .gvn-order-totals__total-label) { font-size: %spx !important; }\n.gvn-checkout :is(.gvn-order-totals__total, .gvn-order-item__subtotal, .amount, .gvn-split__plan-price) { font-size: %spx !important; }",
+            ":root {\n    --gvn-primary: %s;\n    --gvn-button: %s;\n    --gvn-header-bg: %s;\n    --gvn-badge-bg: %s;\n}\n.gvn-checkout { --gvn-font-scale: %s; --gvn-privacy-font-size: %spx; font-size: %spx !important; }\n.gvn-checkout :is(input, select, textarea, button) { font-size: %spx !important; }\n.gvn-checkout :is(label, .gvn-field__label, .gvn-terms-label, .gvn-order-totals__label, .gvn-split__plan-label, .gvn-split__section-label) { font-size: %spx !important; }\n.gvn-checkout :is(.gvn-title__heading, .gvn-title__dot, .gvn-split__plan-price) { font-size: %spx !important; }\n.gvn-checkout :is(.gvn-section__title, .gvn-payment-title, .gvn-order-totals__total-label) { font-size: %spx !important; }\n.gvn-checkout :is(.gvn-order-totals__total, .gvn-order-item__subtotal, .amount, .gvn-split__plan-price) { font-size: %spx !important; }",
             esc_attr( $primary_color ),
             esc_attr( $button_color ),
             esc_attr( $header_bg ),
             esc_attr( $badge_bg ),
             esc_attr( (string) $scale ),
+            esc_attr( (string) ( $font_sizes['privacy'] ?? 11.52 * $scale ) ),
             esc_attr( (string) ( $font_sizes['body'] ?? 16 * $scale ) ),
             esc_attr( (string) ( $font_sizes['body'] ?? 16 * $scale ) ),
             esc_attr( (string) ( $font_sizes['label'] ?? 12 * $scale ) ),

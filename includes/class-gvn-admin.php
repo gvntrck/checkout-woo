@@ -322,6 +322,14 @@ class GVN_Admin {
                 'custom_attributes' => array( 'min' => '10', 'max' => '48', 'step' => '0.5' ),
             ),
             array(
+                'title'             => __( 'Política de privacidade (px)', 'gvn-checkout' ),
+                'id'                => 'gvn_checkout_font_size_privacy',
+                'type'              => 'number',
+                'default'           => '',
+                'desc'              => __( 'Opcional. Deixe vazio para usar o preset.', 'gvn-checkout' ),
+                'custom_attributes' => array( 'min' => '10', 'max' => '48', 'step' => '0.5' ),
+            ),
+            array(
                 'type' => 'sectionend',
                 'id'   => 'gvn_checkout_typography_section',
             ),

@@ -34,6 +34,7 @@ class SettingsSchema {
             'font_size_section_title' => '',
             'font_size_page_title'    => '',
             'font_size_price'         => '',
+            'font_size_privacy'       => '',
             'coupon_enabled'          => 'yes',
             'order_bump_enabled'      => 'no',
             'order_bump_product_id'   => 0,
@@ -267,6 +268,7 @@ class SettingsSchema {
             case 'font_size_section_title':
             case 'font_size_page_title':
             case 'font_size_price':
+            case 'font_size_privacy':
                 if ( '' === trim( (string) $value ) ) {
                     return '';
                 }

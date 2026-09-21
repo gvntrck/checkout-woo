@@ -151,6 +151,13 @@ class GVN_Admin {
                 'id'    => 'gvn_checkout_header_section',
             ),
             array(
+                'title'   => __( 'Exibir Header', 'gvn-checkout' ),
+                'id'      => 'gvn_checkout_header_enabled',
+                'type'    => 'checkbox',
+                'default' => 'yes',
+                'desc'    => __( 'Exibir o cabeçalho no checkout e na página de obrigado.', 'gvn-checkout' ),
+            ),
+            array(
                 'title'    => __( 'Texto do Header', 'gvn-checkout' ),
                 'desc'     => __( 'Texto principal exibido no cabeçalho.', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_header_text',

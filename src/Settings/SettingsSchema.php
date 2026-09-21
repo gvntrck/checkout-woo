@@ -17,6 +17,7 @@ class SettingsSchema {
     public static function get_defaults(): array {
         return [
             'checkout_layout'         => 'classic',
+            'header_enabled'          => 'yes',
             'header_text'             => 'EFEAD - Conectando Saberes',
             'header_badge_text'       => 'COMPRA SEGURA',
             'header_bg_color'         => '#3a4759',
@@ -226,6 +227,7 @@ class SettingsSchema {
 
             case 'order_bump_enabled':
             case 'coupon_enabled':
+            case 'header_enabled':
             case 'thankyou_custom_url_enabled':
                 if (is_bool($value)) {
                     return $value ? 'yes' : 'no';

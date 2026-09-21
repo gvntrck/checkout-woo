@@ -26,6 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $checkout = isset( $checkout ) ? $checkout : ( ( function_exists( 'WC' ) && WC()->checkout() ) ? WC()->checkout() : null );
 
+$header_enabled    = 'yes' === ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_enabled', 'yes' ) : get_option( 'gvn_checkout_header_enabled', 'yes' ) );
 $header_text       = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_text', 'EFEAD - Conectando Saberes' ) : get_option( 'gvn_checkout_header_text', 'EFEAD - Conectando Saberes' );
 $header_badge_text = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_badge_text', 'COMPRA SEGURA' ) : get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGURA' );
 $title_text        = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'title_text', '' ) : get_option( 'gvn_checkout_title_text', '' );
@@ -262,6 +263,7 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
             <aside class="gvn-split__summary">
                 <?php do_action( 'woocommerce_checkout_before_order_review_heading' ); ?>
 
+                <?php if ( $header_enabled ) : ?>
                 <div class="gvn-split__brand">
                     <?php if ( '' !== $shop_url ) : ?>
                         <a class="gvn-split__back" href="<?php echo esc_url( $shop_url ); ?>" aria-label="<?php esc_attr_e( 'Voltar à loja', 'gvn-checkout' ); ?>">
@@ -273,6 +275,7 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                     </span>
                     <span class="gvn-split__brand-name"><?php echo esc_html( $header_text ); ?></span>
                 </div>
+                <?php endif; ?>
 
                 <div class="gvn-split__plan">
                     <p class="gvn-split__plan-label"><?php echo esc_html( $split_plan_label ); ?></p>

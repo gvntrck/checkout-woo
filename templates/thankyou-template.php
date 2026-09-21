@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+$header_enabled    = 'yes' === ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_enabled', 'yes' ) : get_option( 'gvn_checkout_header_enabled', 'yes' ) );
 $header_text       = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_text', 'EFEAD - Conectando Saberes' ) : get_option( 'gvn_checkout_header_text', 'EFEAD - Conectando Saberes' );
 $header_badge_text = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_badge_text', 'COMPRA SEGURA' ) : get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGURA' );
 $order_context     = isset( $order ) && is_object( $order ) ? $order : null;
@@ -48,6 +49,7 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
 
 <div class="gvn-checkout gvn-thankyou" id="gvn-thankyou">
 
+    <?php if ( $header_enabled ) : ?>
     <!-- Header -->
     <header class="gvn-header">
         <div class="gvn-header__text">
@@ -60,6 +62,7 @@ if ( class_exists( 'GVN\Checkout\Checkout\TextPlaceholderResolver' ) ) {
             <?php echo esc_html( $header_badge_text ); ?>
         </div>
     </header>
+    <?php endif; ?>
 
     <?php if ( $order ) : ?>
         <?php do_action( 'woocommerce_before_thankyou', $order->get_id() ); ?>

@@ -11,6 +11,7 @@ class SettingsSchemaTest extends TestCase {
         $defaults = SettingsSchema::get_defaults();
 
         $this->assertArrayHasKey('header_text', $defaults);
+        $this->assertArrayHasKey('header_enabled', $defaults);
         $this->assertArrayHasKey('header_bg_color', $defaults);
         $this->assertArrayHasKey('primary_color', $defaults);
         $this->assertArrayHasKey('button_color', $defaults);
@@ -19,6 +20,7 @@ class SettingsSchemaTest extends TestCase {
         $this->assertArrayHasKey('thankyou_success_title', $defaults);
         $this->assertArrayHasKey('thankyou_shop_button_text', $defaults);
         $this->assertEquals('EFEAD - Conectando Saberes', $defaults['header_text']);
+        $this->assertEquals('yes', $defaults['header_enabled']);
         $this->assertEquals('#3a4759', $defaults['header_bg_color']);
         $this->assertEquals('#0066d4', $defaults['primary_color']);
         $this->assertEquals('no', $defaults['order_bump_enabled']);
@@ -62,6 +64,11 @@ class SettingsSchemaTest extends TestCase {
         $this->assertEquals('yes', SettingsSchema::sanitize_setting('coupon_enabled', '1'));
         $this->assertEquals('no', SettingsSchema::sanitize_setting('coupon_enabled', false));
         $this->assertEquals('no', SettingsSchema::sanitize_setting('coupon_enabled', 'other'));
+    }
+
+    public function test_sanitize_header_visibility_toggle() {
+        $this->assertEquals('yes', SettingsSchema::sanitize_setting('header_enabled', true));
+        $this->assertEquals('no', SettingsSchema::sanitize_setting('header_enabled', false));
     }
 
     public function test_sanitize_text_fields_strips_tags() {

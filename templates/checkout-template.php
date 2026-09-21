@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $checkout = isset( $checkout ) ? $checkout : ( ( function_exists( 'WC' ) && WC()->checkout() ) ? WC()->checkout() : null );
 
+$header_enabled    = 'yes' === ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_enabled', 'yes' ) : get_option( 'gvn_checkout_header_enabled', 'yes' ) );
 $header_text       = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_text', 'EFEAD - Conectando Saberes' ) : get_option( 'gvn_checkout_header_text', 'EFEAD - Conectando Saberes' );
 $header_badge_text = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'header_badge_text', 'COMPRA SEGURA' ) : get_option( 'gvn_checkout_header_badge_text', 'COMPRA SEGURA' );
 $title_text        = class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ? \GVN\Checkout\Settings\SettingsRepository::get( 'title_text', 'Finalize sua inscrição' ) : get_option( 'gvn_checkout_title_text', 'Finalize sua inscrição' );
@@ -53,6 +54,7 @@ if ( $bump_product && $cart ) {
 
 <div class="gvn-checkout" id="gvn-checkout">
 
+    <?php if ( $header_enabled ) : ?>
     <!-- Header -->
     <header class="gvn-header">
         <div class="gvn-header__text">
@@ -65,6 +67,7 @@ if ( $bump_product && $cart ) {
             <?php echo esc_html( $header_badge_text ); ?>
         </div>
     </header>
+    <?php endif; ?>
 
     <!-- Título -->
     <?php if ( ! empty( trim( (string) $title_text ) ) || ! empty( trim( (string) $subtitle_text ) ) ) : ?>

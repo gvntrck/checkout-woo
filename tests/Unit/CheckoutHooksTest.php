@@ -131,6 +131,16 @@ class CheckoutHooksTest extends TestCase {
         $this->assertStringContainsString('data-finish="Ir para pagamento"', $html);
     }
 
+    public function test_header_can_be_hidden(): void {
+        global $wp_mock_options;
+        $wp_mock_options['gvn_checkout_header_enabled'] = 'no';
+        \GVN\Checkout\Settings\SettingsRepository::flush_cache();
+
+        $html = $this->renderCheckoutTemplate();
+
+        $this->assertStringNotContainsString('class="gvn-header"', $html);
+    }
+
     public function test_checkout_fragments_do_not_replace_payment_gateway_fields(): void {
         $fragments = \GVN_Checkout::get_instance()->refresh_checkout_fragments([]);
 

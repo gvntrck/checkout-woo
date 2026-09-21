@@ -16,6 +16,7 @@ class FieldValidatorTest extends TestCase {
                 'type'     => 'text',
                 'required' => true,
                 'enabled'  => true,
+                'mask'     => 'cpf',
             ],
         ];
 
@@ -35,14 +36,37 @@ class FieldValidatorTest extends TestCase {
                 'type'     => 'text',
                 'required' => true,
                 'enabled'  => true,
+                'mask'     => 'cpf',
             ],
         ];
 
         $errors = new WP_Error();
-        $validation_errors = FieldValidator::validate($fields, ['billing_cpf' => '123.456.789-00'], $errors);
+        $validation_errors = FieldValidator::validate($fields, ['billing_cpf' => '111.444.777-35'], $errors);
 
         $this->assertEmpty($validation_errors);
         $this->assertFalse($errors->has_errors());
+    }
+
+    public function test_rejects_invalid_cpf(): void {
+        $fields = [
+            [
+                'key'      => 'billing_cpf',
+                'label'    => 'CPF',
+                'type'     => 'text',
+                'required' => true,
+                'enabled'  => true,
+                'mask'     => 'cpf',
+            ],
+        ];
+
+        foreach (['2', '111.111.111-11', '111.444.777-34'] as $cpf) {
+            $errors = new WP_Error();
+            $validation_errors = FieldValidator::validate($fields, ['billing_cpf' => $cpf], $errors);
+
+            $this->assertArrayHasKey('billing_cpf', $validation_errors);
+            $this->assertTrue($errors->has_errors());
+            $this->assertStringContainsString('CPF válido', $validation_errors['billing_cpf']);
+        }
     }
 
     public function test_does_not_require_field_when_hidden_by_condition(): void {

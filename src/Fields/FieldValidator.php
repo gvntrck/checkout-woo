@@ -28,6 +28,7 @@ class FieldValidator {
             $key   = (string) ($field['key'] ?? '');
             $label = (string) ($field['label'] ?? $key);
             $type  = (string) ($field['type'] ?? 'text');
+            $mask  = (string) ($field['mask'] ?? '');
 
             if ($key === '') {
                 continue;
@@ -73,6 +74,14 @@ class FieldValidator {
                     );
                     $validation_errors[$key] = $message;
                     self::add_error($errors, $key, $message);
+                } elseif ($mask === 'cpf' && !self::is_valid_cpf($value_str)) {
+                    $message = sprintf(
+                        /* translators: %s: Field label */
+                        __('O campo "%s" deve conter um CPF válido.', 'gvn-checkout'),
+                        $label
+                    );
+                    $validation_errors[$key] = $message;
+                    self::add_error($errors, $key, $message);
                 }
             }
         }
@@ -80,6 +89,33 @@ class FieldValidator {
         self::validate_gateway_requirements($fields, $posted_data, $errors, $validation_errors);
 
         return $validation_errors;
+    }
+
+    /**
+     * Validates Brazilian CPF check digits after removing visual mask characters.
+     */
+    private static function is_valid_cpf(string $value): bool {
+        $cpf = preg_replace('/\D/', '', $value);
+        if (strlen($cpf) !== 11 || preg_match('/^(\d)\1{10}$/', $cpf)) {
+            return false;
+        }
+
+        for ($position = 9; $position <= 10; $position++) {
+            $sum = 0;
+            for ($index = 0; $index < $position; $index++) {
+                $sum += (int) $cpf[$index] * (($position + 1) - $index);
+            }
+
+            $digit = ($sum * 10) % 11;
+            if ($digit === 10) {
+                $digit = 0;
+            }
+            if ($digit !== (int) $cpf[$position]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

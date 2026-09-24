@@ -433,6 +433,9 @@
         },
 
         getFieldValue: function (fieldKey, $container) {
+            if (fieldKey === 'cart_item_count') {
+                return String(gvn_checkout_params.cart_item_count || 0);
+            }
             if (fieldKey === 'payment_method') {
                 var $payment = $container.closest('form').find('input[name="payment_method"]:checked');
                 if (!$payment.length) {

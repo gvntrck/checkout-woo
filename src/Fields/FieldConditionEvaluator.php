@@ -90,7 +90,9 @@ class FieldConditionEvaluator {
             }
 
             $trigger_key = (string) $rule['field'];
-            $field_val   = $data[$trigger_key] ?? '';
+            $field_val   = $trigger_key === 'cart_item_count'
+                ? (function_exists('WC') && WC()->cart ? WC()->cart->get_cart_contents_count() : 0)
+                : ($data[$trigger_key] ?? '');
             $matched     = self::evaluate_rule($rule, $field_val);
 
             if ($is_or && $matched) {

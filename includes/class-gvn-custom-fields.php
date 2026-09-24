@@ -357,6 +357,7 @@ class GVN_Custom_Fields {
             'is_default'     => false,
             'is_woo_default' => false,
             'options'        => '',
+            'html_content'   => '',
             'default_option' => '',
             'conditions'     => array( 'logic' => 'and', 'rules' => array() ),
             'step_id'        => self::DEFAULT_STEP_ID,
@@ -508,7 +509,7 @@ class GVN_Custom_Fields {
                 'key'            => $key,
                 'label'          => sanitize_text_field( isset( $field['label'] ) ? $field['label'] : '' ),
                 'type'           => in_array( $type, $valid_types, true ) ? $type : 'text',
-                'required'       => ! empty( $field['required'] ),
+                'required'       => 'html' !== $type && ! empty( $field['required'] ),
                 'width'          => in_array( $width, $valid_widths, true ) ? $width : '100',
                 'position'       => $index + 1,
                 'placeholder'    => sanitize_text_field( isset( $field['placeholder'] ) ? $field['placeholder'] : '' ),
@@ -517,6 +518,7 @@ class GVN_Custom_Fields {
                 'is_default'     => ! empty( $field['is_default'] ),
                 'is_woo_default' => ! empty( $field['is_woo_default'] ),
                 'options'        => sanitize_textarea_field( $options_raw ),
+                'html_content'   => 'html' === $type ? wp_kses_post( isset( $field['html_content'] ) ? $field['html_content'] : '' ) : '',
                 'default_option' => $default_option,
                 'conditions'     => self::sanitize_conditions( isset( $field['conditions'] ) ? $field['conditions'] : array() ),
                 'step_id'        => in_array( $step_id, $step_ids, true ) ? $step_id : $step_ids[0],
@@ -618,6 +620,9 @@ class GVN_Custom_Fields {
         $registered_keys = array();
 
         foreach ( $fields as $field ) {
+            if ( 'html' === $field['type'] ) {
+                continue;
+            }
             $key            = $field['key'];
             // Chaves duplicadas (mesmo destino, rótulos/condições alternativos) são
             // registradas uma única vez no WooCommerce — a primeira ocorrência vence.
@@ -1000,6 +1005,7 @@ class GVN_Custom_Fields {
             'select'   => 'Seleção',
             'date'     => 'Data',
             'password' => 'Senha',
+            'html'     => 'HTML',
         );
     }
 

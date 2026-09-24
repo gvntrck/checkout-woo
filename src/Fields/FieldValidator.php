@@ -21,6 +21,9 @@ class FieldValidator {
         $validation_errors = [];
 
         foreach ($fields as $field) {
+            if (($field['type'] ?? '') === 'html') {
+                continue;
+            }
             if (empty($field['enabled'])) {
                 continue;
             }

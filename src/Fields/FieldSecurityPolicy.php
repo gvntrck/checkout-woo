@@ -19,6 +19,7 @@ class FieldSecurityPolicy {
         'select',
         'date',
         'password',
+        'html',
     ];
 
     /**
@@ -157,6 +158,9 @@ class FieldSecurityPolicy {
      * @return bool
      */
     public static function is_persistable_custom_field(array $field): bool {
+        if (($field['type'] ?? '') === 'html') {
+            return false;
+        }
         if (empty($field['enabled'])) {
             return false;
         }

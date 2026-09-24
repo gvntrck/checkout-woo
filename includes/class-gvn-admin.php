@@ -785,7 +785,7 @@ class GVN_Admin {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <div class="gvn-field-col">
+                                <div class="gvn-field-col gvn-field-col--input-only" style="<?php echo 'html' === $field['type'] ? 'display:none;' : ''; ?>">
                                     <label><?php esc_html_e( 'Máscara', 'gvn-checkout' ); ?></label>
                                     <select class="gvn-field-mask-select">
                                         <?php foreach ( GVN_Custom_Fields::get_available_masks() as $m_key => $m_label ) : ?>
@@ -793,7 +793,7 @@ class GVN_Admin {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <div class="gvn-field-col">
+                                <div class="gvn-field-col gvn-field-col--input-only" style="<?php echo 'html' === $field['type'] ? 'display:none;' : ''; ?>">
                                     <label><?php esc_html_e( 'Placeholder', 'gvn-checkout' ); ?></label>
                                     <input type="text" class="gvn-field-placeholder-input" value="<?php echo esc_attr( $field['placeholder'] ); ?>" />
                                 </div>
@@ -812,7 +812,11 @@ class GVN_Admin {
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <div class="gvn-field-col">
+                                <div class="gvn-field-col gvn-field-col--html" style="<?php echo ( 'html' !== $field['type'] ) ? 'display:none;' : ''; ?>grid-column: 1 / -1;">
+                                    <label><?php esc_html_e( 'Conteúdo HTML', 'gvn-checkout' ); ?></label>
+                                    <textarea class="gvn-field-html-input" rows="6" placeholder="<p>Seu texto aqui</p>"><?php echo esc_textarea( isset( $field['html_content'] ) ? $field['html_content'] : '' ); ?></textarea>
+                                </div>
+                                <div class="gvn-field-col gvn-field-col--input-only" style="<?php echo 'html' === $field['type'] ? 'display:none;' : ''; ?>">
                                     <label><input type="checkbox" class="gvn-field-required" <?php checked( ! empty( $field['required'] ) ); ?> /> <?php esc_html_e( 'Obrigatório', 'gvn-checkout' ); ?></label>
                                 </div>
                             </div>

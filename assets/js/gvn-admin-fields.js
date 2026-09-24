@@ -89,6 +89,8 @@
                 } else {
                     $optionsCol.slideUp(200);
                 }
+                $row.find('.gvn-field-col--html').toggle($(this).val() === 'html');
+                $row.find('.gvn-field-col--input-only').toggle($(this).val() !== 'html');
             });
 
             // Atualiza o select de valor padrão quando o admin edita as opções
@@ -227,6 +229,7 @@
                 mask: '',
                 is_default: false,
                 options: '',
+                html_content: '',
                 conditions: { logic: 'and', rules: [] }
             });
 
@@ -293,11 +296,11 @@
                 '        <label>Largura</label>' +
                 '        <select class="gvn-field-width-select">' + widths + '</select>' +
                 '      </div>' +
-                '      <div class="gvn-field-col">' +
+                '      <div class="gvn-field-col gvn-field-col--input-only" style="' + (field.type === 'html' ? 'display:none;' : '') + '">' +
                 '        <label>Máscara</label>' +
                 '        <select class="gvn-field-mask-select">' + masks + '</select>' +
                 '      </div>' +
-                '      <div class="gvn-field-col">' +
+                '      <div class="gvn-field-col gvn-field-col--input-only" style="' + (field.type === 'html' ? 'display:none;' : '') + '">' +
                 '        <label>Placeholder</label>' +
                 '        <input type="text" class="gvn-field-placeholder-input" value="' + this.escAttr(field.placeholder) + '" />' +
                 '      </div>' +
@@ -308,7 +311,11 @@
                 '        <label style="margin-top:8px;display:block;">Valor padrão pré-selecionado</label>' +
                 '        <select class="gvn-field-default-option-select">' + this.getDefaultOptionSelect(field.options || '', field.default_option || '') + '</select>' +
                 '      </div>' +
-                '      <div class="gvn-field-col">' +
+                '      <div class="gvn-field-col gvn-field-col--html" style="' + (field.type !== 'html' ? 'display:none;' : '') + 'grid-column: 1 / -1;">' +
+                '        <label>Conteúdo HTML</label>' +
+                '        <textarea class="gvn-field-html-input" rows="6" placeholder="<p>Seu texto aqui</p>">' + this.escHtml(field.html_content || '') + '</textarea>' +
+                '      </div>' +
+                '      <div class="gvn-field-col gvn-field-col--input-only" style="' + (field.type === 'html' ? 'display:none;' : '') + '">' +
                 '        <label><input type="checkbox" class="gvn-field-required" ' + requiredChecked + ' /> Obrigatório</label>' +
                 '      </div>' +
                 '    </div>' +
@@ -321,7 +328,7 @@
             var types = {
                 'text': 'Texto', 'email': 'E-mail', 'tel': 'Telefone',
                 'number': 'Número', 'textarea': 'Área de texto',
-                'select': 'Seleção', 'date': 'Data', 'password': 'Senha'
+                'select': 'Seleção', 'date': 'Data', 'password': 'Senha', 'html': 'HTML'
             };
             var html = '';
             for (var k in types) {
@@ -370,6 +377,7 @@
                     is_default: $row.find('.gvn-field-is-default').val() === 'true',
                     is_woo_default: $row.find('.gvn-field-is-woo-default').val() === 'true',
                     options: $row.find('.gvn-field-options-input').val() || '',
+                    html_content: $row.find('.gvn-field-html-input').val() || '',
                     default_option: $row.find('.gvn-field-default-option-select').val() || '',
                     conditions: self.collectConditions($row)
                     ,step_id: $row.find('.gvn-field-step-select').val()

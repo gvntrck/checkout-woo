@@ -602,6 +602,7 @@
 }
 
 .gvn-field-col input[type="text"],
+.gvn-field-col textarea,
 .gvn-field-col select {
     width: 100%;
     padding: 6px 8px;

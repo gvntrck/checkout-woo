@@ -592,7 +592,6 @@
 
             html += '<option value="payment_method"' + ('payment_method' === selectedKey ? ' selected' : '') + '>Método de pagamento</option>';
             html += '<option value="cart_item_count"' + ('cart_item_count' === selectedKey ? ' selected' : '') + '>Quantidade de itens no carrinho</option>';
-            html += '<option value="cart_item_count"' + ('cart_item_count' === selectedKey ? ' selected' : '') + '>Quantidade de itens no carrinho</option>';
 
             // Todos os campos da lista (unificados)
             this.$list.find('.gvn-field-row').each(function () {

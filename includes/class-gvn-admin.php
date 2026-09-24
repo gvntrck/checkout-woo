@@ -846,7 +846,6 @@ class GVN_Admin {
                                                 <option value=""><?php esc_html_e( '-- Campo --', 'gvn-checkout' ); ?></option>
                                                 <option value="payment_method" <?php selected( $rule_field, 'payment_method' ); ?>><?php esc_html_e( 'Método de pagamento', 'gvn-checkout' ); ?></option>
                                                 <option value="cart_item_count" <?php selected( $rule_field, 'cart_item_count' ); ?>><?php esc_html_e( 'Quantidade de itens no carrinho', 'gvn-checkout' ); ?></option>
-                                                <option value="cart_item_count" <?php selected( $rule_field, 'cart_item_count' ); ?>><?php esc_html_e( 'Quantidade de itens no carrinho', 'gvn-checkout' ); ?></option>
                                                 <?php foreach ( $all_fields as $af ) : ?>
                                                     <?php if ( $af['key'] !== $field['key'] ) : ?>
                                                         <option value="<?php echo esc_attr( $af['key'] ); ?>" <?php selected( $rule_field, $af['key'] ); ?>><?php echo esc_html( $af['label'] ?: $af['key'] ); ?></option>

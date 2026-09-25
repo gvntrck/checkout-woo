@@ -950,6 +950,7 @@ class GVN_Admin {
                     <div class="gvn-help-card__body">
                         <h3><?php esc_html_e( 'Gerenciar campos do formulário', 'gvn-checkout' ); ?></h3>
                         <p><?php esc_html_e( 'Na aba Campos do Formulário você adiciona, remove, reordena (arrastando) e configura a largura dos campos do checkout. Também é possível importar campos padrões do WooCommerce ou campos brasileiros (CPF, CNPJ, RG, etc.) com 1 clique.', 'gvn-checkout' ); ?></p>
+                        <p class="gvn-help-tip"><strong><?php esc_html_e( 'Dados dos pedidos:', 'gvn-checkout' ); ?></strong> <?php esc_html_e( 'Os valores dos campos extras são salvos como metadados do pedido, com a chave precedida por _ (ex.: _nome_do_campo). No banco, ficam em wc_orders_meta com HPOS ou em postmeta no armazenamento legado; o prefixo das tabelas depende do site.', 'gvn-checkout' ); ?></p>
                         <a href="<?php echo esc_url( $fields_url ); ?>" class="button button-secondary"><?php esc_html_e( 'Gerenciar Campos', 'gvn-checkout' ); ?></a>
                     </div>
                 </div>

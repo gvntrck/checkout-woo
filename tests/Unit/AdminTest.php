@@ -62,6 +62,24 @@ class AdminTest extends TestCase {
         $this->assertNotContains('gvn-hidden-field', $checkoutFields['billing']['billing_city']['class']);
     }
 
+    public function test_required_checkbox_is_validated_only_by_custom_validator(): void {
+        global $wp_mock_options;
+        $wp_mock_options[GVN_Custom_Fields::OPTION_KEY] = [[
+            'key' => 'accept_terms',
+            'label' => 'Aceito os termos',
+            'type' => 'checkbox',
+            'required' => true,
+            'enabled' => true,
+        ]];
+
+        $checkout_fields = GVN_Custom_Fields::get_instance()->register_custom_fields_with_woo([
+            'billing' => [], 'shipping' => [], 'account' => [], 'order' => [],
+        ]);
+
+        $this->assertFalse($checkout_fields['billing']['accept_terms']['required']);
+        $this->assertArrayHasKey('accept_terms', \GVN\Checkout\Fields\FieldValidator::validate(GVN_Custom_Fields::get_enabled_fields(), []));
+    }
+
     public function test_steps_fallback_and_field_step_normalization(): void {
         global $wp_mock_options;
         $wp_mock_options[GVN_Custom_Fields::OPTION_KEY] = [[

@@ -633,7 +633,7 @@ class GVN_Custom_Fields {
             }
             $registered_keys[ $key ] = true;
             $is_conditional = self::has_conditions( $field );
-            $required       = $is_conditional ? false : ! empty( $field['required'] );
+            $required       = $is_conditional || 'checkbox' === $field['type'] ? false : ! empty( $field['required'] );
             $width          = isset( $field['width'] ) ? $field['width'] : '100';
             $classes        = isset( $width_class_map[ $width ] ) ? $width_class_map[ $width ] : array( 'form-row-wide' );
 

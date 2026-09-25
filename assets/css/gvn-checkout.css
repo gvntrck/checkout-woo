@@ -1125,6 +1125,7 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
     background: #fef2f2;
     border: 1px solid #fecaca;
     color: #991b1b;
+    padding-left: 3rem;
 }
 
 .gvn-checkout .woocommerce-message {

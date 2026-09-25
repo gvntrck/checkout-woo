@@ -23,6 +23,17 @@ class MockWcOrder {
 
 class FieldOrderPersisterTest extends TestCase {
 
+    public function test_checkbox_records_checked_and_unchecked_values(): void {
+        $order = new MockWcOrder();
+        $fields = [['key' => 'accept_terms', 'type' => 'checkbox', 'enabled' => true]];
+
+        FieldOrderPersister::persist($order, $fields, ['accept_terms' => '1']);
+        $this->assertSame('1', $order->get_meta('_accept_terms'));
+
+        FieldOrderPersister::persist($order, $fields, []);
+        $this->assertSame('0', $order->get_meta('_accept_terms'));
+    }
+
     public function test_persists_visible_custom_fields_with_underscore_prefix(): void {
         $order = new MockWcOrder();
 

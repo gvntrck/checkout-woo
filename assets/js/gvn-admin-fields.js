@@ -328,7 +328,7 @@
             var types = {
                 'text': 'Texto', 'email': 'E-mail', 'tel': 'Telefone',
                 'number': 'Número', 'textarea': 'Área de texto',
-                'select': 'Seleção', 'date': 'Data', 'password': 'Senha', 'html': 'HTML'
+                'select': 'Seleção', 'checkbox': 'Checkbox', 'date': 'Data', 'password': 'Senha', 'html': 'HTML'
             };
             var html = '';
             for (var k in types) {

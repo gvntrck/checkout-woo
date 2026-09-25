@@ -23,6 +23,9 @@ class FieldSanitizer {
         $str_val = (string) $value;
 
         switch ($type) {
+            case 'checkbox':
+                return $str_val === '1' ? '1' : '0';
+
             case 'email':
                 return function_exists('sanitize_email') ? sanitize_email($str_val) : (string) filter_var($str_val, FILTER_SANITIZE_EMAIL);
 

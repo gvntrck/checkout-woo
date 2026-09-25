@@ -56,7 +56,7 @@ class FieldValidator {
 
             // 2. Validação de obrigatoriedade em campos visíveis
             $is_required = !empty($field['required']);
-            if ($is_required && $value_str === '') {
+            if ($is_required && ($value_str === '' || ($type === 'checkbox' && $value_str !== '1'))) {
                 $message = sprintf(
                     /* translators: %s: Nome do campo */
                     __('O campo "%s" é obrigatório.', 'gvn-checkout'),

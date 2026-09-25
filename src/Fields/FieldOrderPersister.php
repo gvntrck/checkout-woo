@@ -62,8 +62,8 @@ class FieldOrderPersister {
                 continue;
             }
 
-            if (array_key_exists($key, $posted_data)) {
-                $sanitized_value = FieldSanitizer::sanitize($type, $posted_data[$key], $field);
+            if (array_key_exists($key, $posted_data) || $type === 'checkbox') {
+                $sanitized_value = FieldSanitizer::sanitize($type, $posted_data[$key] ?? '', $field);
 
                 if (method_exists($order, 'update_meta_data')) {
                     $order->update_meta_data($meta_key, $sanitized_value);

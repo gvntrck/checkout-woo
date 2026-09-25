@@ -8,6 +8,17 @@ use WP_Error;
 
 class FieldValidatorTest extends TestCase {
 
+    public function test_required_checkbox_accepts_only_checked_value(): void {
+        $fields = [[
+            'key' => 'accept_terms', 'label' => 'Aceito os termos',
+            'type' => 'checkbox', 'required' => true, 'enabled' => true,
+        ]];
+
+        $this->assertArrayHasKey('accept_terms', FieldValidator::validate($fields, []));
+        $this->assertArrayHasKey('accept_terms', FieldValidator::validate($fields, ['accept_terms' => '0']));
+        $this->assertSame([], FieldValidator::validate($fields, ['accept_terms' => '1']));
+    }
+
     public function test_validates_required_visible_field_missing_value(): void {
         $fields = [
             [

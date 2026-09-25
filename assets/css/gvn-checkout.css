@@ -405,6 +405,20 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
     margin-left: 0.15rem;
 }
 
+.gvn-field__label--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.gvn-field__checkbox.gvn-field__input {
+    width: auto;
+    margin: 0;
+    padding: 0;
+    accent-color: var(--gvn-primary, #0066d4);
+}
+
 .gvn-field__input,
 .gvn-field__select,
 .gvn-field__textarea {

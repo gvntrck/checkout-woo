@@ -165,12 +165,14 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                                     <?php if ( 'html' === $f_type ) : ?>
                                         <div class="gvn-field__html"><?php echo wp_kses_post( isset( $gvn_field['html_content'] ) ? $gvn_field['html_content'] : '' ); ?></div>
                                     <?php else : ?>
-                                    <label class="gvn-field__label" for="<?php echo $f_id_attr; ?>">
+                                    <label class="gvn-field__label<?php echo 'checkbox' === $f_type ? ' gvn-field__label--checkbox' : ''; ?>" for="<?php echo $f_id_attr; ?>">
+                                        <?php if ( 'checkbox' === $f_type ) : ?><input type="checkbox" class="gvn-field__input gvn-field__checkbox" name="<?php echo $f_key; ?>" id="<?php echo $f_id_attr; ?>" value="1" <?php checked( $f_raw_value, '1' ); ?> <?php echo $f_required ? 'required' : ''; ?> /><?php endif; ?>
                                         <?php echo $f_label; ?>
                                         <?php if ( $f_required ) : ?><span class="gvn-field__required">*</span><?php endif; ?>
                                         <?php if ( ! $f_required && 'order_comments' === $f_key ) : ?><span class="gvn-field__optional">(<?php esc_html_e( 'opcional', 'gvn-checkout' ); ?>)</span><?php endif; ?>
                                     </label>
-                                    <?php if ( 'textarea' === $f_type ) : ?>
+                                    <?php if ( 'checkbox' === $f_type ) : ?>
+                                    <?php elseif ( 'textarea' === $f_type ) : ?>
                                         <textarea class="gvn-field__input gvn-field__textarea" name="<?php echo $f_key; ?>" id="<?php echo $f_id_attr; ?>" rows="3" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?>><?php echo esc_textarea( $f_raw_value ); ?></textarea>
                                     <?php elseif ( 'select' === $f_type ) :
                                         $f_options_raw  = isset( $gvn_field['options'] ) ? $gvn_field['options'] : '';

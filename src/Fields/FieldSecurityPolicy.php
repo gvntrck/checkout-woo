@@ -17,6 +17,7 @@ class FieldSecurityPolicy {
         'number',
         'textarea',
         'select',
+        'checkbox',
         'date',
         'password',
         'html',

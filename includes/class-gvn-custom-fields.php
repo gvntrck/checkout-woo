@@ -1003,6 +1003,7 @@ class GVN_Custom_Fields {
             'number'   => 'Número',
             'textarea' => 'Área de texto',
             'select'   => 'Seleção',
+            'checkbox' => 'Checkbox',
             'date'     => 'Data',
             'password' => 'Senha',
             'html'     => 'HTML',

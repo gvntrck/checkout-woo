@@ -106,23 +106,6 @@ if ( $bump_product && $cart ) {
 
                     <?php $gvn_fields = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_enabled_fields() : array(); ?>
                     <?php $gvn_steps = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_steps() : array(); ?>
-                        <?php
-                        $gvn_field_groups = array(
-                            array(
-                                'label'  => '',
-                                'fields' => array(),
-                            ),
-                            array(
-                                'label'  => __( 'Endereço', 'gvn-checkout' ),
-                                'fields' => array(),
-                            ),
-                        );
-
-                        foreach ( $gvn_fields as $gvn_field ) {
-                            $gvn_group_index = ( class_exists( 'GVN_Custom_Fields' ) && GVN_Custom_Fields::is_address_field( $gvn_field ) ) ? 1 : 0;
-                            $gvn_field_groups[ $gvn_group_index ]['fields'][] = $gvn_field;
-                        }
-                        ?>
                     <div class="gvn-fields-dynamic">
                         <?php if ( count( $gvn_steps ) > 1 ) : ?>
                             <div class="gvn-checkout-steps" data-gvn-steps="<?php echo esc_attr( wp_json_encode( $gvn_steps ) ); ?>" data-back="<?php esc_attr_e( 'Voltar', 'gvn-checkout' ); ?>" data-next="<?php esc_attr_e( 'Avançar', 'gvn-checkout' ); ?>" data-finish="<?php esc_attr_e( 'Ir para pagamento', 'gvn-checkout' ); ?>" data-step-label="<?php esc_attr_e( 'Etapa', 'gvn-checkout' ); ?>" data-of="<?php esc_attr_e( 'de', 'gvn-checkout' ); ?>"></div>
@@ -132,12 +115,7 @@ if ( $bump_product && $cart ) {
                             // id único (name permanece igual). A 1ª mantém o id original.
                             $gvn_key_counts = array();
                             ?>
-                            <?php foreach ( $gvn_field_groups as $gvn_group ) : ?>
-                                <?php if ( ! empty( $gvn_group['fields'] ) ) : ?>
-                                    <?php if ( ! empty( $gvn_group['label'] ) ) : ?>
-                                        <h3 class="gvn-fields-divider"><?php echo esc_html( $gvn_group['label'] ); ?></h3>
-                                    <?php endif; ?>
-                                    <?php foreach ( $gvn_group['fields'] as $gvn_field ) :
+                                    <?php foreach ( $gvn_fields as $gvn_field ) :
                                         $f_key         = esc_attr( $gvn_field['key'] );
                                         if ( ! isset( $gvn_key_counts[ $gvn_field['key'] ] ) ) {
                                             $gvn_key_counts[ $gvn_field['key'] ] = 0;
@@ -196,8 +174,6 @@ if ( $bump_product && $cart ) {
                                         <?php endif; ?>
                                     </div>
                                     <?php endforeach; ?>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
                         </div>
 
                         <?php do_action( 'woocommerce_after_checkout_billing_form', $checkout ); ?>

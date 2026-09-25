@@ -831,6 +831,15 @@ if (!class_exists('Mock_WC_Cart')) {
         public function get_cart() {
             return $this->items;
         }
+        public function get_cart_item($key) {
+            return $this->items[$key] ?? [];
+        }
+        public function set_quantity($key, $quantity, $refresh_totals = true) {
+            if (!isset($this->items[$key])) return false;
+            $this->items[$key]['quantity'] = $quantity;
+            if ($refresh_totals) $this->calculate_totals();
+            return true;
+        }
         public function add_to_cart($product_id, $quantity = 1, $variation_id = 0, $variation = [], $cart_item_data = []) {
             $key = 'item_' . $product_id . '_' . count($this->items);
             $product = wc_get_product($product_id);
@@ -886,13 +895,21 @@ if (!class_exists('Mock_WC_Checkout')) {
 }
 
 if (!class_exists('Mock_WooCommerce')) {
+    class Mock_WC_Session {
+        public $data = [];
+        public function get($key) { return $this->data[$key] ?? null; }
+        public function set($key, $value) { $this->data[$key] = $value; }
+    }
+
     class Mock_WooCommerce {
         public $cart;
+        public $session;
         public $payment_gateways;
         public $checkout;
 
         public function __construct() {
             $this->cart = new Mock_WC_Cart();
+            $this->session = new Mock_WC_Session();
             $this->payment_gateways = new Mock_WC_Payment_Gateways();
             $this->checkout = new Mock_WC_Checkout();
         }

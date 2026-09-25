@@ -349,6 +349,13 @@ class GVN_Admin {
                 'desc'    => __( 'Exibir o campo "Tem um cupom de desconto?" no checkout.', 'gvn-checkout' ),
             ),
             array(
+                'title'   => __( 'Apenas o último produto', 'gvn-checkout' ),
+                'id'      => 'gvn_checkout_single_product_checkout',
+                'type'    => 'checkbox',
+                'default' => 'no',
+                'desc'    => __( 'Ao abrir o checkout, mantém somente o último produto adicionado, com quantidade 1. Desativa o order bump.', 'gvn-checkout' ),
+            ),
+            array(
                 'type' => 'sectionend',
                 'id'   => 'gvn_checkout_options_section',
             ),

@@ -24,6 +24,8 @@ class GVN_Checkout {
 
     private function __construct() {
         add_shortcode( 'gvn-checkout', array( $this, 'render_checkout' ) );
+        add_action( 'woocommerce_add_to_cart', array( $this, 'remember_last_cart_item' ) );
+        add_action( 'woocommerce_before_checkout_process', array( $this, 'keep_only_last_cart_item' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
         add_filter( 'body_class', array( $this, 'add_body_classes' ) );
         add_action( 'wp_ajax_gvn_apply_coupon', array( $this, 'ajax_apply_coupon' ) );
@@ -253,6 +255,8 @@ class GVN_Checkout {
             return $this->render_thankyou_page();
         }
 
+        $this->keep_only_last_cart_item();
+
         if ( ! WC()->cart || WC()->cart->is_empty() ) {
             $shop_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '';
             return '<div class="gvn-checkout-empty">
@@ -280,6 +284,59 @@ class GVN_Checkout {
         ob_start();
         include $template;
         return ob_get_clean();
+    }
+
+    /** Guarda a última linha adicionada, inclusive quando o produto já estava no carrinho. */
+    public function remember_last_cart_item( $cart_item_key ) {
+        if ( 'yes' !== \GVN\Checkout\Settings\SettingsRepository::get( 'single_product_checkout' ) || ! WC()->session || ! WC()->cart ) {
+            return;
+        }
+
+        $item = WC()->cart->get_cart_item( $cart_item_key );
+        if ( $item && empty( $item['gvn_order_bump'] ) ) {
+            WC()->session->set( 'gvn_last_cart_item_key', $cart_item_key );
+        }
+    }
+
+    /** Aplica o modo de curso antes de exibir ou processar o checkout. */
+    public function keep_only_last_cart_item() {
+        if ( 'yes' !== \GVN\Checkout\Settings\SettingsRepository::get( 'single_product_checkout' ) || ! WC()->cart ) {
+            return;
+        }
+
+        $cart  = WC()->cart;
+        $items = $cart->get_cart();
+        if ( ! $items ) {
+            return;
+        }
+
+        $last_key = WC()->session ? WC()->session->get( 'gvn_last_cart_item_key' ) : '';
+        if ( ! isset( $items[ $last_key ] ) || ! empty( $items[ $last_key ]['gvn_order_bump'] ) ) {
+            foreach ( array_reverse( array_keys( $items ) ) as $key ) {
+                if ( empty( $items[ $key ]['gvn_order_bump'] ) ) {
+                    $last_key = $key;
+                    break;
+                }
+            }
+            if ( ! isset( $items[ $last_key ] ) || ! empty( $items[ $last_key ]['gvn_order_bump'] ) ) {
+                $last_key = array_key_last( $items );
+            }
+        }
+
+        $changed = false;
+        foreach ( $items as $key => $item ) {
+            if ( $key !== $last_key ) {
+                $cart->remove_cart_item( $key );
+                $changed = true;
+            }
+        }
+        if ( (float) $items[ $last_key ]['quantity'] !== 1.0 ) {
+            $cart->set_quantity( $last_key, 1, false );
+            $changed = true;
+        }
+        if ( $changed ) {
+            $cart->calculate_totals();
+        }
     }
 
     /**

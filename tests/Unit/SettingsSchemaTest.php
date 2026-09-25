@@ -16,6 +16,7 @@ class SettingsSchemaTest extends TestCase {
         $this->assertArrayHasKey('primary_color', $defaults);
         $this->assertArrayHasKey('button_color', $defaults);
         $this->assertArrayHasKey('coupon_enabled', $defaults);
+        $this->assertSame('no', $defaults['single_product_checkout']);
         $this->assertArrayHasKey('typography_preset', $defaults);
         $this->assertArrayHasKey('order_bump_enabled', $defaults);
         $this->assertArrayHasKey('thankyou_success_title', $defaults);
@@ -65,6 +66,11 @@ class SettingsSchemaTest extends TestCase {
         $this->assertEquals('yes', SettingsSchema::sanitize_setting('coupon_enabled', '1'));
         $this->assertEquals('no', SettingsSchema::sanitize_setting('coupon_enabled', false));
         $this->assertEquals('no', SettingsSchema::sanitize_setting('coupon_enabled', 'other'));
+    }
+
+    public function test_sanitize_single_product_checkout_toggle() {
+        $this->assertSame('yes', SettingsSchema::sanitize_setting('single_product_checkout', 'yes'));
+        $this->assertSame('no', SettingsSchema::sanitize_setting('single_product_checkout', 'other'));
     }
 
     public function test_sanitize_header_visibility_toggle() {

@@ -36,6 +36,7 @@ class SettingsSchema {
             'font_size_price'         => '',
             'font_size_privacy'       => '',
             'coupon_enabled'          => 'yes',
+            'single_product_checkout' => 'no',
             'order_bump_enabled'      => 'no',
             'order_bump_product_id'   => 0,
             'order_bump_title'        => 'Oferta Exclusiva',
@@ -235,6 +236,7 @@ class SettingsSchema {
 
             case 'order_bump_enabled':
             case 'coupon_enabled':
+            case 'single_product_checkout':
             case 'header_enabled':
             case 'thankyou_custom_url_enabled':
                 if (is_bool($value)) {

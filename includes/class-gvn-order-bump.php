@@ -56,7 +56,7 @@ class GVN_Order_Bump {
         }
 
         $enabled = $this->get_setting( 'order_bump_enabled', 'no' );
-        if ( 'yes' !== $enabled ) {
+        if ( 'yes' !== $enabled || 'yes' === $this->get_setting( 'single_product_checkout', 'no' ) ) {
             wp_send_json_error( array( 'message' => __( 'Order bump não está habilitado.', 'gvn-checkout' ) ) );
             return;
         }

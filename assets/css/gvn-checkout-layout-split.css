@@ -124,9 +124,7 @@
     color: #cbd5e1;
 }
 
-.gvn-layout-split .gvn-order-totals__value,
-.gvn-layout-split .gvn-order-totals__total-label,
-.gvn-layout-split .gvn-order-totals__total-value {
+.gvn-layout-split .gvn-order-totals__value {
     color: #ffffff;
 }
 
@@ -334,12 +332,6 @@
 
     .gvn-split__summary {
         padding: 3rem 3.5rem;
-    }
-
-    .gvn-split__summary > * {
-        max-width: 28rem;
-        width: 100%;
-        margin-left: auto;
     }
 
     .gvn-split__main,

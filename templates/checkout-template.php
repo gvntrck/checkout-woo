@@ -30,6 +30,8 @@ $bump_product      = $bump_enabled && $bump_product_id && function_exists( 'wc_g
 
 $available_gateways = ( function_exists( 'WC' ) && WC()->payment_gateways() ) ? WC()->payment_gateways()->get_available_payment_gateways() : array();
 $cart               = ( function_exists( 'WC' ) ) ? WC()->cart : null;
+$edit_cart_enabled  = 'yes' === \GVN\Checkout\Settings\SettingsRepository::get( 'edit_cart_enabled', 'no' );
+$cart_url           = $edit_cart_enabled && function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '';
 
 if ( false === strpos( $privacy_policy_text, 'gvn-privacy__link' ) && function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) {
     $privacy_policy_text = rtrim( $privacy_policy_text ) . ' <a href="' . esc_url( get_privacy_policy_url() ) . '" class="gvn-privacy__link" target="_blank">' . esc_html__( 'política de privacidade', 'gvn-checkout' ) . '</a>.';
@@ -249,7 +251,12 @@ if ( $bump_product && $cart ) {
                 <?php do_action( 'woocommerce_checkout_before_order_review_heading' ); ?>
 
                 <div class="gvn-card gvn-card--summary">
-                    <div class="gvn-card__header"><?php esc_html_e( 'RESUMO DO PEDIDO', 'gvn-checkout' ); ?></div>
+                    <div class="gvn-card__header">
+                        <?php esc_html_e( 'RESUMO DO PEDIDO', 'gvn-checkout' ); ?>
+                        <?php if ( $cart_url ) : ?>
+                            <a class="gvn-edit-cart" href="<?php echo esc_url( $cart_url ); ?>"><?php esc_html_e( 'Editar carrinho', 'gvn-checkout' ); ?></a>
+                        <?php endif; ?>
+                    </div>
 
                     <?php do_action( 'woocommerce_checkout_before_order_review' ); ?>
 

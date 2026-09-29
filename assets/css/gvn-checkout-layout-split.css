@@ -99,6 +99,15 @@
     color: #ffffff;
 }
 
+.gvn-layout-split .gvn-split__plan .gvn-edit-cart {
+    display: inline-block;
+    margin-top: 0.75rem;
+    color: #ffffff;
+    font-size: 0.875rem;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
 /* Itens e totais sobre o fundo escuro. */
 .gvn-layout-split .gvn-split__items {
     border-top: 1px solid rgba(148, 163, 184, 0.25);

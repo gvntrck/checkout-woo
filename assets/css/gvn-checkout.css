@@ -276,6 +276,29 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
     letter-spacing: 0.08em;
 }
 
+.gvn-card--summary .gvn-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.gvn-card--summary .gvn-edit-cart {
+    color: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+.gvn-card--summary .gvn-edit-cart:hover,
+.gvn-card--summary .gvn-edit-cart:focus-visible {
+    color: inherit;
+    text-decoration-thickness: 2px;
+}
+
 .gvn-card__body {
     padding: 1.5rem;
     width: 100%;

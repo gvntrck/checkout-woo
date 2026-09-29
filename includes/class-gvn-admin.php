@@ -349,6 +349,13 @@ class GVN_Admin {
                 'desc'    => __( 'Exibir o campo "Tem um cupom de desconto?" no checkout.', 'gvn-checkout' ),
             ),
             array(
+                'title'   => __( 'Exibir botão Editar carrinho', 'gvn-checkout' ),
+                'id'      => 'gvn_checkout_edit_cart_enabled',
+                'type'    => 'checkbox',
+                'default' => 'no',
+                'desc'    => __( 'Exibir link para o carrinho no resumo do pedido.', 'gvn-checkout' ),
+            ),
+            array(
                 'title'   => __( 'Apenas o último produto', 'gvn-checkout' ),
                 'id'      => 'gvn_checkout_single_product_checkout',
                 'type'    => 'checkbox',

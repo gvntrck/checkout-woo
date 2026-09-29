@@ -44,6 +44,8 @@ $bump_product      = $bump_enabled && $bump_product_id && function_exists( 'wc_g
 
 $available_gateways = ( function_exists( 'WC' ) && WC()->payment_gateways() ) ? WC()->payment_gateways()->get_available_payment_gateways() : array();
 $cart               = ( function_exists( 'WC' ) ) ? WC()->cart : null;
+$edit_cart_enabled  = 'yes' === \GVN\Checkout\Settings\SettingsRepository::get( 'edit_cart_enabled', 'no' );
+$cart_url           = $edit_cart_enabled && function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : '';
 $shop_url           = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : '';
 
 if ( false === strpos( $privacy_policy_text, 'gvn-privacy__link' ) && function_exists( 'get_privacy_policy_url' ) && get_privacy_policy_url() ) {
@@ -267,6 +269,9 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                 <div class="gvn-split__plan">
                     <p class="gvn-split__plan-label"><?php echo esc_html( $split_plan_label ); ?></p>
                     <p class="gvn-split__plan-price" id="gvn-split-headline-total"><?php echo ( $cart ) ? $cart->get_total() : ''; ?></p>
+                    <?php if ( $cart_url ) : ?>
+                        <a class="gvn-edit-cart" href="<?php echo esc_url( $cart_url ); ?>"><?php esc_html_e( 'Editar carrinho', 'gvn-checkout' ); ?></a>
+                    <?php endif; ?>
                 </div>
 
                 <?php do_action( 'woocommerce_checkout_before_order_review' ); ?>

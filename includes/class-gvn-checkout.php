@@ -264,15 +264,15 @@ class GVN_Checkout {
             </div>';
         }
 
-        if ( ! is_user_logged_in() && 'no' === get_option( 'woocommerce_enable_guest_checkout' ) ) {
-            $account_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '';
-            return '<p>' . esc_html__( 'Você precisa estar logado para finalizar a compra.', 'gvn-checkout' ) . ' <a href="' . esc_url( $account_url ) . '">' . esc_html__( 'Faça login', 'gvn-checkout' ) . '</a></p>';
-        }
-
         $checkout = WC()->checkout();
 
         if ( ! $checkout ) {
             return '<p>' . esc_html__( 'Não foi possível inicializar o checkout. Tente novamente.', 'gvn-checkout' ) . '</p>';
+        }
+
+        if ( ! is_user_logged_in() && 'no' === get_option( 'woocommerce_enable_guest_checkout' ) && ! $checkout->is_registration_enabled() ) {
+            $account_url = function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '';
+            return '<p>' . esc_html__( 'Você precisa estar logado para finalizar a compra.', 'gvn-checkout' ) . ' <a href="' . esc_url( $account_url ) . '">' . esc_html__( 'Faça login', 'gvn-checkout' ) . '</a></p>';
         }
 
         $layout      = self::get_current_layout( $atts, 'render' );

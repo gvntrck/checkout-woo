@@ -888,6 +888,9 @@ if (!class_exists('WC_Cart')) {
 
 if (!class_exists('Mock_WC_Checkout')) {
     class Mock_WC_Checkout {
+        public function is_registration_enabled() {
+            return 'yes' === get_option('woocommerce_enable_signup_and_login_from_checkout');
+        }
         public function get_value($key) {
             return '';
         }

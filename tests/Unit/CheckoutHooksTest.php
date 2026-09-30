@@ -16,6 +16,7 @@ class CheckoutHooksTest extends TestCase {
         $wp_mock_filters = [];
         $wp_mock_options = [];
         $mock_woocommerce_instance = null;
+        $GLOBALS['wp_mock_logged_in'] = false;
     }
 
     /**
@@ -27,6 +28,29 @@ class CheckoutHooksTest extends TestCase {
         ob_start();
         include GVN_CHECKOUT_PLUGIN_DIR . 'templates/checkout-template.php';
         return ob_get_clean();
+    }
+
+    public function test_checkout_allows_account_creation_when_guest_checkout_is_disabled(): void {
+        global $wp_mock_options, $mock_woocommerce_instance;
+        $wp_mock_options['woocommerce_enable_guest_checkout'] = 'no';
+        $wp_mock_options['woocommerce_enable_signup_and_login_from_checkout'] = 'yes';
+        $mock_woocommerce_instance = new \Mock_WooCommerce();
+        $mock_woocommerce_instance->cart->items['item'] = [
+            'product_id' => 1,
+            'quantity' => 1,
+            'data' => wc_get_product(1),
+        ];
+
+        $html = \GVN_Checkout::get_instance()->render_checkout([]);
+
+        $this->assertStringContainsString('name="checkout"', $html);
+        $this->assertStringNotContainsString('Você precisa estar logado', $html);
+
+        $wp_mock_options['woocommerce_enable_signup_and_login_from_checkout'] = 'no';
+        $this->assertStringContainsString('Você precisa estar logado', \GVN_Checkout::get_instance()->render_checkout([]));
+
+        $wp_mock_options['woocommerce_enable_guest_checkout'] = 'yes';
+        $this->assertStringContainsString('name="checkout"', \GVN_Checkout::get_instance()->render_checkout([]));
     }
 
     public function test_all_canonical_woocommerce_hooks_fire_in_correct_order() {

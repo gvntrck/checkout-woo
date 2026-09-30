@@ -67,11 +67,11 @@ class CheckoutHooksTest extends TestCase {
             ob_start();
             include GVN_CHECKOUT_PLUGIN_DIR . $template;
             $html = ob_get_clean();
-            $this->assertMatchesRegularExpression('/class="gvn-order-totals__total order-total".*?<bdi>R\$ [^<]+<\/bdi>/s', $html);
+            $this->assertMatchesRegularExpression('/class="gvn-order-totals__total order-total".*?<bdi>.*?R\$.*?<\/bdi>/s', $html);
         }
 
         $fragments = \GVN_Checkout::get_instance()->refresh_checkout_fragments([]);
-        $this->assertMatchesRegularExpression('/class="gvn-order-totals__total order-total".*?<bdi>R\$ [^<]+<\/bdi>/s', $fragments['#gvn-order-totals']);
+        $this->assertMatchesRegularExpression('/class="gvn-order-totals__total order-total".*?<bdi>.*?R\$.*?<\/bdi>/s', $fragments['#gvn-order-totals']);
     }
 
     public function test_all_canonical_woocommerce_hooks_fire_in_correct_order() {

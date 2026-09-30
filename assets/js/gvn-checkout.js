@@ -285,7 +285,7 @@
                             $('#gvn-subtotal').html(response.data.subtotal);
                         }
                         if (response.data && response.data.total) {
-                            $('#gvn-total').html(response.data.total);
+                            $('#gvn-total').html('<bdi>' + response.data.total + '</bdi>');
                             $('#gvn-split-headline-total').html(response.data.total);
                         }
                     } else {

@@ -605,7 +605,7 @@ if (!function_exists('wc_get_checkout_url')) {
 
 if (!function_exists('wc_price')) {
     function wc_price($price, $args = []) {
-        return '<span class="woocommerce-Price-amount amount"><bdi>R$ ' . number_format((float) $price, 2, ',', '.') . '</bdi></span>';
+        return '<span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">R$ </span>' . number_format((float) $price, 2, ',', '.') . '</span>';
     }
 }
 

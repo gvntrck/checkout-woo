@@ -605,7 +605,7 @@ if (!function_exists('wc_get_checkout_url')) {
 
 if (!function_exists('wc_price')) {
     function wc_price($price, $args = []) {
-        return 'R$ ' . number_format((float) $price, 2, ',', '.');
+        return '<span class="woocommerce-Price-amount amount"><bdi>R$ ' . number_format((float) $price, 2, ',', '.') . '</bdi></span>';
     }
 }
 
@@ -876,7 +876,7 @@ if (!class_exists('Mock_WC_Cart')) {
         }
         public function get_discount_total() { return 0.00; }
         public function get_total($context = 'view') {
-            return 'R$ ' . number_format($this->get_subtotal(), 2, ',', '.');
+            return 'edit' === $context ? $this->get_subtotal() : 'R$ ' . number_format($this->get_subtotal(), 2, ',', '.');
         }
         public function get_applied_coupons() { return []; }
     }

@@ -299,7 +299,7 @@ if ( $bump_product && $cart ) {
 
                             <div class="gvn-order-totals__total order-total">
                                 <span class="gvn-order-totals__total-label"><?php esc_html_e( 'Total', 'gvn-checkout' ); ?></span>
-                                <span class="gvn-order-totals__total-value" id="gvn-total"><?php echo ( $cart ) ? $cart->get_total() : '<bdi>0</bdi>'; ?></span>
+                                <span class="gvn-order-totals__total-value" id="gvn-total"><?php echo ( $cart && function_exists( 'wc_price' ) ) ? wc_price( $cart->get_total( 'edit' ) ) : '<bdi>0</bdi>'; ?></span>
                             </div>
                         </div>
 

@@ -195,20 +195,24 @@
         bindGateways: function () {
             var self = this;
 
-            $(document).on('click', '.gvn-gateway', function () {
+            $(document).on('click', '.gvn-gateway', function (event) {
+                if ($(event.target).is('.gvn-gateway__radio')) return;
+
                 var $this = $(this);
                 var gatewayId = $this.data('gateway');
+                $this.find('.gvn-gateway__radio').trigger('click');
 
                 $('.gvn-gateway').removeClass('gvn-gateway--active');
                 $this.addClass('gvn-gateway--active');
-
-                $this.find('.gvn-gateway__radio').prop('checked', true).trigger('change');
-
                 self.showGatewayFields(gatewayId);
                 self.refreshConditionalFields();
             });
 
             $(document).on('change', 'input[name="payment_method"]', function () {
+                var $gateway = $(this).closest('.gvn-gateway');
+                $('.gvn-gateway').removeClass('gvn-gateway--active');
+                $gateway.addClass('gvn-gateway--active');
+                self.showGatewayFields($gateway.data('gateway'));
                 self.refreshConditionalFields();
             });
         },

@@ -53,6 +53,27 @@ class CheckoutHooksTest extends TestCase {
         $this->assertStringContainsString('name="checkout"', \GVN_Checkout::get_instance()->render_checkout([]));
     }
 
+    public function test_order_total_exposes_formatted_amount_for_card_installments(): void {
+        global $mock_woocommerce_instance;
+        $mock_woocommerce_instance = new \Mock_WooCommerce();
+        $mock_woocommerce_instance->cart->items['item'] = [
+            'product_id' => 1,
+            'quantity' => 1,
+            'data' => wc_get_product(1),
+        ];
+
+        foreach (['templates/checkout-template.php', 'templates/checkout/layout-split.php'] as $template) {
+            $checkout = WC()->checkout();
+            ob_start();
+            include GVN_CHECKOUT_PLUGIN_DIR . $template;
+            $html = ob_get_clean();
+            $this->assertMatchesRegularExpression('/class="gvn-order-totals__total order-total".*?<bdi>R\$ [^<]+<\/bdi>/s', $html);
+        }
+
+        $fragments = \GVN_Checkout::get_instance()->refresh_checkout_fragments([]);
+        $this->assertMatchesRegularExpression('/class="gvn-order-totals__total order-total".*?<bdi>R\$ [^<]+<\/bdi>/s', $fragments['#gvn-order-totals']);
+    }
+
     public function test_all_canonical_woocommerce_hooks_fire_in_correct_order() {
         global $wp_mock_actions;
 

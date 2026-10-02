@@ -762,6 +762,7 @@ if (!class_exists('Mock_WC_Product')) {
         private $price;
         private $purchasable = true;
         private $in_stock = true;
+        public $type = 'simple';
 
         public function __construct($id = 1, $name = 'Produto Teste', $price = '99.00') {
             $this->id = $id;
@@ -770,6 +771,7 @@ if (!class_exists('Mock_WC_Product')) {
         }
 
         public function get_id() { return $this->id; }
+        public function is_type($type) { return $this->type === $type; }
         public function get_name() { return $this->name; }
         public function get_price() { return $this->price; }
         public function set_price($price) { $this->price = (string) $price; }
@@ -782,6 +784,8 @@ if (!class_exists('Mock_WC_Product')) {
 
 if (!function_exists('wc_get_product')) {
     function wc_get_product($product_id) {
+        global $wc_mock_products;
+        if (isset($wc_mock_products[$product_id])) return $wc_mock_products[$product_id];
         if (!$product_id) return false;
         return new Mock_WC_Product($product_id);
     }

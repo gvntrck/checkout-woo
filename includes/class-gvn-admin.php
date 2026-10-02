@@ -363,6 +363,13 @@ class GVN_Admin {
                 'desc'    => __( 'Ao abrir o checkout, mantém somente o último produto adicionado, com quantidade 1. Desativa o order bump.', 'gvn-checkout' ),
             ),
             array(
+                'title'   => __( 'Compra direta pelo link do produto', 'gvn-checkout' ),
+                'id'      => 'gvn_checkout_direct_product_checkout',
+                'type'    => 'checkbox',
+                'default' => 'no',
+                'desc'    => __( 'Ao abrir o link de um produto simples, adiciona uma unidade e vai direto ao checkout configurado no WooCommerce. Respeita a opção Apenas o último produto. Produtos variáveis mantêm a página de seleção.', 'gvn-checkout' ),
+            ),
+            array(
                 'type' => 'sectionend',
                 'id'   => 'gvn_checkout_options_section',
             ),

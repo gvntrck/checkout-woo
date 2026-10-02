@@ -24,6 +24,7 @@ class GVN_Checkout {
 
     private function __construct() {
         add_shortcode( 'gvn-checkout', array( $this, 'render_checkout' ) );
+        add_action( 'template_redirect', array( $this, 'redirect_product_to_checkout' ) );
         add_action( 'woocommerce_add_to_cart', array( $this, 'remember_last_cart_item' ) );
         add_action( 'woocommerce_before_checkout_process', array( $this, 'keep_only_last_cart_item' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
@@ -284,6 +285,54 @@ class GVN_Checkout {
         ob_start();
         include $template;
         return ob_get_clean();
+    }
+
+    /** Compra uma unidade pelo permalink de produtos simples, sem passar pelo carrinho. */
+    public function redirect_product_to_checkout() {
+        if ( 'yes' !== \GVN\Checkout\Settings\SettingsRepository::get( 'direct_product_checkout' )
+            || is_admin() || ! function_exists( 'is_product' ) || ! is_product() || is_preview()
+            || ( function_exists( 'is_checkout' ) && is_checkout() )
+            || 'GET' !== ( $_SERVER['REQUEST_METHOD'] ?? 'GET' )
+            || post_password_required() || ! WC()->cart || ! WC()->session
+            || wc_get_page_id( 'checkout' ) <= 0 ) {
+            return;
+        }
+
+        $product_id = get_queried_object_id();
+        $product    = wc_get_product( $product_id );
+        if ( ! $product || ! $product->is_type( 'simple' ) ) {
+            return;
+        }
+
+        nocache_headers();
+        $error = __( 'Não foi possível iniciar a compra deste produto. Verifique a disponibilidade ou entre em contato com a loja.', 'gvn-checkout' );
+        if ( ! $product->is_purchasable() || ! $product->is_in_stock()
+            || ! apply_filters( 'woocommerce_add_to_cart_validation', true, $product_id, 1 ) ) {
+            wc_add_notice( $error, 'error' );
+            return;
+        }
+
+        // Reutiliza a linha existente para não duplicar nem exceder estoque ao revisitar o link.
+        $cart_item_key = '';
+        foreach ( WC()->cart->get_cart() as $key => $item ) {
+            if ( (int) $item['product_id'] === $product_id && empty( $item['gvn_order_bump'] ) ) {
+                $cart_item_key = $key;
+                break;
+            }
+        }
+        if ( ! $cart_item_key ) {
+            $cart_item_key = WC()->cart->add_to_cart( $product_id, 1 );
+        }
+        if ( ! $cart_item_key ) {
+            wc_add_notice( $error, 'error' );
+            return;
+        }
+
+        WC()->cart->set_quantity( $cart_item_key, 1 );
+        $this->remember_last_cart_item( $cart_item_key );
+        $this->keep_only_last_cart_item();
+        wp_safe_redirect( wc_get_checkout_url() );
+        exit;
     }
 
     /** Guarda a última linha adicionada, inclusive quando o produto já estava no carrinho. */

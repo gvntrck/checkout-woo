@@ -348,6 +348,12 @@ body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.
     display: none !important;
 }
 
+.gvn-checkout .gvn-step-error {
+    color: #b91c1c;
+    font-size: calc(14px * var(--gvn-font-scale, 1));
+    margin: 8px 0 0;
+}
+
 .gvn-payment-pending {
     display: none !important;
 }

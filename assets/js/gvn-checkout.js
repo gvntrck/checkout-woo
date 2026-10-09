@@ -26,6 +26,7 @@
                 var labels = { back: $nav.data('back'), next: $nav.data('next'), finish: $nav.data('finish'), step: $nav.data('step-label'), of: $nav.data('of') };
                 if (steps.length < 2 || !$fields.length) return;
                 var active = 0;
+                var activeStepId;
                 var $payment = $('[data-gvn-payment-panel]');
                 $payment.addClass('gvn-payment-pending');
                 function visibleSteps() {
@@ -38,6 +39,7 @@
                     if (!available.length) return;
                     active = Math.max(0, Math.min(index, available.length - 1));
                     var step = available[active];
+                    activeStepId = step.id;
                     $fields.each(function () {
                         $(this).toggleClass('gvn-step-hidden', $(this).data('gvn-step') !== step.id);
                     });
@@ -50,23 +52,36 @@
                     }
                     if (focus) $fields.filter('[data-gvn-step="' + step.id + '"]').find('input,select,textarea').filter(':visible').first().focus();
                 }
+                function syncSteps() {
+                    var available = visibleSteps();
+                    var index = $.map(available, function (step, i) { return step.id === activeStepId ? i : null; })[0];
+                    show(index === undefined ? active : index, false);
+                    return available;
+                }
                 function revealInvalidField(field) {
                     var $field = $(field).closest('.gvn-field[data-gvn-step]');
                     var available = visibleSteps();
                     var index = $.map(available, function (step, i) { return step.id === $field.data('gvn-step') ? i : null; })[0];
                     if (index === undefined) return;
                     show(index, false);
+                    $fields.find('.gvn-step-error').remove();
+                    $('<p class="gvn-step-error" role="alert"></p>').text(field.validationMessage).appendTo($field);
+                    field.scrollIntoView({ block: 'center' });
                     field.focus();
-                    field.reportValidity();
+                    if (typeof field.reportValidity === 'function') field.reportValidity();
                 }
                 var $controls = $('<div class="gvn-checkout-step-actions"><button type="button" class="gvn-checkout-steps__back">' + labels.back + '</button><button type="button" class="gvn-checkout-steps__next">' + labels.next + '</button></div>');
                 $nav.html('<div><strong class="gvn-checkout-steps__title"></strong><span class="gvn-checkout-steps__count"></span></div>');
                 $nav.closest('.gvn-fields-dynamic').after($controls);
-                $controls.on('click', '.gvn-checkout-steps__back', function () { show(active - 1, true); });
+                $controls.on('click', '.gvn-checkout-steps__back', function () { syncSteps(); show(active - 1, true); });
                 $controls.on('click', '.gvn-checkout-steps__next', function () {
-                    var invalid = $fields.filter(':not(.gvn-step-hidden)').find('input,select,textarea').filter(function () { return !this.disabled && !this.checkValidity(); }).first();
-                    if (invalid.length) { invalid[0].reportValidity(); invalid.focus(); return; }
-                    if (active === visibleSteps().length - 1) {
+                    var available = syncSteps();
+                    if (!available.length) return;
+                    var lastStep = active === available.length - 1;
+                    var invalid = (lastStep ? $fields : $fields.filter(':not(.gvn-step-hidden)')).find('input,select,textarea').filter(function () { return !this.disabled && !this.checkValidity(); }).first();
+                    if (invalid.length) { revealInvalidField(invalid[0]); return; }
+                    $fields.find('.gvn-step-error').remove();
+                    if (lastStep) {
                         $payment.removeClass('gvn-payment-pending');
                         if ($payment.length) {
                             $payment[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -85,7 +100,11 @@
                     event.stopImmediatePropagation();
                     revealInvalidField(invalid[0]);
                 }, true);
-                $(document.body).on('updated_checkout', function () { show(active, false); });
+                $nav.closest('.gvn-fields-dynamic').on('input change', '.gvn-field__input', function () {
+                    $fields.find('.gvn-step-error').remove();
+                    syncSteps();
+                });
+                $(document.body).on('updated_checkout', syncSteps);
                 show(0, false);
             });
         },

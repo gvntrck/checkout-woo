@@ -60,6 +60,17 @@ class SettingsSchemaTest extends TestCase {
         $this->assertEquals('', SettingsSchema::sanitize_setting('order_bump_price', 'invalid_price'));
     }
 
+    public function test_isolated_checkout_defaults_and_sanitization() {
+        $defaults = SettingsSchema::get_defaults();
+        $this->assertSame('no', $defaults['isolated_checkout_enabled']);
+        $this->assertSame('none', $defaults['isolated_checkout_container']);
+        $this->assertSame('yes', SettingsSchema::sanitize_setting('isolated_checkout_enabled', true));
+        $this->assertSame('no', SettingsSchema::sanitize_setting('isolated_checkout_enabled', 'invalid'));
+        $this->assertSame('article', SettingsSchema::sanitize_setting('isolated_checkout_container', 'article'));
+        $this->assertSame('content', SettingsSchema::sanitize_setting('isolated_checkout_container', 'content'));
+        $this->assertSame('none', SettingsSchema::sanitize_setting('isolated_checkout_container', 'body'));
+    }
+
     public function test_sanitize_coupon_visibility_toggle() {
         $this->assertEquals('yes', SettingsSchema::sanitize_setting('coupon_enabled', true));
         $this->assertEquals('yes', SettingsSchema::sanitize_setting('coupon_enabled', 'yes'));

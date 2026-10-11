@@ -164,6 +164,54 @@ class AdminTest extends TestCase {
         $this->assertEquals('Minha Loja Premium', SettingsRepository::get('header_text'));
     }
 
+    public function test_compatibility_subtab_has_explanation_and_safe_defaults(): void {
+        $_GET['subtab'] = 'compatibility';
+        $admin = GVN_Admin::get_instance();
+        ob_start();
+        $admin->render_settings_page();
+        $output = ob_get_clean();
+        $this->assertStringContainsString('Compatibilidade', $output);
+        $this->assertStringContainsString('subtab=compatibility', $output);
+
+        $method = new \ReflectionMethod($admin, 'get_compatibility_settings');
+        $method->setAccessible(true);
+        $settings = $method->invoke($admin);
+        $this->assertSame('gvn_checkout_isolated_checkout_enabled', $settings[1]['id']);
+        $this->assertSame('no', $settings[1]['default']);
+        $this->assertStringContainsString('banners', $settings[1]['desc']);
+        $this->assertSame('none', $settings[2]['default']);
+        $this->assertSame(['none', 'article', 'content'], array_keys($settings[2]['options']));
+    }
+
+    public function test_save_compatibility_preserves_other_unified_settings(): void {
+        global $wp_mock_options;
+        $wp_mock_options[Features::FLAG_NEW_SETTINGS_SCHEMA] = 'yes';
+        $wp_mock_options[SettingsRepository::OPTION_SCHEMA_VERSION] = 1;
+        $wp_mock_options[SettingsRepository::OPTION_SETTINGS] = ['header_text' => 'Header preservado'];
+        $_GET['subtab'] = 'compatibility';
+        $_POST['gvn_checkout_isolated_checkout_enabled'] = 'yes';
+        $_POST['gvn_checkout_isolated_checkout_container'] = 'article';
+        GVN_Admin::get_instance()->save_settings();
+
+        $this->assertSame('yes', SettingsRepository::get('isolated_checkout_enabled'));
+        $this->assertSame('article', SettingsRepository::get('isolated_checkout_container'));
+        $this->assertSame('Header preservado', SettingsRepository::get('header_text'));
+        $this->assertSame('article', $wp_mock_options[SettingsRepository::OPTION_SETTINGS]['isolated_checkout_container']);
+
+        $_POST['gvn_checkout_isolated_checkout_enabled'] = 'no';
+        GVN_Admin::get_instance()->save_settings();
+        $this->assertSame('no', SettingsRepository::get('isolated_checkout_enabled'));
+    }
+
+    public function test_save_compatibility_denies_unauthorized_users(): void {
+        global $wp_mock_user_caps;
+        $wp_mock_user_caps = [];
+        $_GET['subtab'] = 'compatibility';
+        $_POST['gvn_checkout_isolated_checkout_enabled'] = 'yes';
+        GVN_Admin::get_instance()->save_settings();
+        $this->assertSame('no', SettingsRepository::get('isolated_checkout_enabled'));
+    }
+
     public function test_settings_include_customizable_thankyou_texts(): void {
         $admin = GVN_Admin::get_instance();
         $method = new \ReflectionMethod($admin, 'get_settings');

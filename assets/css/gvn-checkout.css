@@ -7,34 +7,34 @@
    Theme Container Breakout (Largura Total)
    ======================================== */
 
-body.gvn-checkout-active .entry-content,
-body.gvn-checkout-active .site-main,
-body.gvn-checkout-active .wp-site-blocks,
-body.gvn-checkout-active .site-content,
-body.gvn-checkout-active #content,
-body.gvn-checkout-active .col-full,
-body.gvn-checkout-active .ast-container,
-body.gvn-checkout-active article,
-body.gvn-checkout-active .page,
-body.gvn-checkout-active .hentry,
-body.woocommerce-checkout .entry-content,
-body.woocommerce-checkout .site-main,
-body.woocommerce-checkout .wp-site-blocks,
-body.woocommerce-checkout .site-content,
-body.woocommerce-checkout #content,
-body.woocommerce-checkout .col-full,
-body.woocommerce-checkout .ast-container,
-body.woocommerce-checkout article,
-body.woocommerce-checkout .page,
-body.woocommerce-checkout .hentry,
-.entry-content:has(#gvn-checkout),
-.site-main:has(#gvn-checkout),
-.wp-site-blocks:has(#gvn-checkout),
-article:has(#gvn-checkout),
-.entry-content:has(.gvn-checkout),
-.site-main:has(.gvn-checkout),
-.wp-site-blocks:has(.gvn-checkout),
-article:has(.gvn-checkout) {
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active .entry-content,
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active .site-main,
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active .wp-site-blocks,
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active .site-content,
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active #content,
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active .col-full,
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active .ast-container,
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active article,
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active .page,
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active .hentry,
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout .entry-content,
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout .site-main,
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout .wp-site-blocks,
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout .site-content,
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout #content,
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout .col-full,
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout .ast-container,
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout article,
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout .page,
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout .hentry,
+:where(body:not(.gvn-checkout-isolated)) .entry-content:has(#gvn-checkout),
+:where(body:not(.gvn-checkout-isolated)) .site-main:has(#gvn-checkout),
+:where(body:not(.gvn-checkout-isolated)) .wp-site-blocks:has(#gvn-checkout),
+:where(body:not(.gvn-checkout-isolated)) article:has(#gvn-checkout),
+:where(body:not(.gvn-checkout-isolated)) .entry-content:has(.gvn-checkout),
+:where(body:not(.gvn-checkout-isolated)) .site-main:has(.gvn-checkout),
+:where(body:not(.gvn-checkout-isolated)) .wp-site-blocks:has(.gvn-checkout),
+:where(body:not(.gvn-checkout-isolated)) article:has(.gvn-checkout) {
     max-width: 1240px !important;
     width: 100% !important;
     margin-left: auto !important;
@@ -44,12 +44,30 @@ article:has(.gvn-checkout) {
 }
 
 /* Força container nativo de blocos FSE (Full Site Editing) a expandir */
-body.gvn-checkout-active .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
-body.woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
-.is-layout-constrained:has(#gvn-checkout) > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
-.is-layout-constrained:has(.gvn-checkout) > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
+body:where(:not(.gvn-checkout-isolated)).gvn-checkout-active .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
+body:where(:not(.gvn-checkout-isolated)).woocommerce-checkout .is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
+:where(body:not(.gvn-checkout-isolated)) .is-layout-constrained:has(#gvn-checkout) > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
+:where(body:not(.gvn-checkout-isolated)) .is-layout-constrained:has(.gvn-checkout) > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
     max-width: 1240px !important;
     width: 100% !important;
+}
+
+body.gvn-checkout-isolated .gvn-checkout,
+body.gvn-checkout-isolated #gvn-checkout {
+    box-sizing: border-box;
+    max-width: 1240px !important;
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+body.gvn-checkout-isolated.gvn-checkout-expand-article article:has(#gvn-checkout),
+body.gvn-checkout-isolated.gvn-checkout-expand-article article:has(.gvn-checkout),
+body.gvn-checkout-isolated.gvn-checkout-expand-content .entry-content:has(#gvn-checkout),
+body.gvn-checkout-isolated.gvn-checkout-expand-content .entry-content:has(.gvn-checkout),
+body.gvn-checkout-isolated.gvn-checkout-expand-content .wp-block-post-content:has(#gvn-checkout),
+body.gvn-checkout-isolated.gvn-checkout-expand-content .wp-block-post-content:has(.gvn-checkout) {
+    max-width: none !important;
 }
 
 /* ========================================

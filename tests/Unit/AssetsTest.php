@@ -22,6 +22,46 @@ class AssetsTest extends TestCase {
         SettingsRepository::flush_cache();
     }
 
+    public function test_isolated_width_is_opt_in_and_only_marks_checkout_pages(): void {
+        global $post;
+        $post = (object) ['post_content' => '[gvn-checkout]'];
+        $checkout = GVN_Checkout::get_instance();
+
+        $this->assertNotContains('gvn-checkout-isolated', $checkout->add_body_classes([]));
+        SettingsRepository::update('isolated_checkout_enabled', 'yes');
+        SettingsRepository::update('isolated_checkout_container', 'article');
+        $classes = $checkout->add_body_classes([]);
+        $this->assertContains('gvn-checkout-isolated', $classes);
+        $this->assertContains('gvn-checkout-expand-article', $classes);
+
+        SettingsRepository::update('isolated_checkout_container', 'content');
+        $this->assertContains('gvn-checkout-expand-content', $checkout->add_body_classes([]));
+        SettingsRepository::update('isolated_checkout_container', 'invalid');
+        $this->assertNotContains('gvn-checkout-expand-article', $checkout->add_body_classes([]));
+        $this->assertNotContains('gvn-checkout-expand-content', $checkout->add_body_classes([]));
+
+        $post->post_content = '<p>Página sem checkout</p>';
+        $this->assertNotContains('gvn-checkout-isolated', $checkout->add_body_classes([]));
+    }
+
+    public function test_isolated_width_excludes_every_legacy_breakout_selector(): void {
+        $css = file_get_contents(GVN_CHECKOUT_PLUGIN_DIR . 'assets/css/gvn-checkout.css');
+        $css = preg_replace('!/\*.*?\*/!s', '', $css);
+        preg_match_all('/([^{}]+)\{([^{}]*)\}/', $css, $rules, PREG_SET_ORDER);
+
+        foreach (array_slice($rules, 0, 2) as $rule) {
+            foreach (explode(",\n", trim($rule[1])) as $selector) {
+                $this->assertStringContainsString(':not(.gvn-checkout-isolated)', $selector);
+            }
+        }
+        $this->assertStringContainsString('body.gvn-checkout-isolated .gvn-checkout', $css);
+        $this->assertStringContainsString('body.gvn-checkout-isolated #gvn-checkout', $css);
+        $this->assertMatchesRegularExpression('/body\.gvn-checkout-isolated[^{}]+\{[^{}]*max-width:\s*1240px\s*!important;/', $css);
+        $this->assertMatchesRegularExpression('/body\.gvn-checkout-isolated[^{}]+\{[^{}]*box-sizing:\s*border-box;/', $css);
+        $this->assertStringContainsString('body.gvn-checkout-isolated.gvn-checkout-expand-article article:has(', $css);
+        $this->assertStringContainsString('body.gvn-checkout-isolated.gvn-checkout-expand-content .wp-block-post-content:has(', $css);
+    }
+
     public function test_enqueue_assets_does_not_enqueue_on_generic_pages(): void {
         global $post, $wp_mock_enqueued_styles;
 

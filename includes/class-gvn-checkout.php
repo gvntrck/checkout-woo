@@ -52,6 +52,13 @@ class GVN_Checkout {
 
         if ( $is_checkout_page ) {
             $classes[] = 'gvn-layout-' . self::get_current_layout( array(), 'body' );
+            if ( ! $is_thankyou_page && 'yes' === \GVN\Checkout\Settings\SettingsRepository::get( 'isolated_checkout_enabled', 'no' ) ) {
+                $classes[] = 'gvn-checkout-isolated';
+                $container = \GVN\Checkout\Settings\SettingsRepository::get( 'isolated_checkout_container', 'none' );
+                if ( in_array( $container, array( 'article', 'content' ), true ) ) {
+                    $classes[] = 'gvn-checkout-expand-' . $container;
+                }
+            }
         }
 
         return $classes;

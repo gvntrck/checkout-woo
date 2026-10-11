@@ -23,3 +23,7 @@ Layout clássico canônico em `templates/checkout-template.php` — não mudar v
 ## Docs do repo
 - `docs/adding-checkout-layout.md` — como criar layouts.
 - `docs/adr/` — decisões de arquitetura; `docs/plans/` — planos.
+
+## Regressão de contêineres CSS
+- `rtk proxy node --test tests/checkout-containers.test.cjs tests/checkout-steps.test.cjs` valida geometria, isolamento e etapas. Os testes de contêineres exigem `GVN_PLAYWRIGHT_PATH` apontando para um módulo Playwright já instalado; `GVN_CHROMIUM_PATH` pode indicar o executável Chromium disponível. Sem Playwright informado, esses testes são explicitamente ignorados.
+- No WSL deste ambiente, Node está disponível via `/mnt/c/Program\ Files/nodejs/node.exe`; usar `rtk proxy` para executá-lo. Os testes estruturais não substituem homologação com temas e gateways reais.

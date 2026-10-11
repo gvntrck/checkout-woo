@@ -17,6 +17,8 @@ class SettingsSchema {
     public static function get_defaults(): array {
         return [
             'checkout_layout'         => 'classic',
+            'isolated_checkout_enabled' => 'no',
+            'isolated_checkout_container' => 'none',
             'header_enabled'          => 'yes',
             'header_text'             => 'EFEAD - Conectando Saberes',
             'header_badge_text'       => 'COMPRA SEGURA',
@@ -242,6 +244,7 @@ class SettingsSchema {
             case 'single_product_checkout':
             case 'direct_product_checkout':
             case 'header_enabled':
+            case 'isolated_checkout_enabled':
             case 'thankyou_custom_url_enabled':
                 if (is_bool($value)) {
                     return $value ? 'yes' : 'no';
@@ -264,6 +267,10 @@ class SettingsSchema {
                     return \GVN\Checkout\Layouts\LayoutRegistry::resolve( $slug );
                 }
                 return $slug;
+
+            case 'isolated_checkout_container':
+                $container = sanitize_key( (string) $value );
+                return in_array( $container, array( 'none', 'article', 'content' ), true ) ? $container : $fallback;
 
             case 'typography_preset':
                 $preset = sanitize_key( (string) $value );

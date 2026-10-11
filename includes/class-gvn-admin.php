@@ -47,7 +47,7 @@ class GVN_Admin {
      * Retorna a sub-aba ativa.
      */
     private function get_current_subtab() {
-        $valid  = array( 'settings', 'fields', 'help' );
+        $valid  = array( 'settings', 'fields', 'compatibility', 'help' );
         $subtab = isset( $_GET['subtab'] ) ? sanitize_key( wp_unslash( $_GET['subtab'] ) ) : 'settings';
         return in_array( $subtab, $valid, true ) ? $subtab : 'settings';
     }
@@ -68,6 +68,7 @@ class GVN_Admin {
         $subtabs = array(
             'settings' => __( 'Configurações', 'gvn-checkout' ),
             'fields'   => __( 'Campos do Formulário', 'gvn-checkout' ),
+            'compatibility' => __( 'Compatibilidade', 'gvn-checkout' ),
             'help'     => __( 'Como Usar', 'gvn-checkout' ),
         );
         ?>
@@ -84,6 +85,9 @@ class GVN_Admin {
         switch ( $current_subtab ) {
             case 'fields':
                 $this->render_fields_manager();
+                break;
+            case 'compatibility':
+                woocommerce_admin_fields( $this->get_compatibility_settings() );
                 break;
             case 'help':
                 $this->render_help_page();
@@ -103,10 +107,10 @@ class GVN_Admin {
         }
 
         $subtab = $this->get_current_subtab();
-        if ( 'settings' === $subtab ) {
-            woocommerce_update_options( $this->get_settings() );
+        if ( in_array( $subtab, array( 'settings', 'compatibility' ), true ) ) {
+            woocommerce_update_options( 'compatibility' === $subtab ? $this->get_compatibility_settings() : $this->get_settings() );
 
-            if ( isset( $_POST['gvn_checkout_privacy_policy_text'] ) ) {
+            if ( 'settings' === $subtab && isset( $_POST['gvn_checkout_privacy_policy_text'] ) ) {
                 update_option( 'gvn_checkout_privacy_policy_text', wp_kses_post( wp_unslash( $_POST['gvn_checkout_privacy_policy_text'] ) ) );
             }
 
@@ -114,6 +118,40 @@ class GVN_Admin {
                 SettingsRepository::sync_from_legacy_options();
             }
         }
+    }
+
+    private function get_compatibility_settings() {
+        return array(
+            array(
+                'title' => __( 'Compatibilidade com o tema', 'gvn-checkout' ),
+                'type'  => 'title',
+                'desc'  => __( 'Use estas opções quando a expansão de largura do checkout interferir na estrutura do tema. Desativado mantém o comportamento atual dos sites.', 'gvn-checkout' ),
+                'id'    => 'gvn_checkout_compatibility_section',
+            ),
+            array(
+                'title'   => __( 'Conteúdo isolado', 'gvn-checkout' ),
+                'id'      => 'gvn_checkout_isolated_checkout_enabled',
+                'type'    => 'checkbox',
+                'default' => 'no',
+                'desc'    => __( 'Limitar apenas o checkout a 1240 px, sem redimensionar a estrutura externa, banners, cabeçalho ou rodapé do tema.', 'gvn-checkout' ),
+            ),
+            array(
+                'title'   => __( 'Liberar largura do conteúdo', 'gvn-checkout' ),
+                'id'      => 'gvn_checkout_isolated_checkout_container',
+                'type'    => 'select',
+                'default' => 'none',
+                'options' => array(
+                    'none'    => __( 'Nenhum (preservar limites do tema)', 'gvn-checkout' ),
+                    'article' => __( 'Artigo que contém o checkout', 'gvn-checkout' ),
+                    'content' => __( 'Conteúdo da página (.entry-content / FSE)', 'gvn-checkout' ),
+                ),
+                'desc' => __( 'Aplicado somente com Conteúdo isolado ativo. Se o checkout ficar estreito, escolha o contêiner de conteúdo que o limita. Outros elementos dentro desse contêiner também podem ganhar largura; não escolha um contêiner que inclua banners ou outros elementos do tema. Limites do Elementor e de outros ancestrais são preservados.', 'gvn-checkout' ),
+            ),
+            array(
+                'type' => 'sectionend',
+                'id'   => 'gvn_checkout_compatibility_section',
+            ),
+        );
     }
 
     /**

@@ -11,7 +11,7 @@ const end = source.indexOf('\n        /*', start);
 const bindSteps = source.slice(start, end).trim().replace(/,$/, '');
 
 // Minimal DOM/jQuery double; executes the production bindSteps function.
-function checkout(stepCount = 3) {
+function checkout(stepCount = 3, grouped = false) {
     const node = (data = {}) => ({ data, classes: new Set(), children: [], events: {}, text: '' });
     const form = node();
     form.addEventListener = (event, handler) => { form.events[event] = handler; };
@@ -43,13 +43,14 @@ function checkout(stepCount = 3) {
     class Query extends Array {
         each(fn) { this.forEach((item, i) => fn.call(item, i, item)); return this; }
         data(key) { return this[0].data[key]; }
-        siblings() { return $(fields); }
+        siblings() { return $(grouped ? [] : fields); }
         closest(selector) {
             if (selector === 'form') return $(form);
             if (selector === '.gvn-fields-dynamic') return $(container);
             return $(this[0].parent);
         }
         find(selector) {
+            if (this[0] === container && selector === '.gvn-field[data-gvn-step]') return $(fields);
             if (selector.endsWith('__back')) return $(buttons.back);
             if (selector.endsWith('__next')) return $(buttons.next);
             if (selector.endsWith('__title')) return $(title);
@@ -93,7 +94,7 @@ function checkout(stepCount = 3) {
     }
     $.grep = (items, fn) => items.filter(fn);
     $.map = (items, fn) => items.map(fn).filter(value => value != null);
-    vm.runInNewContext('(' + bindSteps + ')()', { $, document: { body } });
+    vm.runInNewContext('(' + bindSteps + ')()', { $, document: { body }, GVNCheckout: { syncFieldGroups() {} } });
     return {
         fields, payment, buttons, container, body, form,
         next: () => controls.events['click|.gvn-checkout-steps__next'](),
@@ -117,6 +118,16 @@ test('single-step checkout keeps payment visible and has no step handlers', () =
     assert.equal(page.hidden(), false);
     assert.deepEqual(page.container.events, {});
     assert.deepEqual(page.form.events, {});
+});
+
+test('fields inside groups still participate in step navigation and validation', () => {
+    const page = checkout(3, true);
+    assert.equal(page.hidden(), true);
+    page.next(); page.next();
+    page.fields[0].children[0].valid = false;
+    page.next();
+    assert.equal(page.hidden(), true);
+    assert.equal(page.fields[0].classes.has('gvn-step-hidden'), false);
 });
 
 test('invalid input shows inline error even without reportValidity', () => {

@@ -24,6 +24,7 @@ class GVN_Custom_Fields {
 
     const OPTION_KEY = 'gvn_checkout_fields';
     const STEPS_OPTION_KEY = 'gvn_checkout_field_steps';
+    const GROUPS_OPTION_KEY = 'gvn_checkout_field_groups';
     const DEFAULT_STEP_ID = 'dados-pessoais';
 
     public static function get_instance() {
@@ -361,10 +362,12 @@ class GVN_Custom_Fields {
             'default_option' => '',
             'conditions'     => array( 'logic' => 'and', 'rules' => array() ),
             'step_id'        => self::DEFAULT_STEP_ID,
+            'group_id'       => '',
         );
 
         $normalized = array();
         $step_ids   = array_column( self::get_steps(), 'id' );
+        $group_ids  = array_column( self::get_groups(), 'id' );
         foreach ( $fields as $field ) {
             if ( ! is_array( $field ) || empty( $field['key'] ) ) {
                 continue;
@@ -372,6 +375,7 @@ class GVN_Custom_Fields {
             $field = array_merge( $defaults, $field );
             $field['conditions'] = self::sanitize_conditions( $field['conditions'] );
             $field['step_id'] = self::sanitize_step_id( $field['step_id'] );
+            $field['group_id'] = is_string( $field['group_id'] ) && in_array( $field['group_id'], $group_ids, true ) ? $field['group_id'] : '';
             if ( ! in_array( $field['step_id'], $step_ids, true ) ) {
                 $field['step_id'] = $step_ids[0];
             }
@@ -410,6 +414,64 @@ class GVN_Custom_Fields {
     public static function get_steps() {
         $steps = get_option( self::STEPS_OPTION_KEY, array() );
         return self::sanitize_steps( $steps );
+    }
+
+    /** Grupos são apenas apresentação: não participam da validação ou persistência de pedidos. */
+    public static function get_groups() {
+        return self::sanitize_groups( get_option( self::GROUPS_OPTION_KEY, array() ) );
+    }
+
+    public static function sanitize_groups( $groups ) {
+        $sanitized = array();
+        foreach ( is_array( $groups ) ? $groups : array() as $group ) {
+            if ( ! is_array( $group ) || ! isset( $group['id'] ) || ! is_string( $group['id'] ) ) {
+                continue;
+            }
+            $id = substr( sanitize_key( $group['id'] ), 0, 64 );
+            if ( '' === $id || isset( $sanitized[ $id ] ) ) {
+                continue;
+            }
+            $clean = array(
+                'id' => $id,
+                'title' => sanitize_text_field( isset( $group['title'] ) && is_string( $group['title'] ) ? $group['title'] : '' ),
+                'border_style' => isset( $group['border_style'] ) && in_array( $group['border_style'], array( 'solid', 'dashed', 'dotted', 'none' ), true ) ? $group['border_style'] : 'solid',
+            );
+            foreach ( array( 'border_color' => '#d1d5db', 'background' => '#f8f9fa' ) as $key => $default ) {
+                $value = isset( $group[ $key ] ) && is_string( $group[ $key ] ) ? $group[ $key ] : '';
+                $clean[ $key ] = sanitize_hex_color( $value ) ?: $default;
+            }
+            foreach ( array( 'border_width' => array( 1, 8 ), 'radius' => array( 6, 40 ), 'padding' => array( 20, 64 ) ) as $key => $limits ) {
+                $clean[ $key ] = isset( $group[ $key ] ) && is_numeric( $group[ $key ] ) ? max( 0, min( $limits[1], (int) $group[ $key ] ) ) : $limits[0];
+            }
+            $sanitized[ $id ] = $clean;
+        }
+        return array_values( $sanitized );
+    }
+
+    /** Abre/fecha caixas em sequências contíguas, sem reordenar campos ou cruzar etapas. */
+    public static function group_boundary_html( $field, $groups, &$open_group ) {
+        $id = is_array( $field ) && isset( $field['group_id'] ) && is_string( $field['group_id'] ) ? $field['group_id'] : '';
+        $group = null;
+        foreach ( $groups as $candidate ) {
+            if ( $candidate['id'] === $id ) {
+                $group = $candidate;
+                break;
+            }
+        }
+        $context = $group ? $id . ':' . ( isset( $field['step_id'] ) ? $field['step_id'] : self::DEFAULT_STEP_ID ) : '';
+        if ( $context === $open_group ) {
+            return '';
+        }
+        $html = '' !== $open_group ? '</div>' : '';
+        $open_group = $context;
+        if ( $group ) {
+            $style = sprintf( 'border:%dpx %s %s;border-radius:%dpx;background:%s;padding:%dpx;', $group['border_width'], $group['border_style'], $group['border_color'], $group['radius'], $group['background'], $group['padding'] );
+            $html .= '<div class="gvn-field-group" role="group" aria-label="' . esc_attr( $group['title'] ?: __( 'Campos agrupados', 'gvn-checkout' ) ) . '" style="' . esc_attr( $style ) . '">';
+            if ( '' !== $group['title'] ) {
+                $html .= '<h3 class="gvn-field-group__title">' . esc_html( $group['title'] ) . '</h3>';
+            }
+        }
+        return $html;
     }
 
     public static function sanitize_step_id( $id ) {
@@ -462,10 +524,12 @@ class GVN_Custom_Fields {
 
         $raw_fields = isset( $_POST['fields'] ) ? wp_unslash( $_POST['fields'] ) : '';
         $raw_steps  = isset( $_POST['steps'] ) ? wp_unslash( $_POST['steps'] ) : '';
+        $raw_groups = isset( $_POST['groups'] ) ? wp_unslash( $_POST['groups'] ) : '';
         $fields     = json_decode( $raw_fields, true );
         $steps      = '' === $raw_steps ? array() : json_decode( $raw_steps, true );
+        $groups     = '' === $raw_groups ? self::get_groups() : ( is_string( $raw_groups ) ? json_decode( $raw_groups, true ) : null );
 
-        if ( ! is_array( $fields ) || ! is_array( $steps ) ) {
+        if ( ! is_array( $fields ) || ! is_array( $steps ) || ! is_array( $groups ) ) {
             wp_send_json_error( array( 'message' => __( 'Dados inválidos.', 'gvn-checkout' ) ) );
             return;
         }
@@ -475,6 +539,8 @@ class GVN_Custom_Fields {
         $valid_widths = array( '25', '33', '50', '75', '100' );
 
         $sanitized_steps = self::sanitize_steps( $steps );
+        $sanitized_groups = self::sanitize_groups( $groups );
+        $group_ids       = array_column( $sanitized_groups, 'id' );
         $step_ids        = array_column( $sanitized_steps, 'id' );
         $sanitized       = array();
 
@@ -522,11 +588,13 @@ class GVN_Custom_Fields {
                 'default_option' => $default_option,
                 'conditions'     => self::sanitize_conditions( isset( $field['conditions'] ) ? $field['conditions'] : array() ),
                 'step_id'        => in_array( $step_id, $step_ids, true ) ? $step_id : $step_ids[0],
+                'group_id'       => isset( $field['group_id'] ) && is_string( $field['group_id'] ) && in_array( $field['group_id'], $group_ids, true ) ? $field['group_id'] : '',
             );
         }
 
         update_option( self::OPTION_KEY, $sanitized );
         update_option( self::STEPS_OPTION_KEY, $sanitized_steps );
+        update_option( self::GROUPS_OPTION_KEY, $sanitized_groups );
 
         if ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ) {
             \GVN\Checkout\Settings\SettingsRepository::flush_cache();

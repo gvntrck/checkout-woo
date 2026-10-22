@@ -25,6 +25,7 @@ final class Uninstaller
             SettingsRepository::OPTION_SETTINGS,
             SettingsRepository::OPTION_FIELDS,
             'gvn_checkout_field_steps',
+            'gvn_checkout_field_groups',
             SettingsRepository::OPTION_SCHEMA_VERSION,
             'gvn_checkout_default_fields_config',
             'gvn_checkout_version',

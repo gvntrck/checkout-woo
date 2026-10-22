@@ -1214,3 +1214,24 @@
 .gvn-help-footer ul li strong {
     color: #1d2327;
 }
+/* Grupos opcionais: controles seguem a grade já utilizada pelos campos. */
+.gvn-field-groups {
+    margin: 20px 0;
+}
+
+.gvn-field-group-config {
+    padding: 16px;
+    margin: 12px 0;
+    border: 1px solid #d1d5db;
+    background: #f8f9fa;
+}
+
+.gvn-field-group-config .gvn-field-grid > label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.gvn-field-group-config .gvn-group-remove {
+    margin-top: 12px;
+}

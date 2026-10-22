@@ -17,12 +17,20 @@
             this.bindPersonTypeDependencies();
             this.bindViaCEP();
             this.bindSteps();
+            this.syncFieldGroups();
+            $(document.body).on('updated_checkout', this.syncFieldGroups);
             this.showFirstGatewayFields();
+        },
+
+        syncFieldGroups: function () {
+            document.querySelectorAll('.gvn-fields-dynamic .gvn-field-group').forEach(function (group) {
+                group.classList.toggle('gvn-field-group--empty', !group.querySelector('.gvn-field:not(.gvn-field--conditional-hidden):not(.gvn-step-hidden)'));
+            });
         },
 
         bindSteps: function () {
             $('.gvn-checkout-steps').each(function () {
-                var $nav = $(this), steps = $nav.data('gvn-steps') || [], $fields = $nav.siblings('.gvn-field[data-gvn-step]');
+                var $nav = $(this), steps = $nav.data('gvn-steps') || [], $fields = $nav.closest('.gvn-fields-dynamic').find('.gvn-field[data-gvn-step]');
                 var labels = { back: $nav.data('back'), next: $nav.data('next'), finish: $nav.data('finish'), step: $nav.data('step-label'), of: $nav.data('of') };
                 if (steps.length < 2 || !$fields.length) return;
                 var active = 0;
@@ -43,6 +51,7 @@
                     $fields.each(function () {
                         $(this).toggleClass('gvn-step-hidden', $(this).data('gvn-step') !== step.id);
                     });
+                    GVNCheckout.syncFieldGroups();
                     $nav.find('.gvn-checkout-steps__title').text(step.title);
                     $nav.find('.gvn-checkout-steps__count').text(labels.step + ' ' + (active + 1) + ' ' + labels.of + ' ' + available.length);
                     $controls.find('.gvn-checkout-steps__back').prop('disabled', active === 0);
@@ -376,6 +385,7 @@
                     self.hideConditionalField($field);
                 }
             });
+            this.syncFieldGroups();
         },
 
         isGatewayRequiredField: function (fieldKey) {

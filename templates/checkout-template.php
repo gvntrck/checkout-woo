@@ -116,8 +116,11 @@ if ( $bump_product && $cart ) {
                             // Contador por chave: ocorrências duplicadas da mesma key ganham
                             // id único (name permanece igual). A 1ª mantém o id original.
                             $gvn_key_counts = array();
+                            $gvn_groups = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_groups() : array();
+                            $gvn_open_group = '';
                             ?>
                                     <?php foreach ( $gvn_fields as $gvn_field ) :
+                                        echo GVN_Custom_Fields::group_boundary_html( $gvn_field, $gvn_groups, $gvn_open_group ); // HTML escapado pelo helper.
                                         $f_key         = esc_attr( $gvn_field['key'] );
                                         if ( ! isset( $gvn_key_counts[ $gvn_field['key'] ] ) ) {
                                             $gvn_key_counts[ $gvn_field['key'] ] = 0;
@@ -176,6 +179,7 @@ if ( $bump_product && $cart ) {
                                         <?php endif; ?>
                                     </div>
                                     <?php endforeach; ?>
+                                    <?php if ( '' !== $gvn_open_group ) { echo '</div>'; } ?>
                         </div>
 
                         <?php do_action( 'woocommerce_after_checkout_billing_form', $checkout ); ?>

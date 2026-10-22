@@ -333,6 +333,30 @@ body.gvn-checkout-isolated.gvn-checkout-expand-content .wp-block-post-content:ha
     width: 100%;
 }
 
+.gvn-checkout .gvn-field-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.gvn-checkout .gvn-field-group__title {
+    flex: 0 0 100%;
+    margin: 0;
+    font-size: calc(16px * var(--gvn-font-scale, 1));
+    font-weight: 700;
+    line-height: 1.4;
+    color: inherit;
+    overflow-wrap: anywhere;
+}
+
+.gvn-checkout .gvn-field-group--empty {
+    display: none;
+}
+
 .gvn-checkout-steps {
     flex: 0 0 100%;
     display: flex;

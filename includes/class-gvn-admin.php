@@ -741,6 +741,7 @@ class GVN_Admin {
     private function render_fields_manager() {
         $fields = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_fields() : array();
         $steps  = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_steps() : array();
+        $groups = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::get_groups() : array();
         ?>
         <div id="gvn-fields-manager">
             <h2><?php esc_html_e( 'Campos do Formulário', 'gvn-checkout' ); ?></h2>
@@ -780,6 +781,16 @@ class GVN_Admin {
                     <p class="description"><?php esc_html_e( 'A lista combina requisitos declarados pelo WooCommerce e integrações conhecidas. Itens não declarados precisam de homologação.', 'gvn-checkout' ); ?></p>
                     <div id="gvn-gateway-requirements-content" class="gvn-gateway-modal__content" aria-live="polite"></div>
                 </div>
+            </div>
+
+            <div id="gvn-field-groups" class="gvn-field-groups">
+                <h3><?php esc_html_e( 'Grupos de campos', 'gvn-checkout' ); ?></h3>
+                <p class="description"><?php esc_html_e( 'Crie uma caixa e selecione o grupo nos campos abaixo. Campos consecutivos do mesmo grupo e etapa ficam na mesma caixa. Excluir o grupo mantém os campos.', 'gvn-checkout' ); ?></p>
+                <div class="gvn-field-groups__list">
+                    <?php foreach ( $groups as $group ) { $this->render_field_group( $group ); } ?>
+                </div>
+                <button type="button" class="button button-secondary" id="gvn-add-group"><?php esc_html_e( '+ Adicionar grupo', 'gvn-checkout' ); ?></button>
+                <template id="gvn-field-group-template"><?php $this->render_field_group( GVN_Custom_Fields::sanitize_groups( array( array( 'id' => 'novo-grupo' ) ) )[0] ); ?></template>
             </div>
 
             <div id="gvn-fields-list">
@@ -841,6 +852,15 @@ class GVN_Admin {
                                     <select class="gvn-field-step-select">
                                         <?php foreach ( $steps as $step ) : ?>
                                             <option value="<?php echo esc_attr( $step['id'] ); ?>" <?php selected( isset( $field['step_id'] ) ? $field['step_id'] : '', $step['id'] ); ?>><?php echo esc_html( $step['title'] ); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="gvn-field-col">
+                                    <label><?php esc_html_e( 'Grupo visual', 'gvn-checkout' ); ?></label>
+                                    <select class="gvn-field-group-select">
+                                        <option value=""><?php esc_html_e( 'Sem grupo', 'gvn-checkout' ); ?></option>
+                                        <?php foreach ( $groups as $group_index => $group ) : ?>
+                                            <option value="<?php echo esc_attr( $group['id'] ); ?>" <?php selected( isset( $field['group_id'] ) ? $field['group_id'] : '', $group['id'] ); ?>><?php echo esc_html( $group['title'] ?: sprintf( __( 'Grupo %d (sem título)', 'gvn-checkout' ), $group_index + 1 ) ); ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -935,6 +955,30 @@ class GVN_Admin {
                     </div>
                 <?php endforeach; ?>
             </div>
+        </div>
+        <?php
+    }
+
+    /** Controles compartilhados pelos grupos salvos e pelo template de novos grupos. */
+    private function render_field_group( $group ) {
+        ?>
+        <div class="gvn-field-group-config">
+            <input type="hidden" class="gvn-group-value" data-setting="id" value="<?php echo esc_attr( $group['id'] ); ?>" />
+            <div class="gvn-field-grid">
+                <label><?php esc_html_e( 'Título do grupo (opcional)', 'gvn-checkout' ); ?><input type="text" class="gvn-group-value" data-setting="title" value="<?php echo esc_attr( $group['title'] ); ?>" /></label>
+                <label><?php esc_html_e( 'Estilo da borda', 'gvn-checkout' ); ?><select class="gvn-group-value" data-setting="border_style">
+                    <?php foreach ( array( 'solid' => __( 'Contínua', 'gvn-checkout' ), 'dashed' => __( 'Tracejada', 'gvn-checkout' ), 'dotted' => __( 'Pontilhada', 'gvn-checkout' ), 'none' => __( 'Sem borda', 'gvn-checkout' ) ) as $value => $label ) : ?>
+                        <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $group['border_style'], $value ); ?>><?php echo esc_html( $label ); ?></option>
+                    <?php endforeach; ?>
+                </select></label>
+                <?php foreach ( array( 'border_color' => __( 'Cor da borda', 'gvn-checkout' ), 'background' => __( 'Cor do fundo', 'gvn-checkout' ) ) as $key => $label ) : ?>
+                    <label><?php echo esc_html( $label ); ?><input type="color" class="gvn-group-value" data-setting="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( strlen( $group[ $key ] ) === 4 ? '#' . $group[ $key ][1] . $group[ $key ][1] . $group[ $key ][2] . $group[ $key ][2] . $group[ $key ][3] . $group[ $key ][3] : $group[ $key ] ); ?>" /></label>
+                <?php endforeach; ?>
+                <?php foreach ( array( 'border_width' => array( __( 'Espessura da borda (px)', 'gvn-checkout' ), 8 ), 'radius' => array( __( 'Arredondamento (px)', 'gvn-checkout' ), 40 ), 'padding' => array( __( 'Espaçamento interno (px)', 'gvn-checkout' ), 64 ) ) as $key => $control ) : ?>
+                    <label><?php echo esc_html( $control[0] ); ?><input type="number" min="0" max="<?php echo esc_attr( $control[1] ); ?>" step="1" class="gvn-group-value" data-setting="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $group[ $key ] ); ?>" /></label>
+                <?php endforeach; ?>
+            </div>
+            <button type="button" class="button-link gvn-group-remove"><?php esc_html_e( 'Excluir grupo (preservar campos)', 'gvn-checkout' ); ?></button>
         </div>
         <?php
     }

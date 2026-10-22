@@ -20,6 +20,7 @@
             this.$addBtn = $('#gvn-add-field');
             this.$status = $('#gvn-fields-status');
             this.$steps = $('#gvn-field-steps');
+            this.$groups = $('#gvn-field-groups');
 
             this.bindEvents();
             this.bindGatewayRequirements();
@@ -34,6 +35,19 @@
             this.$addBtn.on('click', function () {
                 self.addField();
             });
+
+            $('#gvn-add-group').on('click', function () {
+                var $group = $($('#gvn-field-group-template').html());
+                $group.find('[data-setting="id"]').val('grupo-' + Date.now() + '-' + self.$groups.find('.gvn-field-group-config').length);
+                self.$groups.find('.gvn-field-groups__list').append($group);
+                self.refreshGroupSelects();
+                $group.find('[data-setting="title"]').trigger('focus');
+            });
+            this.$groups.on('click', '.gvn-group-remove', function () {
+                $(this).closest('.gvn-field-group-config').remove();
+                self.refreshGroupSelects();
+            });
+            this.$groups.on('input change', '[data-setting="title"]', function () { self.refreshGroupSelects(); });
 
             $('#gvn-add-step').on('click', function () {
                 var id = 'etapa-' + Date.now();
@@ -166,6 +180,29 @@
             var steps = this.getSteps(), html = '';
             $.each(steps, function (_, step) { html += '<option value="' + step.id + '">' + $('<div>').text(step.title).html() + '</option>'; });
             this.$list.find('.gvn-field-step-select').each(function () { var value = $(this).val(); $(this).html(html).val(value); });
+        },
+
+        getGroups: function () {
+            var groups = [];
+            this.$groups.find('.gvn-field-groups__list .gvn-field-group-config').each(function () {
+                var group = {};
+                $(this).find('.gvn-group-value').each(function () { group[$(this).data('setting')] = $(this).val(); });
+                groups.push(group);
+            });
+            return groups;
+        },
+
+        getGroupOptions: function (selected) {
+            var self = this, html = '<option value="">Sem grupo</option>';
+            $.each(this.getGroups(), function (index, group) {
+                html += '<option value="' + self.escAttr(group.id) + '"' + (selected === group.id ? ' selected' : '') + '>' + self.escHtml(group.title || ('Grupo ' + (index + 1) + ' (sem título)')) + '</option>';
+            });
+            return html;
+        },
+
+        refreshGroupSelects: function () {
+            var self = this;
+            this.$list.find('.gvn-field-group-select').each(function () { $(this).html(self.getGroupOptions($(this).val())); });
         },
 
         getSteps: function () {
@@ -305,6 +342,7 @@
                 '        <input type="text" class="gvn-field-placeholder-input" value="' + this.escAttr(field.placeholder) + '" />' +
                 '      </div>' +
                 '      <div class="gvn-field-col"><label>Etapa</label><select class="gvn-field-step-select">' + stepOptions + '</select></div>' +
+                '      <div class="gvn-field-col"><label>Grupo visual</label><select class="gvn-field-group-select">' + this.getGroupOptions(field.group_id) + '</select></div>' +
                 '      <div class="gvn-field-col gvn-field-col--options" style="' + (field.type !== 'select' ? 'display:none;' : '') + 'grid-column: 1 / -1;">' +
                 '        <label>Opções (uma por linha, formato: <code>valor|Rótulo</code> ou apenas <code>Rótulo</code>)</label>' +
                 '        <textarea class="gvn-field-options-input" rows="4" placeholder="opcao1|Opção 1&#10;opcao2|Opção 2">' + this.escHtml(field.options || '') + '</textarea>' +
@@ -381,6 +419,7 @@
                     default_option: $row.find('.gvn-field-default-option-select').val() || '',
                     conditions: self.collectConditions($row)
                     ,step_id: $row.find('.gvn-field-step-select').val()
+                    ,group_id: $row.find('.gvn-field-group-select').val() || ''
                 });
             });
 
@@ -392,6 +431,7 @@
                     nonce: gvn_admin_params.nonce,
                     fields: JSON.stringify(fields)
                     ,steps: JSON.stringify(this.getSteps())
+                    ,groups: JSON.stringify(this.getGroups())
                 },
                 success: function (response) {
                     if (response.success) {

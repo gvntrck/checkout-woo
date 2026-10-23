@@ -98,7 +98,7 @@
             this.$list.on('change', '.gvn-field-type-select', function () {
                 var $row = $(this).closest('.gvn-field-row');
                 var $optionsCol = $row.find('.gvn-field-col--options');
-                if ($(this).val() === 'select') {
+                if ($(this).val() === 'select' || $(this).val() === 'radio') {
                     $optionsCol.slideDown(200);
                 } else {
                     $optionsCol.slideUp(200);
@@ -343,7 +343,7 @@
                 '      </div>' +
                 '      <div class="gvn-field-col"><label>Etapa</label><select class="gvn-field-step-select">' + stepOptions + '</select></div>' +
                 '      <div class="gvn-field-col"><label>Grupo visual</label><select class="gvn-field-group-select">' + this.getGroupOptions(field.group_id) + '</select></div>' +
-                '      <div class="gvn-field-col gvn-field-col--options" style="' + (field.type !== 'select' ? 'display:none;' : '') + 'grid-column: 1 / -1;">' +
+                '      <div class="gvn-field-col gvn-field-col--options" style="' + (field.type !== 'select' && field.type !== 'radio' ? 'display:none;' : '') + 'grid-column: 1 / -1;">' +
                 '        <label>Opções (uma por linha, formato: <code>valor|Rótulo</code> ou apenas <code>Rótulo</code>)</label>' +
                 '        <textarea class="gvn-field-options-input" rows="4" placeholder="opcao1|Opção 1&#10;opcao2|Opção 2">' + this.escHtml(field.options || '') + '</textarea>' +
                 '        <label style="margin-top:8px;display:block;">Valor padrão pré-selecionado</label>' +
@@ -366,7 +366,7 @@
             var types = {
                 'text': 'Texto', 'email': 'E-mail', 'tel': 'Telefone',
                 'number': 'Número', 'textarea': 'Área de texto',
-                'select': 'Seleção', 'checkbox': 'Checkbox', 'date': 'Data', 'password': 'Senha', 'html': 'HTML'
+                'select': 'Seleção', 'radio': 'Radio button', 'checkbox': 'Checkbox', 'date': 'Data', 'password': 'Senha', 'html': 'HTML'
             };
             var html = '';
             for (var k in types) {

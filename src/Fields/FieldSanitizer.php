@@ -16,6 +16,9 @@ class FieldSanitizer {
      * @return string
      */
     public static function sanitize(string $type, $value, array $field = []): string {
+        if ($type === 'radio' && (!is_scalar($value) || !array_key_exists((string) $value, self::parse_select_options((string) ($field['options'] ?? ''))))) {
+            return '';
+        }
         if (is_array($value)) {
             $value = implode(', ', array_map('strval', $value));
         }
@@ -33,6 +36,7 @@ class FieldSanitizer {
                 return function_exists('sanitize_textarea_field') ? sanitize_textarea_field($str_val) : trim(strip_tags($str_val));
 
             case 'select':
+            case 'radio':
                 $sanitized = function_exists('sanitize_text_field') ? sanitize_text_field($str_val) : trim(strip_tags($str_val));
                 if (!empty($field['options'])) {
                     $parsed = self::parse_select_options((string) $field['options']);

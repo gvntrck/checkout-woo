@@ -68,6 +68,12 @@ class FieldValidator {
             }
 
             // 3. Validações específicas por tipo quando preenchido
+            if ($type === 'radio' && $raw_value !== '' && (!is_scalar($raw_value) || !array_key_exists($value_str, FieldSanitizer::parse_select_options((string) ($field['options'] ?? ''))))) {
+                $message = sprintf(__('Selecione uma opção válida para o campo "%s".', 'gvn-checkout'), $label);
+                $validation_errors[$key] = $message;
+                self::add_error($errors, $key, $message);
+                continue;
+            }
             if ($value_str !== '') {
                 if ($type === 'email' && function_exists('is_email') && !is_email($value_str)) {
                     $message = sprintf(

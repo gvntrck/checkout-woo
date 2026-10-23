@@ -714,11 +714,10 @@ class GVN_Custom_Fields {
                 'class'       => $classes,
             );
 
-            if ( 'select' === $field['type'] && ! empty( $field['options'] ) ) {
+            if ( in_array( $field['type'], array( 'select', 'radio' ), true ) && ! empty( $field['options'] ) ) {
                 $parsed = self::parse_select_options( $field['options'] );
-                $woo_field['type']    = 'select';
-                $woo_field['options'] = array_merge( array( '' => '-- Selecione --' ), $parsed );
-                if ( ! empty( $field['default_option'] ) && isset( $parsed[ $field['default_option'] ] ) ) {
+                $woo_field['options'] = 'radio' === $field['type'] ? $parsed : array_merge( array( '' => '-- Selecione --' ), $parsed );
+                if ( isset( $field['default_option'] ) && '' !== $field['default_option'] && isset( $parsed[ $field['default_option'] ] ) ) {
                     $woo_field['default'] = $field['default_option'];
                 }
             }
@@ -1071,6 +1070,7 @@ class GVN_Custom_Fields {
             'number'   => 'Número',
             'textarea' => 'Área de texto',
             'select'   => 'Seleção',
+            'radio'    => 'Radio button',
             'checkbox' => 'Checkbox',
             'date'     => 'Data',
             'password' => 'Senha',

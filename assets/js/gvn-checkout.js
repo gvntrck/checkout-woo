@@ -109,7 +109,7 @@
                     event.stopImmediatePropagation();
                     revealInvalidField(invalid[0]);
                 }, true);
-                $nav.closest('.gvn-fields-dynamic').on('input change', '.gvn-field__input', function () {
+                $nav.closest('.gvn-fields-dynamic').on('input change', '.gvn-field__input, .gvn-field__radio', function () {
                     $fields.find('.gvn-step-error').remove();
                     syncSteps();
                 });
@@ -348,7 +348,7 @@
             // Avalia todas as condições ao mudar qualquer campo.
             // Reavalia em cascata (até 3 níveis) para suportar condições
             // que dependem de outros campos condicionais.
-            $container.on('input change', '.gvn-field__input', function () {
+            $container.on('input change', '.gvn-field__input, .gvn-field__radio', function () {
                 self.evaluateAllConditions($container, $conditionalFields);
                 // Segunda passagem para propagar mudanças de visibilidade.
                 self.evaluateAllConditions($container, $conditionalFields);
@@ -491,6 +491,10 @@
             var $input = $wrapper.find('input, select, textarea').first();
             if (!$input.length) return '';
 
+            if ($input.is(':radio')) {
+                return $wrapper.find('input:radio:checked:not(:disabled)').val() || '';
+            }
+
             if ($input.is(':checkbox')) {
                 return $input.is(':checked') ? $input.val() : '';
             }
@@ -504,7 +508,7 @@
                 $field.slideDown(200);
 
                 // Reabilita o envio e restaura o required se configurado.
-                var $shownInput = $field.find('input, select, textarea').first();
+                var $shownInput = $field.find('input, select, textarea');
                 $shownInput.prop('disabled', false);
                 if ($field.data('required') === 1 || $field.data('required') === '1') {
                     $shownInput.prop('required', true);
@@ -520,7 +524,7 @@
                 // Desabilita para não ser enviado no submit (suporte a chaves
                 // duplicadas: só a ocorrência visível chega ao servidor),
                 // remove o required e limpa o valor residual.
-                var $input = $field.find('input, select, textarea').first();
+                var $input = $field.find('input, select, textarea');
                 $input.prop('required', false).prop('disabled', true);
                 if ($input.is(':checkbox') || $input.is(':radio')) {
                     $input.prop('checked', false);
@@ -865,6 +869,12 @@
             if ($wrapper.length) {
                 var $input = $wrapper.find('input, select, textarea').first();
                 if ($input.length) {
+                    if ($input.is(':radio')) {
+                        $wrapper.find('input:radio').each(function () {
+                            $(this).prop('checked', String(this.value) === String(value));
+                        }).trigger('change');
+                        return true;
+                    }
                     // Destravar temporariamente se estiver locked
                     var wasReadonly = $input.prop('readonly');
                     if (wasReadonly) $input.prop('readonly', false);

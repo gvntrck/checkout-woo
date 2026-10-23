@@ -154,7 +154,7 @@ if ( $bump_product && $cart ) {
                                         <?php if ( 'checkbox' === $f_type ) : ?>
                                         <?php elseif ( 'textarea' === $f_type ) : ?>
                                             <textarea class="gvn-field__input gvn-field__textarea" name="<?php echo $f_key; ?>" id="<?php echo $f_id_attr; ?>" rows="3" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?>><?php echo esc_textarea( $f_raw_value ); ?></textarea>
-                                        <?php elseif ( 'select' === $f_type ) :
+                                        <?php elseif ( in_array( $f_type, array( 'select', 'radio' ), true ) ) :
                                             $f_options_raw  = isset( $gvn_field['options'] ) ? $gvn_field['options'] : '';
                                             $f_options      = class_exists( 'GVN_Custom_Fields' ) ? GVN_Custom_Fields::parse_select_options( $f_options_raw ) : array();
                                             $f_default_opt  = isset( $gvn_field['default_option'] ) ? $gvn_field['default_option'] : '';
@@ -163,6 +163,19 @@ if ( $bump_product && $cart ) {
                                             }
                                             $f_select_value = ( null !== $f_raw_value && '' !== $f_raw_value ) ? $f_raw_value : $f_default_opt;
                                         ?>
+                                            <?php if ( 'radio' === $f_type ) : ?>
+                                                <div class="gvn-field__radios" role="radiogroup" aria-label="<?php echo esc_attr( $gvn_field['label'] ); ?>" aria-required="<?php echo $f_required ? 'true' : 'false'; ?>">
+                                                    <?php $radio_index = 0; foreach ( $f_options as $opt_value => $opt_label ) :
+                                                        $radio_id = 0 === $radio_index ? $f_id : $f_id . '-radio-' . $radio_index;
+                                                        $radio_index++;
+                                                    ?>
+                                                        <label class="gvn-field__radio-option" for="<?php echo esc_attr( $radio_id ); ?>">
+                                                            <input type="radio" class="gvn-field__radio" name="<?php echo $f_key; ?>" id="<?php echo esc_attr( $radio_id ); ?>" value="<?php echo esc_attr( $opt_value ); ?>" <?php checked( $f_select_value, $opt_value ); ?> <?php echo $f_required ? 'required' : ''; ?> />
+                                                            <span><?php echo esc_html( $opt_label ); ?></span>
+                                                        </label>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php else : ?>
                                             <select class="gvn-field__input gvn-field__select" name="<?php echo $f_key; ?>" id="<?php echo $f_id_attr; ?>" <?php echo $f_required ? 'required' : ''; ?>>
                                                 <option value=""><?php echo $f_placeholder ? esc_html( $f_placeholder ) : '-- ' . esc_html__( 'Selecione', 'gvn-checkout' ) . ' --'; ?></option>
                                                 <?php if ( empty( $f_options ) ) : ?>
@@ -173,6 +186,7 @@ if ( $bump_product && $cart ) {
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
                                             </select>
+                                            <?php endif; ?>
                                         <?php else : ?>
                                             <input type="<?php echo esc_attr( $f_type ); ?>" class="gvn-field__input" name="<?php echo $f_key; ?>" id="<?php echo $f_id_attr; ?>" value="<?php echo $f_value; ?>" placeholder="<?php echo $f_placeholder; ?>" <?php echo $f_required ? 'required' : ''; ?> />
                                         <?php endif; ?>

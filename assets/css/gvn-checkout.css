@@ -490,6 +490,27 @@ body.gvn-checkout-isolated.gvn-checkout-expand-content .wp-block-post-content:ha
     accent-color: var(--gvn-primary, #0066d4);
 }
 
+.gvn-checkout .gvn-field__radios {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.gvn-checkout .gvn-field__radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.gvn-checkout input.gvn-field__radio {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex-shrink: 0;
+    accent-color: var(--gvn-primary);
+}
+
 .gvn-field__input,
 .gvn-field__select,
 .gvn-field__textarea {

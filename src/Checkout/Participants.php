@@ -15,6 +15,9 @@ final class Participants {
             return;
         }
         add_action('woocommerce_after_checkout_billing_form', [$this, 'render']);
+        add_action('woocommerce_before_checkout_billing_form', [$this, 'render_intent']);
+        add_filter('gvn_checkout_field_label', [$this, 'buyer_label'], 10, 2);
+        add_filter('woocommerce_form_field_args', [$this, 'native_label'], 20, 2);
         add_action('wp_enqueue_scripts', [$this, 'enqueue']);
         add_filter('woocommerce_update_order_review_fragments', [$this, 'fragments']);
         add_action('woocommerce_after_checkout_validation', [$this, 'validate'], 20, 2);
@@ -103,10 +106,62 @@ final class Participants {
     public function fragments(array $fragments): array {
         if ($this->groups()) {
             $fragments['#gvn-participants'] = $this->html($this->request());
+            $fragments['#gvn-participants-intent'] = $this->intent_html($this->request());
         } elseif (isset($this->request()['gvn_participants_nonce'])) {
             $fragments['#gvn-participants'] = '<section id="gvn-participants" class="gvn-participants"></section>';
+            $fragments['#gvn-participants-intent'] = '<div id="gvn-participants-intent"></div>';
         }
         return $fragments;
+    }
+
+    public function buyer_label($label, $key): string {
+        if (!$this->groups()) {
+            return (string) $label;
+        }
+        $labels = [
+            'billing_first_name' => __('Nome do comprador', 'gvn-checkout'),
+            'billing_last_name' => __('Sobrenome do comprador', 'gvn-checkout'),
+            'billing_cpf' => __('CPF do comprador/pagador', 'gvn-checkout'),
+            'billing_email' => __('E-mail do comprador', 'gvn-checkout'),
+        ];
+        return $labels[$key] ?? (string) $label;
+    }
+
+    public function native_label(array $args, $key): array {
+        if (!$this->groups()) {
+            return $args;
+        }
+        $args['label'] = $this->buyer_label($args['label'] ?? '', $key);
+        return $args;
+    }
+
+    public function render_intent(): void {
+        echo $this->intent_html($this->request()); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped inside intent_html().
+    }
+
+    public function intent_html(array $data = []): string {
+        $groups = $this->groups();
+        if (!$groups) {
+            return '';
+        }
+        ob_start();
+        ?>
+        <div id="gvn-participants-intent" class="gvn-participants">
+            <h3><?php esc_html_e('Quem vai participar do curso?', 'gvn-checkout'); ?></h3>
+            <?php foreach ($groups as $key => $group) : ?>
+                <fieldset class="gvn-participants__intent" data-course="<?php echo esc_attr($key); ?>">
+                    <legend><?php echo esc_html($group['name']); ?></legend>
+                    <?php if (get_option(self::PREFIX . 'buyer', 'yes') === 'yes') : ?>
+                        <label><input type="radio" name="gvn_participants[<?php echo esc_attr($key); ?>][buyer]" value="1" <?php checked($this->is_buyer($data, $key)); ?>> <?php echo esc_html($group['quantity'] === 1 ? __('Eu mesmo', 'gvn-checkout') : __('Eu e outras pessoas', 'gvn-checkout')); ?></label>
+                    <?php endif; ?>
+                    <label><input type="radio" name="gvn_participants[<?php echo esc_attr($key); ?>][buyer]" value="0" <?php checked(!$this->is_buyer($data, $key)); ?>> <?php echo esc_html($group['quantity'] === 1 ? __('Outra pessoa', 'gvn-checkout') : __('Somente outras pessoas', 'gvn-checkout')); ?></label>
+                </fieldset>
+            <?php endforeach; ?>
+            <h3><?php esc_html_e('Dados do comprador / responsável pelo pagamento', 'gvn-checkout'); ?></h3>
+            <p><?php esc_html_e('Informe os dados de quem está realizando a compra, mesmo que não participe do curso.', 'gvn-checkout'); ?></p>
+        </div>
+        <?php
+        return (string) ob_get_clean();
     }
 
     public function html(array $data = []): string {
@@ -123,14 +178,9 @@ final class Participants {
                 <p><a href="<?php echo esc_url(wc_get_cart_url()); ?>"><?php esc_html_e('Alterar quantidade de vagas no carrinho', 'gvn-checkout'); ?></a></p>
             <?php endif; ?>
             <?php wp_nonce_field('gvn_participants', 'gvn_participants_nonce', false); ?>
-            <?php foreach ($groups as $key => $group) :
-                $buyer = $this->is_buyer($data, $key);
-                ?>
+            <?php foreach ($groups as $key => $group) : ?>
                 <fieldset class="gvn-participants__course" data-course="<?php echo esc_attr($key); ?>">
                     <legend><?php echo esc_html($group['name']); ?> (<?php echo esc_html($group['quantity']); ?>)</legend>
-                    <?php if (get_option(self::PREFIX . 'buyer', 'yes') === 'yes') : ?>
-                        <p><label><input type="checkbox" class="gvn-participants__buyer" name="gvn_participants[<?php echo esc_attr($key); ?>][buyer]" value="1" <?php checked($buyer); ?>> <?php esc_html_e('Uma das vagas é para mim. Usar meus dados de comprador na primeira vaga.', 'gvn-checkout'); ?></label></p>
-                    <?php endif; ?>
                     <?php for ($index = 0; $index < $group['quantity']; $index++) : ?>
                         <fieldset class="gvn-participants__person" data-index="<?php echo esc_attr($index); ?>">
                             <legend><?php echo esc_html(sprintf(__('Participante %d', 'gvn-checkout'), $index + 1)); ?></legend>
@@ -146,7 +196,7 @@ final class Participants {
                                 $required = $this->mode($field) === 'required';
                                 ?>
                                 <p class="form-row form-row-wide">
-                                    <label class="gvn-field__label" for="<?php echo esc_attr($id); ?>"><?php echo esc_html($label); ?><?php echo $required ? ' *' : ''; ?></label>
+                                    <label class="gvn-field__label" for="<?php echo esc_attr($id); ?>"><?php echo esc_html($label . __(' do participante', 'gvn-checkout')); ?><?php echo $required ? ' *' : ''; ?></label>
                                     <input id="<?php echo esc_attr($id); ?>" class="input-text gvn-field__input" type="<?php echo $field === 'email' ? 'email' : 'text'; ?>" name="gvn_participants[<?php echo esc_attr($key); ?>][people][<?php echo esc_attr($index); ?>][<?php echo esc_attr($field); ?>]" value="<?php echo esc_attr($value); ?>" maxlength="<?php echo $field === 'cpf' ? '14' : '254'; ?>" data-participant-field="<?php echo esc_attr($field); ?>" data-participant-required="<?php echo $required ? '1' : '0'; ?>" <?php echo $required ? 'required aria-required="true"' : ''; ?> <?php echo $field === 'cpf' ? 'inputmode="numeric"' : ''; ?>>
                                 </p>
                             <?php endforeach; ?>

@@ -274,4 +274,50 @@ class ParticipantsTest extends TestCase {
         $this->assertSame('yes', get_option(Participants::PREFIX . 'enabled'));
         $this->assertSame('Não alterar', get_option('gvn_checkout_button_text'));
     }
+
+    public function test_intent_options_follow_quantity_and_replace_bottom_checkbox(): void {
+        $module = $this->enable();
+        $key = WC()->cart->add_to_cart(1);
+        $this->assertStringContainsString('Eu mesmo', $module->intent_html());
+        $this->assertStringContainsString('Outra pessoa', $module->intent_html());
+        $this->assertStringNotContainsString('type="checkbox"', $module->html());
+        WC()->cart->set_quantity($key, 3);
+        $this->assertStringContainsString('Eu e outras pessoas', $module->intent_html());
+        $this->assertStringContainsString('Somente outras pessoas', $module->intent_html());
+        update_option(Participants::PREFIX . 'buyer', 'no');
+        $this->assertStringNotContainsString('value="1"', $module->intent_html());
+    }
+
+    public function test_display_labels_do_not_mutate_saved_fields_or_unrelated_carts(): void {
+        $module = $this->enable();
+        $key = WC()->cart->add_to_cart(1);
+        $saved = [['key' => 'billing_first_name', 'label' => 'Seu nome', 'enabled' => true]];
+        update_option(\GVN_Custom_Fields::OPTION_KEY, $saved);
+        $this->assertSame('Nome do comprador', apply_filters('gvn_checkout_field_label', 'Seu nome', 'billing_first_name'));
+        $this->assertSame('CPF do comprador/pagador', $module->buyer_label('CPF', 'billing_cpf'));
+        $this->assertSame('E-mail do comprador', $module->native_label(['label' => 'Email'], 'billing_email')['label']);
+        $this->assertSame($saved, get_option(\GVN_Custom_Fields::OPTION_KEY));
+        WC()->cart->remove_cart_item($key);
+        $this->assertSame('Seu nome', $module->buyer_label('Seu nome', 'billing_first_name'));
+        $this->assertSame('', $module->intent_html());
+        $this->assertSame([], $module->native_label([], 'billing_first_name'));
+    }
+
+    public function test_both_layouts_show_intent_before_billing_and_preserve_choice_in_ajax(): void {
+        $module = $this->enable();
+        $key = WC()->cart->add_to_cart(1);
+        $_POST = $this->payload($key);
+        $_POST['gvn_participants'][$key]['buyer'] = '1';
+        foreach (['templates/checkout-template.php', 'templates/checkout/layout-split.php'] as $template) {
+            $checkout = WC()->checkout();
+            ob_start();
+            include GVN_CHECKOUT_PLUGIN_DIR . $template;
+            $html = ob_get_clean();
+            $this->assertLessThan(strpos($html, 'name="billing_first_name"'), strpos($html, 'id="gvn-participants-intent"'));
+            $this->assertStringContainsString('Nome do comprador', $html);
+        }
+        $_POST = ['post_data' => http_build_query($_POST)];
+        $fragments = $module->fragments([]);
+        $this->assertStringContainsString('value="1"  checked="checked"', $fragments['#gvn-participants-intent']);
+    }
 }

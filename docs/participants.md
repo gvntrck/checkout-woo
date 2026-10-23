@@ -8,7 +8,14 @@ Em **WooCommerce → Configurações → GVN Checkout → Participantes / Alunos
 4. Para nome, e-mail e CPF, escolha obrigatório (padrão), opcional ou não solicitar.
 5. Salve as alterações.
 
-Cada unidade comprada gera um participante, por item do carrinho. Outros produtos e order bumps não geram participantes. Os dados de cobrança continuam sendo os dados do pagador. Marcando **Uma das vagas é para mim**, a primeira vaga usa nome, e-mail e CPF do comprador, resolvidos e validados no servidor. Se CPF for obrigatório, mantenha o campo de cobrança `billing_cpf` habilitado ou preencha a vaga manualmente.
+Cada unidade comprada gera um participante, por item do carrinho. Outros produtos e order bumps não geram participantes. Antes dos campos, a pergunta **Quem vai participar do curso?** mostra, por curso:
+
+- Uma vaga: **Eu mesmo** ou **Outra pessoa**.
+- Várias vagas: **Eu e outras pessoas** ou **Somente outras pessoas**.
+
+A opção para outras pessoas vem selecionada inicialmente. Se a configuração não permitir comprador como aluno, apenas essa opção fica disponível. Escolhendo participar, a primeira vaga usa nome, e-mail e CPF do comprador, resolvidos e validados no servidor. Não há um segundo checkbox na parte inferior. Se CPF for obrigatório, mantenha o campo de cobrança `billing_cpf` habilitado ou preencha a vaga manualmente.
+
+Os dados de cobrança continuam sendo os dados do pagador, sob o título **Dados do comprador / responsável pelo pagamento**. Nos carrinhos com cursos configurados, os labels exibidos passam a ser **Nome do comprador**, **Sobrenome do comprador**, **CPF do comprador/pagador** e **E-mail do comprador**. Os campos dos alunos são identificados como dados do participante. Não altera chaves de campos nem labels salvos no editor. Sem cursos configurados no carrinho ou com o recurso desligado, mantém os labels existentes.
 
 Funciona nos layouts clássico e split do GVN e no checkout clássico do WooCommerce. Não suporta Checkout Blocks. Desative o modo **produto único**, que limita o carrinho a uma unidade. O atalho de compra direta também inicia a compra com uma unidade; para várias vagas, use o fluxo de carrinho com quantidade. O produto não pode estar marcado como **Vendido individualmente** no WooCommerce. Há um link na seção de participantes para alterar a quantidade pelo carrinho.
 
@@ -27,11 +34,11 @@ Não é necessário reconfigurar os sites existentes: sem ativação explícita,
 - PHP: `php vendor/bin/phpunit --testsuite unit --filter ParticipantsTest`.
 - Navegador: `node --test tests/checkout-participants.test.cjs tests/checkout-containers.test.cjs tests/checkout-field-groups.test.cjs`, com `GVN_PLAYWRIGHT_PATH` e, se necessário, `GVN_CHROMIUM_PATH` definidos conforme o `AGENTS.md`.
 - `ParticipantsTest` cobre isolamento desligado (HTML idêntico nos dois layouts), produtos não selecionados, variações, exclusão de order bumps, quantidade autoritativa, comprador como aluno, dados inválidos, configuração opcional/oculta, nonces, permissões administrativas, persistência privada por item, valores AJAX e escape de HTML.
-- O teste de navegador cobre ambos os layouts nas larguras 320, 390, 768 e 1280 px, alternância do comprador e preservação de rascunhos após substituição de fragmentos AJAX.
+- O teste de navegador cobre ambos os layouts nas larguras 320, 390, 768 e 1280 px, uma e várias vagas, pergunta antes dos campos, labels do comprador, alternância do rádio e preservação de rascunhos após substituição de fragmentos AJAX.
 
 Esses testes usam fixtures e não substituem uma compra de homologação com o gateway real.
 
-### Resultado da comparação com a versão anterior
+### Resultado da comparação inicial (1.16.31) com a versão anterior
 
 Verificado em 23/10/2026, PHP 8.3 e Chromium local, comparando com uma cópia de `HEAD` sem as alterações deste recurso:
 
@@ -44,3 +51,10 @@ Verificado em 23/10/2026, PHP 8.3 e Chromium local, comparando com uma cópia de
 - Sintaxe PHP, sintaxe JavaScript, verificação de compatibilidade PHP 7.4 e sniffs de segurança do novo módulo passaram. PHPCS completo continua apontando divergências do padrão WPCS; o módulo segue o estilo local de `src/`.
 
 Não foram identificadas novas falhas nessa comparação automatizada. Isso não certifica os temas e gateways reais: a publicação automática permanece condicionada à homologação em staging.
+
+### Clareza do comprador (1.16.32)
+
+- Rádio por curso antes dos dados de cobrança, substituindo o checkbox inferior, com opções adaptadas a uma ou várias vagas.
+- Labels de comprador aplicados apenas à exibição, nos layouts GVN e nos campos nativos do checkout clássico; configurações salvas preservadas.
+- 18 testes do módulo passaram (83 asserções). Suíte completa: 196 testes, 896 asserções, os mesmos 2 erros e 3 falhas preexistentes listados acima.
+- Testes de navegador passaram nos dois layouts, com uma e várias vagas, quatro larguras, escolha por rádio e preservação de rascunhos após AJAX. Sintaxe, PHPStan do módulo, compatibilidade PHP 7.4 e sniffs de segurança passaram.

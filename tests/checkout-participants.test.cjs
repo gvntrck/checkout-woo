@@ -21,11 +21,20 @@ test('participants: buyer toggle, AJAX drafts and responsive fields in both layo
         const styles = ['gvn-checkout.css', 'gvn-checkout-layout-split.css', 'gvn-participants.css']
             .map(file => fs.readFileSync(path.join(root, 'assets/css', file), 'utf8')).join('\n');
         for (const layout of ['classic', 'split']) {
-            await page.setContent(`<style>${styles}</style>${fixture(layout)}`);
+          for (const quantity of [1, 2]) {
+            await page.setContent(`<style>${styles}</style>${fixture(layout, quantity)}`);
             await page.addScriptTag({ path: path.join(root, 'vendor/phpunit/php-code-coverage/src/Report/Html/Renderer/Template/js/jquery.min.js') });
             await page.addScriptTag({ path: path.join(root, 'assets/js/gvn-participants.js') });
             await page.waitForFunction(() => window.jQuery && jQuery.isReady);
-            assert.equal(await page.locator('.gvn-participants__person').count(), 2);
+            assert.equal(await page.locator('.gvn-participants__person').count(), quantity);
+            assert.equal(await page.locator('label[for="billing_first_name"]').innerText(), 'Nome do comprador *');
+            assert.equal(await page.locator('label[for="billing_email"]').innerText(), 'E-mail do comprador *');
+            assert.equal(await page.locator('#gvn-participants input[type="checkbox"]').count(), 0);
+            const buyer = page.locator('#gvn-participants-intent input[value="1"]');
+            const others = page.locator('#gvn-participants-intent input[value="0"]');
+            assert.equal(await buyer.locator('..').innerText(), quantity === 1 ? ' Eu mesmo' : ' Eu e outras pessoas');
+            assert.equal(await page.locator('#gvn-participants-intent').evaluate(intent =>
+                !!(intent.compareDocumentPosition(document.querySelector('[name="billing_first_name"]')) & Node.DOCUMENT_POSITION_FOLLOWING)), true);
             for (const width of [320, 390, 768, 1280]) {
                 await page.setViewportSize({ width, height: 1000 });
                 assert.equal(await page.locator('#gvn-participants').evaluate(section => {
@@ -39,8 +48,8 @@ test('participants: buyer toggle, AJAX drafts and responsive fields in both layo
             const first = page.locator('.gvn-participants__person').first();
             const secondName = page.locator('.gvn-participants__person').nth(1).locator('[data-participant-field="name"]');
             await first.locator('[data-participant-field="name"]').fill('Rascunho do aluno');
-            await secondName.fill('Maria Silva');
-            await page.locator('.gvn-participants__buyer').check();
+            if (quantity > 1) await secondName.fill('Maria Silva');
+            await buyer.check();
             assert.equal(await first.locator('.gvn-participants__fields').isVisible(), false);
             assert.equal(await first.locator('input').first().isDisabled(), true);
             // Simulate WooCommerce replacing an AJAX fragment with an empty server draft.
@@ -48,15 +57,17 @@ test('participants: buyer toggle, AJAX drafts and responsive fields in both layo
             await page.evaluate(html => {
                 const doc = new DOMParser().parseFromString(html, 'text/html');
                 document.querySelector('#gvn-participants').replaceWith(doc.querySelector('#gvn-participants'));
+                document.querySelector('#gvn-participants-intent').replaceWith(doc.querySelector('#gvn-participants-intent'));
                 jQuery(document.body).trigger('updated_checkout');
             }, refreshed);
             assert.equal(await page.locator('.gvn-participants__person').count(), 3);
-            assert.equal(await page.locator('.gvn-participants__buyer').isChecked(), true);
-            assert.equal(await secondName.inputValue(), 'Maria Silva');
-            await page.locator('.gvn-participants__buyer').uncheck();
+            assert.equal(await buyer.isChecked(), true);
+            if (quantity > 1) assert.equal(await secondName.inputValue(), 'Maria Silva');
+            await others.check();
             assert.equal(await first.locator('input').first().isDisabled(), false);
             assert.equal(await first.locator('[data-participant-field="name"]').inputValue(), 'Rascunho do aluno');
             assert.equal(await first.locator('input').first().getAttribute('required'), '');
+          }
         }
         assert.deepEqual(errors, []);
     } finally {

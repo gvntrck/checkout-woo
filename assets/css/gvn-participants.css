@@ -31,6 +31,19 @@
 .gvn-participants label {
     display: block;
 }
+.gvn-participants .gvn-participants__intent {
+    min-inline-size: 0;
+    margin: 0 0 1rem;
+    padding: 0;
+    border: 0;
+}
+.gvn-participants .gvn-participants__intent legend {
+    font-weight: 600;
+    margin-bottom: .5rem;
+}
+.gvn-participants .gvn-participants__intent label {
+    padding-block: .5rem;
+}
 .gvn-participants .input-text {
     box-sizing: border-box;
     width: 100%;

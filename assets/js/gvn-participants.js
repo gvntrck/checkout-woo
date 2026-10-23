@@ -5,9 +5,9 @@
     var drafts = {};
 
     function remember() {
-        $('#gvn-participants input').each(function () {
+        $('#gvn-participants input, #gvn-participants-intent input:checked').each(function () {
             if (this.name && this.type !== 'hidden') {
-                drafts[this.name] = this.type === 'checkbox' ? this.checked : this.value;
+                drafts[this.name] = this.type === 'checkbox' ? (this.checked ? '1' : '0') : this.value;
             }
         });
     }
@@ -15,7 +15,11 @@
     function sync() {
         $('#gvn-participants .gvn-participants__course').each(function () {
             var $course = $(this);
-            var buyer = $course.find('.gvn-participants__buyer').prop('checked') === true;
+            var $intent = $('#gvn-participants-intent .gvn-participants__intent').filter(function () {
+                return this.dataset.course === $course[0].dataset.course;
+            });
+            // Also accept an already-open 1.16.31 page during an update.
+            var buyer = $intent.length ? $intent.find('input:checked').val() === '1' : $course.find('.gvn-participants__buyer').prop('checked') === true;
             var $first = $course.find('.gvn-participants__person').first();
             $first.find('.gvn-participants__fields').prop('hidden', buyer);
             $first.find('.gvn-participants__buyer-note').prop('hidden', !buyer);
@@ -28,14 +32,15 @@
     $(function () {
         sync();
         remember();
-        $(document.body).on('input change', '#gvn-participants input', function () {
+        $(document.body).on('input change', '#gvn-participants input, #gvn-participants-intent input', function () {
             remember();
             sync();
         });
         $(document.body).on('updated_checkout', function () {
-            $('#gvn-participants input').each(function () {
+            $('#gvn-participants input, #gvn-participants-intent input').each(function () {
                 if (Object.prototype.hasOwnProperty.call(drafts, this.name)) {
-                    if (this.type === 'checkbox') this.checked = drafts[this.name];
+                    if (this.type === 'radio') this.checked = drafts[this.name] === this.value;
+                    else if (this.type === 'checkbox') this.checked = drafts[this.name] === '1';
                     else this.value = drafts[this.name];
                 }
             });

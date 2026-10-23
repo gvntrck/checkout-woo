@@ -131,7 +131,7 @@ $split_plan_label = '' !== $first_name ? $first_name : __( 'Resumo do pedido', '
                                     $gvn_key_counts[ $gvn_field['key'] ]++;
                                     $f_id            = 1 === $gvn_key_counts[ $gvn_field['key'] ] ? $f_key : $f_key . '--' . $gvn_key_counts[ $gvn_field['key'] ];
                                     $f_id_attr       = esc_attr( $f_id );
-                                    $f_label       = esc_html( $gvn_field['label'] );
+                                    $f_label       = esc_html( apply_filters( 'gvn_checkout_field_label', $gvn_field['label'], $gvn_field['key'] ) );
                                     $f_type        = $gvn_field['type'];
                                     $f_required    = ! empty( $gvn_field['required'] );
                                     $f_placeholder = esc_attr( $gvn_field['placeholder'] );

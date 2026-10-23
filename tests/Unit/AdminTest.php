@@ -27,6 +27,34 @@ class AdminTest extends TestCase {
         SettingsRepository::flush_cache();
     }
 
+    public function test_saved_choice_fields_show_options_when_reopened(): void {
+        global $wp_mock_options;
+        foreach (['radio', 'select', 'text'] as $type) {
+            $wp_mock_options[GVN_Custom_Fields::OPTION_KEY] = [[
+                'key' => 'gvn_custom_choice',
+                'label' => 'Escolha',
+                'type' => $type,
+                'options' => "a|Opção A\nb|Opção B",
+                'default_option' => 'b',
+                'enabled' => true,
+            ]];
+
+            $method = new \ReflectionMethod(GVN_Admin::class, 'render_fields_manager');
+            $method->setAccessible(true);
+            ob_start();
+            try {
+                $method->invoke(GVN_Admin::get_instance());
+                $html = ob_get_contents();
+            } finally {
+                ob_end_clean();
+            }
+
+            $this->assertSame(1, preg_match('/class="gvn-field-col gvn-field-col--options" style="([^"]*)"/', $html, $matches));
+            $this->assertSame($type === 'text', strpos($matches[1], 'display:none;') !== false, $type);
+            $this->assertStringContainsString("a|Opção A\nb|Opção B</textarea>", $html);
+        }
+    }
+
     public function test_saved_fields_receive_required_default_address_fields(): void {
         global $wp_mock_options;
         $wp_mock_options[GVN_Custom_Fields::OPTION_KEY] = [

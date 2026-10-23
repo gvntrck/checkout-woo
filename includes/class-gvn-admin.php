@@ -876,7 +876,7 @@ class GVN_Admin {
                                     <label><?php esc_html_e( 'Placeholder', 'gvn-checkout' ); ?></label>
                                     <input type="text" class="gvn-field-placeholder-input" value="<?php echo esc_attr( $field['placeholder'] ); ?>" />
                                 </div>
-                                <div class="gvn-field-col gvn-field-col--options" style="<?php echo ( 'select' !== $field['type'] ) ? 'display:none;' : ''; ?>grid-column: 1 / -1;">
+                                <div class="gvn-field-col gvn-field-col--options" style="<?php echo ( 'select' !== $field['type'] && 'radio' !== $field['type'] ) ? 'display:none;' : ''; ?>grid-column: 1 / -1;">
                                     <label><?php esc_html_e( 'Opções (uma por linha, formato: valor|Rótulo ou apenas Rótulo)', 'gvn-checkout' ); ?></label>
                                     <textarea class="gvn-field-options-input" rows="4" placeholder="opcao1|Opção 1&#10;opcao2|Opção 2&#10;opcao3|Opção 3"><?php echo esc_textarea( isset( $field['options'] ) ? $field['options'] : '' ); ?></textarea>
                                     <label style="margin-top:8px;display:block;"><?php esc_html_e( 'Valor padrão pré-selecionado', 'gvn-checkout' ); ?></label>

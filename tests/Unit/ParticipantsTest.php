@@ -185,6 +185,7 @@ class ParticipantsTest extends TestCase {
             $xpath = new \DOMXPath($dom);
             $this->assertSame(1, $xpath->query('//form[@name="checkout"]//section[@id="gvn-participants"]')->length);
             $this->assertSame(2, $xpath->query('//fieldset[contains(@class,"gvn-participants__person")]')->length);
+            $this->assertSame(3, $xpath->query('//h3[@class="gvn-section__title"]')->length);
             $this->assertSame(1, $xpath->query('//input[@name="billing_first_name"]')->length);
         }
     }

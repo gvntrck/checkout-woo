@@ -147,7 +147,7 @@ final class Participants {
         ob_start();
         ?>
         <div id="gvn-participants-intent" class="gvn-participants">
-            <h3><?php esc_html_e('Quem vai participar do curso?', 'gvn-checkout'); ?></h3>
+            <h3 class="gvn-section__title"><?php esc_html_e('Quem vai participar do curso?', 'gvn-checkout'); ?></h3>
             <?php foreach ($groups as $key => $group) : ?>
                 <fieldset class="gvn-participants__intent" data-course="<?php echo esc_attr($key); ?>">
                     <legend><?php echo esc_html($group['name']); ?></legend>
@@ -157,7 +157,7 @@ final class Participants {
                     <label><input type="radio" name="gvn_participants[<?php echo esc_attr($key); ?>][buyer]" value="0" <?php checked(!$this->is_buyer($data, $key)); ?>> <?php echo esc_html($group['quantity'] === 1 ? __('Outra pessoa', 'gvn-checkout') : __('Somente outras pessoas', 'gvn-checkout')); ?></label>
                 </fieldset>
             <?php endforeach; ?>
-            <h3><?php esc_html_e('Dados do comprador / responsável pelo pagamento', 'gvn-checkout'); ?></h3>
+            <h3 class="gvn-section__title"><?php esc_html_e('Dados do comprador / responsável pelo pagamento', 'gvn-checkout'); ?></h3>
             <p><?php esc_html_e('Informe os dados de quem está realizando a compra, mesmo que não participe do curso.', 'gvn-checkout'); ?></p>
         </div>
         <?php
@@ -172,7 +172,7 @@ final class Participants {
         ob_start();
         ?>
         <section id="gvn-participants" class="gvn-participants" aria-labelledby="gvn-participants-title">
-            <h3 id="gvn-participants-title"><?php esc_html_e('Informações dos participantes', 'gvn-checkout'); ?></h3>
+            <h3 id="gvn-participants-title" class="gvn-section__title"><?php esc_html_e('Informações dos participantes', 'gvn-checkout'); ?></h3>
             <p><?php esc_html_e('Informe os dados de quem fará o curso. Cada unidade comprada corresponde a uma vaga.', 'gvn-checkout'); ?></p>
             <?php if (function_exists('wc_get_cart_url')) : ?>
                 <p><a href="<?php echo esc_url(wc_get_cart_url()); ?>"><?php esc_html_e('Alterar quantidade de vagas no carrinho', 'gvn-checkout'); ?></a></p>

@@ -5,8 +5,8 @@ const { execFileSync } = require('node:child_process');
 const test = require('node:test');
 
 const root = path.join(__dirname, '..');
-const fixture = (layout, count = 2) => execFileSync(process.platform === 'win32' ? 'wsl' : 'php',
-    [...(process.platform === 'win32' ? ['php'] : []), 'tests/fixtures/participants.php', layout, String(count)],
+const fixture = (layout, count = 2, sectionSize) => execFileSync(process.platform === 'win32' ? 'wsl' : 'php',
+    [...(process.platform === 'win32' ? ['php'] : []), 'tests/fixtures/participants.php', layout, String(count), ...(sectionSize ? [String(sectionSize)] : [])],
     { cwd: root, encoding: 'utf8' });
 
 test('participants: buyer toggle, AJAX drafts and responsive fields in both layouts', {
@@ -70,6 +70,27 @@ test('participants: buyer toggle, AJAX drafts and responsive fields in both layo
           }
         }
         assert.deepEqual(errors, []);
+    } finally {
+        await browser.close();
+    }
+});
+
+test('participant headings follow section title size, not page title size, in both layouts', {
+    skip: !process.env.GVN_PLAYWRIGHT_PATH && 'Defina GVN_PLAYWRIGHT_PATH para usar Playwright já instalado.'
+}, async () => {
+    const { chromium } = require(process.env.GVN_PLAYWRIGHT_PATH);
+    const browser = await chromium.launch({ headless: true, executablePath: process.env.GVN_CHROMIUM_PATH });
+    try {
+        const page = await browser.newPage();
+        const styles = ['gvn-checkout.css', 'gvn-checkout-layout-split.css', 'gvn-participants.css']
+            .map(file => fs.readFileSync(path.join(root, 'assets/css', file), 'utf8')).join('\n');
+        for (const layout of ['classic', 'split']) {
+            for (const size of [19, 27]) {
+                await page.setContent(`<style>h3 { font-size: 48px; } ${styles}</style>${fixture(layout, 2, size)}`);
+                const headings = await page.locator('.gvn-participants h3').evaluateAll(nodes => nodes.map(node => getComputedStyle(node).fontSize));
+                assert.deepEqual(headings, Array(3).fill(`${size}px`), layout);
+            }
+        }
     } finally {
         await browser.close();
     }

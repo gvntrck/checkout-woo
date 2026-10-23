@@ -35,6 +35,7 @@ Abaixo está uma demonstração visual da interface limpa e moderna gerada pelo 
 *   **🏷️ Cupom de Desconto Dinâmico:** Seção de cupom com toggle moderno que não distrai o cliente.
 *   **🛍️ Order Bump Avançado:** Ofereça produtos adicionais com desconto diretamente no checkout e aumente o Ticket Médio (*AOV*) da sua loja com apenas 1 clique.
 *   **🛡️ Máscaras Automáticas:** Formatação inteligente em tempo real nos campos de CPF e Celular.
+*   **Participantes / Alunos (opcional):** Campos por vaga dos cursos selecionados, com nome, e-mail e CPF e opção de o comprador ocupar uma vaga. Desligado por padrão. [Configuração e limites](docs/participants.md).
 
 ---
 

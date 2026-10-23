@@ -94,6 +94,7 @@ final class Plugin {
         $this->modules['checkout']            = \GVN_Checkout::get_instance();
         $this->modules['order_bump']          = \GVN_Order_Bump::get_instance();
         $this->modules['address_validation']  = \GVN_Address_Validation::get_instance();
+        $this->modules['participants']        = new \GVN\Checkout\Checkout\Participants();
 
         // Carrega módulo administrativo apenas no contexto admin ou AJAX.
         if (is_admin() || wp_doing_ajax()) {

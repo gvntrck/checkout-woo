@@ -1,0 +1,46 @@
+# Participantes / Alunos
+
+Em **WooCommerce → Configurações → GVN Checkout → Participantes / Alunos**:
+
+1. Ative o recurso (desligado por padrão, inclusive após atualizar).
+2. Busque e selecione os cursos. Selecionar um produto pai inclui suas variações.
+3. Escolha se o comprador pode ocupar a primeira vaga de cada curso.
+4. Para nome, e-mail e CPF, escolha obrigatório (padrão), opcional ou não solicitar.
+5. Salve as alterações.
+
+Cada unidade comprada gera um participante, por item do carrinho. Outros produtos e order bumps não geram participantes. Os dados de cobrança continuam sendo os dados do pagador. Marcando **Uma das vagas é para mim**, a primeira vaga usa nome, e-mail e CPF do comprador, resolvidos e validados no servidor. Se CPF for obrigatório, mantenha o campo de cobrança `billing_cpf` habilitado ou preencha a vaga manualmente.
+
+Funciona nos layouts clássico e split do GVN e no checkout clássico do WooCommerce. Não suporta Checkout Blocks. Desative o modo **produto único**, que limita o carrinho a uma unidade. O atalho de compra direta também inicia a compra com uma unidade; para várias vagas, use o fluxo de carrinho com quantidade. O produto não pode estar marcado como **Vendido individualmente** no WooCommerce. Há um link na seção de participantes para alterar a quantidade pelo carrinho.
+
+Ao mudar quantidades no carrinho, o checkout reflete a quantidade atual. Atualizações AJAX de cupom/pagamento preservam os campos preenchidos em memória enquanto a página estiver aberta. Recarregar ou navegar ao carrinho pode perder dados ainda não enviados. A quantidade é alterada pelo carrinho, não por um novo controle no checkout.
+
+E-mail e dígitos verificadores de CPF são validados no servidor quando preenchidos. Campos obrigatórios faltantes e requisições sem nonce válido bloqueiam a compra apenas para os produtos configurados. Valores excedentes enviados pelo navegador são ignorados: a quantidade do carrinho é a autoridade.
+
+Os participantes são salvos no metadado privado `_gvn_participants` de cada item do pedido (HPOS via API WooCommerce). Consulte-os nos itens do pedido no painel administrativo, mesmo após desativar o recurso. Não são publicados nos e-mails ou na página de obrigado para evitar exposição de CPF. Nenhuma conta ou matrícula é criada automaticamente. Os dados acompanham a retenção do pedido; considere isso na política de privacidade da loja.
+
+## Liberação segura
+
+Não é necessário reconfigurar os sites existentes: sem ativação explícita, nenhum campo, asset ou validação de checkout deste módulo é aplicado. Antes de distribuir por atualização automática, homologue em staging com os temas, gateways e plugins de campos reais. Desative os snippets antigos de participantes no site de homologação para evitar coleta duplicada. Não migra metadados dos snippets antigos.
+
+### Testes automatizados
+
+- PHP: `php vendor/bin/phpunit --testsuite unit --filter ParticipantsTest`.
+- Navegador: `node --test tests/checkout-participants.test.cjs tests/checkout-containers.test.cjs tests/checkout-field-groups.test.cjs`, com `GVN_PLAYWRIGHT_PATH` e, se necessário, `GVN_CHROMIUM_PATH` definidos conforme o `AGENTS.md`.
+- `ParticipantsTest` cobre isolamento desligado (HTML idêntico nos dois layouts), produtos não selecionados, variações, exclusão de order bumps, quantidade autoritativa, comprador como aluno, dados inválidos, configuração opcional/oculta, nonces, permissões administrativas, persistência privada por item, valores AJAX e escape de HTML.
+- O teste de navegador cobre ambos os layouts nas larguras 320, 390, 768 e 1280 px, alternância do comprador e preservação de rascunhos após substituição de fragmentos AJAX.
+
+Esses testes usam fixtures e não substituem uma compra de homologação com o gateway real.
+
+### Resultado da comparação com a versão anterior
+
+Verificado em 23/10/2026, PHP 8.3 e Chromium local, comparando com uma cópia de `HEAD` sem as alterações deste recurso:
+
+- PHPUnit anterior: 178 testes, 813 asserções, 2 erros e 3 falhas.
+- PHPUnit com participantes: 193 testes, 878 asserções, os mesmos 2 erros e 3 falhas. Os 15 testes novos passaram (65 asserções).
+- Falhas preexistentes: dois testes de assets usam um mock sem `get_cart_contents_count()`; há uma expectativa antiga sobre o HTML de privacidade e duas expectativas antigas sobre sanitização das configurações.
+- PHPStan global: os mesmos 3 erros da versão anterior. Análise específica de `Participants.php`: sem erros.
+- A falha de `checkout-steps.test.cjs` no teste de erro inline também ocorre na versão anterior.
+- Navegador: os 8 testes de participantes, contêineres e grupos passaram, sem skips, incluindo os dois layouts e as quatro larguras documentadas.
+- Sintaxe PHP, sintaxe JavaScript, verificação de compatibilidade PHP 7.4 e sniffs de segurança do novo módulo passaram. PHPCS completo continua apontando divergências do padrão WPCS; o módulo segue o estilo local de `src/`.
+
+Não foram identificadas novas falhas nessa comparação automatizada. Isso não certifica os temas e gateways reais: a publicação automática permanece condicionada à homologação em staging.

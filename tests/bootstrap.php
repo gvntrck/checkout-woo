@@ -97,6 +97,21 @@ if (!function_exists('wp_create_nonce')) {
     }
 }
 
+if (!function_exists('wp_verify_nonce')) {
+    function wp_verify_nonce($nonce, $action = -1) {
+        return $nonce === 'mock_nonce_' . $action ? 1 : false;
+    }
+}
+
+if (!function_exists('check_admin_referer')) {
+    function check_admin_referer($action = -1, $query_arg = '_wpnonce') {
+        if (!wp_verify_nonce($_POST[$query_arg] ?? '', $action)) {
+            wp_die('Invalid nonce');
+        }
+        return 1;
+    }
+}
+
 if (!function_exists('esc_html')) {
     function esc_html($text) {
         return htmlspecialchars((string) $text, ENT_QUOTES, 'UTF-8');

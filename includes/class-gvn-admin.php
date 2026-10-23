@@ -47,7 +47,7 @@ class GVN_Admin {
      * Retorna a sub-aba ativa.
      */
     private function get_current_subtab() {
-        $valid  = array( 'settings', 'fields', 'compatibility', 'help' );
+        $valid  = array( 'settings', 'fields', 'participants', 'compatibility', 'help' );
         $subtab = isset( $_GET['subtab'] ) ? sanitize_key( wp_unslash( $_GET['subtab'] ) ) : 'settings';
         return in_array( $subtab, $valid, true ) ? $subtab : 'settings';
     }
@@ -68,6 +68,7 @@ class GVN_Admin {
         $subtabs = array(
             'settings' => __( 'Configurações', 'gvn-checkout' ),
             'fields'   => __( 'Campos do Formulário', 'gvn-checkout' ),
+            'participants' => __( 'Participantes / Alunos', 'gvn-checkout' ),
             'compatibility' => __( 'Compatibilidade', 'gvn-checkout' ),
             'help'     => __( 'Como Usar', 'gvn-checkout' ),
         );
@@ -83,6 +84,9 @@ class GVN_Admin {
         <?php
 
         switch ( $current_subtab ) {
+            case 'participants':
+                woocommerce_admin_fields( \GVN\Checkout\Checkout\Participants::settings() );
+                break;
             case 'fields':
                 $this->render_fields_manager();
                 break;
@@ -107,6 +111,12 @@ class GVN_Admin {
         }
 
         $subtab = $this->get_current_subtab();
+        if ( 'participants' === $subtab ) {
+            // A página de configurações do WooCommerce também verifica seu nonce.
+            check_admin_referer( 'woocommerce-settings' );
+            woocommerce_update_options( \GVN\Checkout\Checkout\Participants::settings() );
+            return;
+        }
         if ( in_array( $subtab, array( 'settings', 'compatibility' ), true ) ) {
             woocommerce_update_options( 'compatibility' === $subtab ? $this->get_compatibility_settings() : $this->get_settings() );
 
@@ -681,6 +691,11 @@ class GVN_Admin {
 
         if ( ! isset( $_GET['tab'] ) || 'gvn_checkout' !== sanitize_key( wp_unslash( $_GET['tab'] ) ) ) {
             return;
+        }
+
+        if ( 'participants' === $this->get_current_subtab() ) {
+            wp_enqueue_script( 'wc-enhanced-select' );
+            wp_enqueue_style( 'woocommerce_admin_styles' );
         }
 
         wp_enqueue_style(

@@ -1,0 +1,41 @@
+.gvn-participants {
+    clear: both;
+    margin-block: 1.5rem;
+}
+.gvn-participants .gvn-participants__course,
+.gvn-participants .gvn-participants__person {
+    min-inline-size: 0;
+    border: 0;
+    padding: 0;
+    margin: 1.25rem 0 0;
+}
+.gvn-participants .gvn-participants__course > legend {
+    font-size: 1.125em;
+    font-weight: 700;
+    margin-bottom: .75rem;
+}
+.gvn-participants .gvn-participants__person > legend {
+    font-weight: 600;
+    margin-bottom: .5rem;
+}
+.gvn-participants .gvn-participants__fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: .75rem;
+}
+.gvn-participants .gvn-participants__fields .form-row {
+    float: none;
+    width: auto;
+    margin: 0;
+}
+.gvn-participants label {
+    display: block;
+}
+.gvn-participants .input-text {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+}
+.gvn-participants [hidden] {
+    display: none !important;
+}

@@ -1085,7 +1085,7 @@ class GVN_Custom_Fields {
         return array(
             ''        => 'Nenhuma',
             'cpf'     => 'CPF (000.000.000-00)',
-            'cnpj'    => 'CNPJ (00.000.000/0000-00)',
+            'cnpj'    => 'CNPJ numérico ou alfanumérico (AA.AAA.AAA/AAAA-00)',
             'phone'   => 'Celular ((00) 00000-0000)',
             'cep'     => 'CEP (00000-000)',
             'date'    => 'Data (00/00/0000)',

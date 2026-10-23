@@ -25,6 +25,10 @@ class FieldSanitizer {
 
         $str_val = (string) $value;
 
+        if (($field['mask'] ?? '') === 'cnpj') {
+            return strtoupper(function_exists('sanitize_text_field') ? sanitize_text_field($str_val) : trim(strip_tags($str_val)));
+        }
+
         switch ($type) {
             case 'checkbox':
                 return $str_val === '1' ? '1' : '0';

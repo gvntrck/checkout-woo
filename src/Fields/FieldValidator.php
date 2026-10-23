@@ -74,7 +74,7 @@ class FieldValidator {
                 self::add_error($errors, $key, $message);
                 continue;
             }
-            if ($value_str !== '') {
+            if ($value_str !== '' || ($mask === 'cnpj' && !is_scalar($raw_value))) {
                 if ($type === 'email' && function_exists('is_email') && !is_email($value_str)) {
                     $message = sprintf(
                         /* translators: %s: Nome do campo */
@@ -91,6 +91,11 @@ class FieldValidator {
                     );
                     $validation_errors[$key] = $message;
                     self::add_error($errors, $key, $message);
+                } elseif ($mask === 'cnpj' && !self::is_valid_cnpj($value_str)) {
+                    /* translators: %s: Field label */
+                    $message = sprintf(__('O campo "%s" deve conter um CNPJ válido.', 'gvn-checkout'), $label);
+                    $validation_errors[$key] = $message;
+                    self::add_error($errors, $key, $message);
                 }
             }
         }
@@ -98,6 +103,31 @@ class FieldValidator {
         self::validate_gateway_requirements($fields, $posted_data, $errors, $validation_errors);
 
         return $validation_errors;
+    }
+
+    /** Validate numeric and alphanumeric CNPJ using Receita Federal's ASCII - 48 / modulo 11. */
+    private static function is_valid_cnpj(string $value): bool {
+        $cnpj = strtoupper($value);
+        if (!preg_match('/^(?:[A-Z0-9]{12}[0-9]{2}|[A-Z0-9]{2}\.[A-Z0-9]{3}\.[A-Z0-9]{3}\/[A-Z0-9]{4}-[0-9]{2})$/D', $cnpj)) {
+            return false;
+        }
+        $cnpj = str_replace(['.', '/', '-'], '', $cnpj);
+        if (preg_match('/^([0-9])\1{13}$/', $cnpj)) {
+            return false;
+        }
+        for ($position = 12; $position <= 13; $position++) {
+            $sum = 0;
+            for ($index = 0; $index < $position; $index++) {
+                $weight = (($position - 1 - $index) % 8) + 2;
+                $sum += (ord($cnpj[$index]) - 48) * $weight;
+            }
+            $remainder = $sum % 11;
+            $digit = $remainder < 2 ? 0 : 11 - $remainder;
+            if ($digit !== (int) $cnpj[$position]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

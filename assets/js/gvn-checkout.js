@@ -613,11 +613,13 @@
                     return val;
                 },
                 cnpj: function (val) {
-                    val = val.replace(/\D/g, '').substring(0, 14);
-                    if (val.length > 12) return val.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2})/, '$1.$2.$3/$4-$5');
-                    if (val.length > 8) return val.replace(/(\d{2})(\d{3})(\d{3})(\d{1,4})/, '$1.$2.$3/$4');
-                    if (val.length > 5) return val.replace(/(\d{2})(\d{3})(\d{1,3})/, '$1.$2.$3');
-                    if (val.length > 2) return val.replace(/(\d{2})(\d{1,3})/, '$1.$2');
+                    val = val.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 14);
+                    // Only the first 12 positions may contain letters; check digits stay numeric.
+                    val = val.substring(0, 12) + val.substring(12).replace(/\D/g, '');
+                    if (val.length > 12) return val.replace(/([A-Z0-9]{2})([A-Z0-9]{3})([A-Z0-9]{3})([A-Z0-9]{4})(\d{1,2})/, '$1.$2.$3/$4-$5');
+                    if (val.length > 8) return val.replace(/([A-Z0-9]{2})([A-Z0-9]{3})([A-Z0-9]{3})([A-Z0-9]{1,4})/, '$1.$2.$3/$4');
+                    if (val.length > 5) return val.replace(/([A-Z0-9]{2})([A-Z0-9]{3})([A-Z0-9]{1,3})/, '$1.$2.$3');
+                    if (val.length > 2) return val.replace(/([A-Z0-9]{2})([A-Z0-9]{1,3})/, '$1.$2');
                     return val;
                 },
                 phone: function (val) {

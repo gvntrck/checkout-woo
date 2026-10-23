@@ -8,6 +8,25 @@ use WP_Error;
 
 class FieldValidatorTest extends TestCase {
 
+    public function test_cnpj_accepts_both_formats_and_checks_official_digits(): void {
+        $fields = [['key' => 'billing_cnpj', 'label' => 'CNPJ', 'type' => 'text', 'mask' => 'cnpj', 'enabled' => true]];
+        // Alphanumeric example from Receita Federal's calculation manual.
+        foreach (['12.ABC.345/01DE-35', '12abc34501de35', '12.345.678/0001-95', '12345678000195', ''] as $value) {
+            $errors = new WP_Error();
+            $this->assertSame([], FieldValidator::validate($fields, ['billing_cnpj' => $value], $errors), $value);
+            $this->assertFalse($errors->has_errors());
+        }
+        foreach (['12.ABC.345/01DE-34', '12.ABC.345/01DE-45', '12ABC34501DE3A', '12345678000194', '00000000000000', '11111111111111', '12ABC34501DE3', '12ABC34501DE355', '12@ABC34501DE35', '12ÁBC34501DE35', '12 ABC34501DE35', ['12ABC34501DE35']] as $value) {
+            $errors = new WP_Error();
+            $this->assertArrayHasKey('billing_cnpj', FieldValidator::validate($fields, ['billing_cnpj' => $value], $errors));
+            $this->assertTrue($errors->has_errors());
+        }
+        $fields[0]['required'] = true;
+        $this->assertArrayHasKey('billing_cnpj', FieldValidator::validate($fields, []));
+        $fields[0]['conditions'] = ['logic' => 'and', 'rules' => [['field' => 'billing_persontype', 'operator' => 'equals', 'value' => 'pj']]];
+        $this->assertSame([], FieldValidator::validate($fields, ['billing_persontype' => 'pf', 'billing_cnpj' => 'invalid']));
+    }
+
     public function test_required_checkbox_accepts_only_checked_value(): void {
         $fields = [[
             'key' => 'accept_terms', 'label' => 'Aceito os termos',

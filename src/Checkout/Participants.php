@@ -211,8 +211,12 @@ final class Participants {
     }
 
     private function is_buyer(array $data, string $key): bool {
-        return get_option(self::PREFIX . 'buyer', 'yes') === 'yes'
-            && ($data['gvn_participants'][$key]['buyer'] ?? '') === '1';
+        if (get_option(self::PREFIX . 'buyer', 'yes') !== 'yes') {
+            return false;
+        }
+        $choice = $data['gvn_participants'][$key]['buyer'] ?? null;
+        // Default only on initial rendering. Missing submitted choices keep legacy unchecked semantics.
+        return $choice === null ? !isset($data['gvn_participants_nonce']) : $choice === '1';
     }
 
     /** Resolve exclusively from the current cart; never trust submitted counts or buyer identity. */

@@ -289,6 +289,24 @@ class ParticipantsTest extends TestCase {
         $this->assertStringNotContainsString('value="1"', $module->intent_html());
     }
 
+    public function test_buyer_is_default_but_explicit_other_people_and_legacy_submissions_are_preserved(): void {
+        $module = $this->enable();
+        $key = WC()->cart->add_to_cart(1);
+        foreach ([1, 3] as $quantity) {
+            WC()->cart->set_quantity($key, $quantity);
+            $this->assertStringContainsString('value="1"  checked="checked"', $module->intent_html());
+            $data = $this->payload($key, $quantity);
+            $data['gvn_participants'][$key]['buyer'] = '0';
+            $this->assertStringContainsString('value="0"  checked="checked"', $module->intent_html($data));
+            $this->assertSame('Maria Silva', $module->collect($data)[$key][0]['name']);
+            unset($data['gvn_participants'][$key]['buyer']);
+            $this->assertStringContainsString('value="0"  checked="checked"', $module->intent_html($data));
+        }
+        update_option(Participants::PREFIX . 'buyer', 'no');
+        $this->assertStringContainsString('value="0"  checked="checked"', $module->intent_html());
+        $this->assertStringNotContainsString('value="1"', $module->intent_html());
+    }
+
     public function test_display_labels_do_not_mutate_saved_fields_or_unrelated_carts(): void {
         $module = $this->enable();
         $key = WC()->cart->add_to_cart(1);

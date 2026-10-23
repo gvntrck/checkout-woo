@@ -23,6 +23,15 @@ class MockWcOrder {
 
 class FieldOrderPersisterTest extends TestCase {
 
+    public function test_cnpj_preserves_letters_and_leading_zeros_in_order_metadata(): void {
+        $order = new MockWcOrder();
+        $fields = [['key' => 'billing_cnpj', 'type' => 'text', 'mask' => 'cnpj', 'enabled' => true]];
+        foreach (['12.abc.345/01de-35' => '12.ABC.345/01DE-35', '12abc34501de35' => '12ABC34501DE35', '04.252.011/0001-10' => '04.252.011/0001-10'] as $input => $expected) {
+            FieldOrderPersister::persist($order, $fields, ['billing_cnpj' => $input]);
+            $this->assertSame($expected, $order->get_meta('_billing_cnpj'));
+        }
+    }
+
     public function test_checkbox_records_checked_and_unchecked_values(): void {
         $order = new MockWcOrder();
         $fields = [['key' => 'accept_terms', 'type' => 'checkbox', 'enabled' => true]];

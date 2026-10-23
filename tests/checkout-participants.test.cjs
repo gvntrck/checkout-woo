@@ -33,6 +33,9 @@ test('participants: buyer toggle, AJAX drafts and responsive fields in both layo
             const buyer = page.locator('#gvn-participants-intent input[value="1"]');
             const others = page.locator('#gvn-participants-intent input[value="0"]');
             assert.equal(await buyer.locator('..').innerText(), quantity === 1 ? ' Eu mesmo' : ' Eu e outras pessoas');
+            assert.equal(await buyer.isChecked(), true);
+            assert.equal(await page.locator('.gvn-participants__person').first().locator('input').first().isDisabled(), true);
+            await others.check();
             assert.equal(await page.locator('#gvn-participants-intent').evaluate(intent =>
                 !!(intent.compareDocumentPosition(document.querySelector('[name="billing_first_name"]')) & Node.DOCUMENT_POSITION_FOLLOWING)), true);
             for (const width of [320, 390, 768, 1280]) {
@@ -67,6 +70,13 @@ test('participants: buyer toggle, AJAX drafts and responsive fields in both layo
             assert.equal(await first.locator('input').first().isDisabled(), false);
             assert.equal(await first.locator('[data-participant-field="name"]').inputValue(), 'Rascunho do aluno');
             assert.equal(await first.locator('input').first().getAttribute('required'), '');
+            await page.evaluate(html => {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                document.querySelector('#gvn-participants-intent').replaceWith(doc.querySelector('#gvn-participants-intent'));
+                jQuery(document.body).trigger('updated_checkout');
+            }, refreshed);
+            assert.equal(await others.isChecked(), true);
+            assert.equal(await first.locator('input').first().isDisabled(), false);
           }
         }
         assert.deepEqual(errors, []);

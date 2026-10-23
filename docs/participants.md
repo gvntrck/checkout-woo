@@ -13,7 +13,7 @@ Cada unidade comprada gera um participante, por item do carrinho. Outros produto
 - Uma vaga: **Eu mesmo** ou **Outra pessoa**.
 - Várias vagas: **Eu e outras pessoas** ou **Somente outras pessoas**.
 
-A opção para outras pessoas vem selecionada inicialmente. Se a configuração não permitir comprador como aluno, apenas essa opção fica disponível. Escolhendo participar, a primeira vaga usa nome, e-mail e CPF do comprador, resolvidos e validados no servidor. Não há um segundo checkbox na parte inferior. Se CPF for obrigatório, mantenha o campo de cobrança `billing_cpf` habilitado ou preencha a vaga manualmente.
+A partir da versão 1.16.34, **Eu mesmo** (uma vaga) ou **Eu e outras pessoas** (várias vagas) vem selecionado inicialmente. A escolha explícita por outras pessoas é preservada nas atualizações AJAX. Se a configuração não permitir comprador como aluno, apenas a opção para outras pessoas fica disponível e selecionada. Escolhendo participar, a primeira vaga usa nome, e-mail e CPF do comprador, resolvidos e validados no servidor. Não há um segundo checkbox na parte inferior. Se CPF for obrigatório, mantenha o campo de cobrança `billing_cpf` habilitado ou preencha a vaga manualmente.
 
 Os dados de cobrança continuam sendo os dados do pagador, sob o título **Dados do comprador / responsável pelo pagamento**. Nos carrinhos com cursos configurados, os labels exibidos passam a ser **Nome do comprador**, **Sobrenome do comprador**, **CPF do comprador/pagador** e **E-mail do comprador**. Os campos dos alunos são identificados como dados do participante. Não altera chaves de campos nem labels salvos no editor. Sem cursos configurados no carrinho ou com o recurso desligado, mantém os labels existentes.
 

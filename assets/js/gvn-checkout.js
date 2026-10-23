@@ -650,8 +650,8 @@
                 }
             };
 
-            $(document).on('input', '.gvn-field[data-mask] input, .gvn-field[data-mask] textarea', function () {
-                var maskType = $(this).closest('.gvn-field').data('mask');
+            $(document).on('input', '.gvn-field[data-mask] input, .gvn-field[data-mask] textarea, #gvn-participants input[data-participant-field="cpf"]', function () {
+                var maskType = this.dataset.participantField === 'cpf' ? 'cpf' : $(this).closest('.gvn-field').data('mask');
                 if (maskType && masks[maskType]) {
                     $(this).val(masks[maskType]($(this).val()));
                 }

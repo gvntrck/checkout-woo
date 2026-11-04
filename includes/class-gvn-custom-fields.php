@@ -511,6 +511,22 @@ class GVN_Custom_Fields {
         } );
     }
 
+    public static function get_disabled_billing_keys() {
+        $disabled = array();
+        $enabled  = array();
+        foreach ( self::get_fields() as $field ) {
+            if ( 0 !== strpos( $field['key'], 'billing_' ) ) {
+                continue;
+            }
+            if ( empty( $field['enabled'] ) ) {
+                $disabled[ $field['key'] ] = true;
+            } else {
+                $enabled[ $field['key'] ] = true;
+            }
+        }
+        return array_keys( array_diff_key( $disabled, $enabled ) );
+    }
+
     /**
      * AJAX: Salvar campos do admin.
      */
@@ -740,6 +756,11 @@ class GVN_Custom_Fields {
 
         // Não ocultar campos que foram adicionados explicitamente pelo admin
         $enabled_keys = wp_list_pluck( $fields, 'key' );
+        foreach ( self::get_disabled_billing_keys() as $field_key ) {
+            if ( isset( $checkout_fields['billing'][ $field_key ] ) && ! $resolver->is_field_required( $field_key, $checkout_fields, $gateway_id, $posted_data, false ) ) {
+                $checkout_fields['billing'][ $field_key ]['required'] = false;
+            }
+        }
         foreach ( $hide_fields as $field_key ) {
             if ( in_array( $field_key, $enabled_keys, true ) ) {
                 continue; // O admin adicionou este campo, não ocultar

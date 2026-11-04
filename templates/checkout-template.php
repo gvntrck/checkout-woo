@@ -235,12 +235,6 @@ if ( $bump_product && $cart ) {
                             $gvn_checkout_fields = (array) $checkout->get_checkout_fields();
                         }
 
-                        foreach ( GVN_Custom_Fields::get_disabled_billing_keys() as $wk ) {
-                            if ( ! array_key_exists( $wk, $woo_hidden_defaults ) ) {
-                                $woo_hidden_defaults[ $wk ] = null;
-                            }
-                        }
-
                         // Renderiza os campos não exigidos como hidden e os requisitos confirmados como campo nativo.
                         foreach ( $woo_hidden_defaults as $wk => $wval ) {
                             if ( $gvn_gateway_resolver->is_field_required( $wk, $gvn_checkout_fields, $gvn_gateway_id, $gvn_posted_data, false ) ) {
@@ -252,14 +246,14 @@ if ( $bump_product && $cart ) {
                                         'required' => true,
                                     );
                                 $gvn_native_field['required'] = true;
-                                $gvn_native_value = ( $checkout && method_exists( $checkout, 'get_value' ) ) ? $checkout->get_value( $wk ) : ( $wval ?? '' );
+                                $gvn_native_value = ( $checkout && method_exists( $checkout, 'get_value' ) ) ? $checkout->get_value( $wk ) : $wval;
 
                                 if ( function_exists( 'woocommerce_form_field' ) ) {
                                     woocommerce_form_field( $wk, $gvn_native_field, $gvn_native_value );
                                 } else {
                                     echo '<p class="form-row form-row-wide"><label for="' . esc_attr( $wk ) . '">' . esc_html( $gvn_native_field['label'] ) . ' <abbr class="required" title="required">*</abbr></label><input type="text" name="' . esc_attr( $wk ) . '" id="' . esc_attr( $wk ) . '" value="' . esc_attr( $gvn_native_value ) . '" required /></p>';
                                 }
-                            } elseif ( null !== $wval ) {
+                            } else {
                                 echo '<input type="hidden" name="' . esc_attr( $wk ) . '" value="' . esc_attr( $wval ) . '" />';
                             }
                         }

@@ -120,8 +120,12 @@ class GVN_Admin {
         if ( in_array( $subtab, array( 'settings', 'compatibility' ), true ) ) {
             woocommerce_update_options( 'compatibility' === $subtab ? $this->get_compatibility_settings() : $this->get_settings() );
 
-            if ( 'settings' === $subtab && isset( $_POST['gvn_checkout_privacy_policy_text'] ) ) {
-                update_option( 'gvn_checkout_privacy_policy_text', wp_kses_post( wp_unslash( $_POST['gvn_checkout_privacy_policy_text'] ) ) );
+            if ( 'settings' === $subtab ) {
+                foreach ( array( 'gvn_checkout_privacy_policy_text', 'gvn_checkout_no_payment_methods_message' ) as $id ) {
+                    if ( isset( $_POST[ $id ] ) && is_string( $_POST[ $id ] ) ) {
+                        update_option( $id, wp_kses_post( wp_unslash( $_POST[ $id ] ) ) );
+                    }
+                }
             }
 
             if ( class_exists( 'GVN\Checkout\Settings\SettingsRepository' ) ) {
@@ -388,6 +392,13 @@ class GVN_Admin {
                 'type'  => 'title',
                 'desc'  => __( 'Controle elementos opcionais exibidos no checkout.', 'gvn-checkout' ),
                 'id'    => 'gvn_checkout_options_section',
+            ),
+            array(
+                'title'   => __( 'Mensagem sem métodos de pagamento', 'gvn-checkout' ),
+                'id'      => 'gvn_checkout_no_payment_methods_message',
+                'type'    => 'gvn_wysiwyg',
+                'default' => \GVN\Checkout\Settings\SettingsSchema::get_defaults()['no_payment_methods_message'],
+                'desc'    => __( 'Exibida quando nenhum método de pagamento está disponível. Permite formatação e links de contato.', 'gvn-checkout' ),
             ),
             array(
                 'title'   => __( 'Exibir campo de cupom', 'gvn-checkout' ),

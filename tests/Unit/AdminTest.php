@@ -192,6 +192,29 @@ class AdminTest extends TestCase {
         $this->assertEquals('Minha Loja Premium', SettingsRepository::get('header_text'));
     }
 
+    public function test_payment_message_uses_wysiwyg_and_preserves_html_when_saved(): void {
+        $admin = GVN_Admin::get_instance();
+        $method = new \ReflectionMethod($admin, 'get_settings');
+        $method->setAccessible(true);
+        $settings = array_column($method->invoke($admin), null, 'id');
+        $field = $settings['gvn_checkout_no_payment_methods_message'];
+        $this->assertSame('gvn_wysiwyg', $field['type']);
+        $this->assertSame(SettingsSchema::get_defaults()['no_payment_methods_message'], $field['default']);
+
+        $message = '<p><strong>Precisa de ajuda?</strong> <a href="https://example.com/suporte">Fale conosco</a>.</p>';
+        $_POST['gvn_checkout_no_payment_methods_message'] = addslashes($message . '<script>alert(1)</script>');
+        $admin->save_settings();
+
+        $saved = SettingsRepository::get('no_payment_methods_message');
+        $this->assertStringContainsString($message, $saved);
+        $this->assertStringNotContainsString('<script>', $saved);
+        $this->assertSame($saved, get_option('gvn_checkout_no_payment_methods_message'));
+
+        $_POST['gvn_checkout_no_payment_methods_message'] = '';
+        $admin->save_settings();
+        $this->assertSame('', SettingsRepository::get('no_payment_methods_message'));
+    }
+
     public function test_compatibility_subtab_has_explanation_and_safe_defaults(): void {
         $_GET['subtab'] = 'compatibility';
         $admin = GVN_Admin::get_instance();

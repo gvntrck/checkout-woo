@@ -74,6 +74,30 @@ class CheckoutHooksTest extends TestCase {
         $this->assertMatchesRegularExpression('/class="gvn-order-totals__total order-total".*?<bdi>.*?R\$.*?<\/bdi>/s', $fragments['#gvn-order-totals']);
     }
 
+    public function test_empty_payment_message_is_configurable_in_layouts_and_fragments(): void {
+        WC()->payment_gateways = new class {
+            public function get_available_payment_gateways() {
+                return [];
+            }
+        };
+        $repository = \GVN\Checkout\Settings\SettingsRepository::class;
+        $default = \GVN\Checkout\Settings\SettingsSchema::get_defaults()['no_payment_methods_message'];
+        $custom = '<p><strong>Pagamento indisponível.</strong> <a href="https://example.com/suporte">Suporte</a></p>';
+
+        foreach ([$default, $custom, ''] as $message) {
+            $repository::update('no_payment_methods_message', $message);
+            foreach (['templates/checkout-template.php', 'templates/checkout/layout-split.php', 'templates/payment-methods.php'] as $template) {
+                $checkout = WC()->checkout();
+                $available_gateways = [];
+                ob_start();
+                include GVN_CHECKOUT_PLUGIN_DIR . $template;
+                $html = ob_get_clean();
+                $this->assertStringContainsString('<div class="gvn-gateways__empty">' . $message . '</div>', $html, $template);
+            }
+        }
+        $repository::flush_cache();
+    }
+
     public function test_all_canonical_woocommerce_hooks_fire_in_correct_order() {
         global $wp_mock_actions;
 

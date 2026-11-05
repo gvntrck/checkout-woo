@@ -68,7 +68,7 @@ if ( ! isset( $available_gateways[ $chosen_gateway ] ) && ! empty( $available_ga
         </div>
     <?php else : ?>
         <div class="gvn-gateways__empty-box">
-            <p class="gvn-gateways__empty"><?php esc_html_e( 'Nenhum método de pagamento disponível no momento. Por favor, entre em contato com o suporte.', 'gvn-checkout' ); ?></p>
+            <div class="gvn-gateways__empty"><?php echo wp_kses_post( \GVN\Checkout\Settings\SettingsRepository::get( 'no_payment_methods_message' ) ); ?></div>
         </div>
     <?php endif; ?>
 </div>

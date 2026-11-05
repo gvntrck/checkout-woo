@@ -1152,22 +1152,23 @@
         }
     };
 
-    var GVNPrivacyPolicyEditor = {
+    var GVNSettingsEditors = {
         init: function () {
-            var editorId = 'gvn_checkout_privacy_policy_text';
-            var $textarea = $('#' + editorId);
-            if (!$textarea.length || typeof window.tinymce === 'undefined') return;
+            var editorIds = ['gvn_checkout_privacy_policy_text', 'gvn_checkout_no_payment_methods_message'];
+            if (typeof window.tinymce === 'undefined') return;
 
             var bindEditor = function (editor) {
-                if (!editor || editor.id !== editorId || editor.gvnPrivacyPolicyBound) return;
-                editor.gvnPrivacyPolicyBound = true;
+                if (!editor || editorIds.indexOf(editor.id) === -1 || editor.gvnSettingsBound) return;
+                editor.gvnSettingsBound = true;
                 editor.on('change input undo redo', function () {
                     editor.save();
-                    $textarea.trigger('change');
+                    $('#' + editor.id).trigger('change');
                 });
             };
 
-            bindEditor(window.tinymce.get(editorId));
+            editorIds.forEach(function (editorId) {
+                bindEditor(window.tinymce.get(editorId));
+            });
             window.tinymce.on('AddEditor', function (event) {
                 bindEditor(event.editor);
             });
@@ -1180,7 +1181,7 @@
     $(document).ready(function () {
         GVNAdminFields.init();
         GVNTextPlaceholders.init();
-        GVNPrivacyPolicyEditor.init();
+        GVNSettingsEditors.init();
     });
 
 })(jQuery);

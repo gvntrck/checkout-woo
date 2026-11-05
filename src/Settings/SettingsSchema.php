@@ -29,6 +29,7 @@ class SettingsSchema {
             'primary_color'           => '#0066d4',
             'button_color'            => '#ff8a22',
             'button_text'             => 'Finalizar pedido',
+            'no_payment_methods_message' => 'Nenhum método de pagamento disponível no momento. Por favor, entre em contato com o suporte.',
             'privacy_policy_text'     => 'Os seus dados pessoais serão utilizados para processar a sua compra, apoiar a sua experiência em todo este site e para outros fins descritos na nossa',
             'typography_preset'       => 'normal',
             'font_size_body'          => '',
@@ -321,6 +322,7 @@ class SettingsSchema {
             case 'thankyou_orders_button_text':
             case 'thankyou_shop_button_text':
             case 'privacy_policy_text':
+            case 'no_payment_methods_message':
                 return wp_kses_post((string) $value);
 
             default:

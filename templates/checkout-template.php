@@ -496,7 +496,7 @@ if ( $bump_product && $cart ) {
                                     <svg class="gvn-gateways__empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <p class="gvn-gateways__empty"><?php esc_html_e( 'Nenhum método de pagamento disponível no momento. Por favor, entre em contato com o suporte.', 'gvn-checkout' ); ?></p>
+                                    <div class="gvn-gateways__empty"><?php echo wp_kses_post( \GVN\Checkout\Settings\SettingsRepository::get( 'no_payment_methods_message' ) ); ?></div>
                                 </div>
                             <?php endif; ?>
                         </div>

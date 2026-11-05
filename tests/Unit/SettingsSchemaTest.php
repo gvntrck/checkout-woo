@@ -30,6 +30,13 @@ class SettingsSchemaTest extends TestCase {
         $this->assertEquals('Pedido recebido!', $defaults['thankyou_success_title']);
     }
 
+    public function test_navigation_button_style_defaults_and_validation() {
+        $this->assertSame('theme', SettingsSchema::get_defaults()['navigation_button_style']);
+        $this->assertSame('plugin', SettingsSchema::sanitize_setting('navigation_button_style', 'plugin'));
+        $this->assertSame('theme', SettingsSchema::sanitize_setting('navigation_button_style', 'theme'));
+        $this->assertSame('theme', SettingsSchema::sanitize_setting('navigation_button_style', 'invalid'));
+    }
+
     public function test_sanitize_hex_colors_with_fallback() {
         // Cores válidas
         $this->assertEquals('#ffffff', SettingsSchema::sanitize_setting('header_bg_color', '#ffffff'));

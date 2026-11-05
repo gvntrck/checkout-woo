@@ -28,6 +28,7 @@ class SettingsSchema {
             'subtitle_text'           => '',
             'primary_color'           => '#0066d4',
             'button_color'            => '#ff8a22',
+            'navigation_button_style' => 'theme',
             'button_text'             => 'Finalizar pedido',
             'no_payment_methods_message' => 'Nenhum método de pagamento disponível no momento. Por favor, entre em contato com o suporte.',
             'privacy_policy_text'     => 'Os seus dados pessoais serão utilizados para processar a sua compra, apoiar a sua experiência em todo este site e para outros fins descritos na nossa',
@@ -272,6 +273,9 @@ class SettingsSchema {
             case 'isolated_checkout_container':
                 $container = sanitize_key( (string) $value );
                 return in_array( $container, array( 'none', 'article', 'content' ), true ) ? $container : $fallback;
+
+            case 'navigation_button_style':
+                return in_array( $value, array( 'theme', 'plugin' ), true ) ? $value : $fallback;
 
             case 'typography_preset':
                 $preset = sanitize_key( (string) $value );

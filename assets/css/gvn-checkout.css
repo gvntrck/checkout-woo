@@ -386,6 +386,38 @@ body.gvn-checkout-isolated.gvn-checkout-expand-content .wp-block-post-content:ha
     padding: 0 16px;
 }
 
+.gvn-navigation-plugin .gvn-checkout .gvn-checkout-step-actions button {
+    appearance: none;
+    background: var(--gvn-button, #ff8a22);
+    color: var(--gvn-navigation-text, #000000);
+    border: 2px solid transparent;
+    border-radius: 0.75rem;
+    box-shadow: none;
+    font-family: inherit;
+    font-weight: 700;
+    line-height: 1.4;
+    text-transform: none;
+    letter-spacing: normal;
+    text-decoration: none;
+    text-shadow: none;
+    cursor: pointer;
+}
+
+.gvn-navigation-plugin .gvn-checkout .gvn-checkout-step-actions button:hover:not(:disabled) {
+    border-color: currentColor;
+}
+
+.gvn-navigation-plugin .gvn-checkout .gvn-checkout-step-actions button:focus-visible {
+    outline: 2px solid #111827;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 3px #ffffff;
+}
+
+.gvn-navigation-plugin .gvn-checkout .gvn-checkout-step-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .gvn-step-hidden {
     display: none !important;
 }

@@ -52,6 +52,9 @@ class GVN_Checkout {
 
         if ( $is_checkout_page ) {
             $classes[] = 'gvn-layout-' . self::get_current_layout( array(), 'body' );
+            if ( 'plugin' === \GVN\Checkout\Settings\SettingsRepository::get( 'navigation_button_style', 'theme' ) ) {
+                $classes[] = 'gvn-navigation-plugin';
+            }
             if ( ! $is_thankyou_page && 'yes' === \GVN\Checkout\Settings\SettingsRepository::get( 'isolated_checkout_enabled', 'no' ) ) {
                 $classes[] = 'gvn-checkout-isolated';
                 $container = \GVN\Checkout\Settings\SettingsRepository::get( 'isolated_checkout_container', 'none' );
@@ -245,6 +248,18 @@ class GVN_Checkout {
             esc_attr( (string) ( $font_sizes['section_title'] ?? 18 * $scale ) ),
             esc_attr( (string) ( $font_sizes['price'] ?? 20 * $scale ) )
         );
+        if ( 'plugin' === $get_setting( 'navigation_button_style', 'theme' ) ) {
+            $hex = ltrim( $button_color, '#' );
+            if ( 3 === strlen( $hex ) ) {
+                $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+            }
+            $rgb = array_map( static function ( $channel ) {
+                $channel = hexdec( $channel ) / 255;
+                return $channel <= 0.04045 ? $channel / 12.92 : pow( ( $channel + 0.055 ) / 1.055, 2.4 );
+            }, str_split( $hex, 2 ) );
+            $luminance = 0.2126 * $rgb[0] + 0.7152 * $rgb[1] + 0.0722 * $rgb[2];
+            $custom_css .= "\n.gvn-navigation-plugin .gvn-checkout { --gvn-navigation-text: " . ( $luminance > 0.179 ? '#000000' : '#ffffff' ) . '; }';
+        }
         wp_add_inline_style( 'gvn-checkout-css', $custom_css );
     }
 

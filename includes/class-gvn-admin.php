@@ -577,6 +577,17 @@ class GVN_Admin {
                 'default' => '#ff8a22',
             ),
             array(
+                'title'   => __( 'Estilo dos botões de navegação', 'gvn-checkout' ),
+                'id'      => 'gvn_checkout_navigation_button_style',
+                'type'    => 'select',
+                'default' => 'theme',
+                'options' => array(
+                    'theme'  => __( 'Do tema', 'gvn-checkout' ),
+                    'plugin' => __( 'Personalizado pelo plugin', 'gvn-checkout' ),
+                ),
+                'desc'    => __( 'Aplica-se a Voltar, Avançar e Ir para pagamento. O estilo do plugin usa a Cor do Botão Finalizar, com bordas arredondadas e texto com contraste automático.', 'gvn-checkout' ),
+            ),
+            array(
                 'title'    => __( 'Texto do Botão', 'gvn-checkout' ),
                 'id'       => 'gvn_checkout_button_text',
                 'type'     => 'text',

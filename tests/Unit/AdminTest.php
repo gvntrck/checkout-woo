@@ -27,6 +27,19 @@ class AdminTest extends TestCase {
         SettingsRepository::flush_cache();
     }
 
+    public function test_navigation_style_admin_options_and_persistence(): void {
+        $admin = GVN_Admin::get_instance();
+        $method = new \ReflectionMethod($admin, 'get_settings');
+        $method->setAccessible(true);
+        $settings = array_column($method->invoke($admin), null, 'id');
+        $field = $settings['gvn_checkout_navigation_button_style'];
+        $this->assertSame('theme', $field['default']);
+        $this->assertSame(['theme', 'plugin'], array_keys($field['options']));
+        update_option('gvn_checkout_navigation_button_style', 'plugin');
+        SettingsRepository::sync_from_legacy_options();
+        $this->assertSame('plugin', SettingsRepository::get('navigation_button_style'));
+    }
+
     public function test_saved_choice_fields_show_options_when_reopened(): void {
         global $wp_mock_options;
         foreach (['radio', 'select', 'text'] as $type) {

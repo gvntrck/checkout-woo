@@ -22,6 +22,29 @@ class AssetsTest extends TestCase {
         SettingsRepository::flush_cache();
     }
 
+    public function test_navigation_style_is_opt_in_and_uses_accessible_text_colors(): void {
+        global $post, $wp_mock_inline_styles;
+        $post = (object) ['post_content' => '[gvn-checkout]'];
+        $checkout = GVN_Checkout::get_instance();
+        $inline_colors = new \ReflectionMethod(GVN_Checkout::class, 'enqueue_inline_colors');
+        $inline_colors->setAccessible(true);
+        $this->assertNotContains('gvn-navigation-plugin', $checkout->add_body_classes([]));
+        $inline_colors->invoke($checkout);
+        $this->assertStringNotContainsString('--gvn-navigation-text:', implode("\n", $wp_mock_inline_styles['gvn-checkout-css']));
+
+        SettingsRepository::update('navigation_button_style', 'plugin');
+        $this->assertContains('gvn-navigation-plugin', $checkout->add_body_classes([]));
+        foreach (['#ff8a22' => '#000000', '#000' => '#ffffff', '#ffffff' => '#000000', '#0066d4' => '#ffffff'] as $background => $foreground) {
+            SettingsRepository::update('button_color', $background);
+            $wp_mock_inline_styles = [];
+            $inline_colors->invoke($checkout);
+            $this->assertStringContainsString('--gvn-navigation-text: ' . $foreground, implode("\n", $wp_mock_inline_styles['gvn-checkout-css']));
+        }
+
+        $post->post_content = '';
+        $this->assertNotContains('gvn-navigation-plugin', $checkout->add_body_classes([]));
+    }
+
     public function test_isolated_width_is_opt_in_and_only_marks_checkout_pages(): void {
         global $post;
         $post = (object) ['post_content' => '[gvn-checkout]'];
